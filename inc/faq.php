@@ -11,18 +11,20 @@
 <body>
     <?php include "bootstrap.php"; ?>
     <div class="accordion" id="accordionExample">
-        <div class="accordion-item">
-            <h2 class="accordion-header" id="headingOne">
-                <button class="accordion-button" type="button" data-bs-toggle="collapse" data-bs-target="#collapseOne" aria-expanded="true" aria-controls="collapseOne">
-                    Wie registrieren Sie sich?
-                </button>
-            </h2>
-            <div id="collapseOne" class="accordion-collapse collapse show" aria-labelledby="headingOne" data-bs-parent="#accordionExample">
-                <div class="accordion-body">
-                    <a href="registrierung.php">Hier</a> gelangen Sie zur Seite für die Registrierung. Alternativ können Sie die Seite auf unserer Homepage aufrufen indem Sie auf den Button <strong>Registrierung</strong> klicken.
+        <?php if (!isset($_SESSION["username"])) { ?>
+            <div class="accordion-item">
+                <h2 class="accordion-header" id="headingOne">
+                    <button class="accordion-button" type="button" data-bs-toggle="collapse" data-bs-target="#collapseOne" aria-expanded="true" aria-controls="collapseOne">
+                        Wie registrieren Sie sich?
+                    </button>
+                </h2>
+                <div id="collapseOne" class="accordion-collapse collapse show" aria-labelledby="headingOne" data-bs-parent="#accordionExample">
+                    <div class="accordion-body">
+                        <a href="registrierung.php">Hier</a> gelangen Sie zur Seite für die Registrierung. Alternativ können Sie die Seite auf unserer Homepage aufrufen indem Sie auf den Button <strong>Registrierung</strong> klicken.
+                    </div>
                 </div>
             </div>
-        </div>
+        <?php } ?>
         <div class="accordion-item">
             <h2 class="accordion-header" id="headingTwo">
                 <button class="accordion-button collapsed" type="button" data-bs-toggle="collapse" data-bs-target="#collapseTwo" aria-expanded="false" aria-controls="collapseTwo">
@@ -54,7 +56,7 @@
         <div class="accordion-item">
             <h2 class="accordion-header" id="headingFour">
                 <button class="accordion-button collapsed" type="button" data-bs-toggle="collapse" data-bs-target="#collapseFour" aria-expanded="false" aria-controls="collapseFour">
-                    Ich habe ein Konto, habe aber mein Passwort vergessen, was kann ich tun?
+                    Ich habe meine Zugangsdaten vergessen, was kann ich tun?
                 </button>
             </h2>
             <div id="collapseFour" class="accordion-collapse collapse" aria-labelledby="headingFour" data-bs-parent="#accordionExample">

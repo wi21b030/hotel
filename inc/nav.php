@@ -24,22 +24,20 @@ session_start();
                         <a class="nav-link" href="admin_profilverwaltung.php">Profil-Verwaltung</a>
                     </li>
                 <?php } ?>
-                <li class="nav-item">
-                    <a class="nav-link" href="beiträge.php">Beiträge</a>
-                </li>
                 <?php if (!isset($_SESSION["username"])) { ?>
                     <li class="nav-item">
                         <a class="nav-link" href="registrierung.php">Registrierung</a>
                     </li>
                 <?php } ?>
-                <?php if (!isset($_SESSION["username"]) || ((isset($_SESSION["username"]) && !$_SESSION["admin"]))) { ?>
-                    <li class="nav-item">
-                        <a class="nav-link" href="hilfe.php">Hilfe</a>
-                    </li>
-                    <li class="nav-item">
-                        <a class="nav-link" href="impressum.php">Impressum</a>
-                    </li>
-                <?php } ?>
+                <li class="nav-item">
+                    <a class="nav-link" href="blog.php">Blog</a>
+                </li>
+                <li class="nav-item">
+                    <a class="nav-link" href="hilfe.php">Hilfe</a>
+                </li>
+                <li class="nav-item">
+                    <a class="nav-link" href="impressum.php">Impressum</a>
+                </li>
             </ul>
             <?php if (isset($_SESSION["username"])) { ?>
                 <form action="logic/logout.php" class="d-flex">
