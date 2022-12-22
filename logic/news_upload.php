@@ -13,7 +13,27 @@ if (!file_exists($uploadDirPic)) {
 if($_SERVER["REQUEST_METHOD"] === "POST"
     && isset($_POST["delete"])
     && $_POST["delete"] === "delete") {
-        //
+        // edit delete code
+
+        /*
+        require_once('config/dbaccess.php');
+            $db_obj = new mysqli($host, $user, $password, $database);
+            if ($db_obj->connect_error) {
+                $errors["connection"] = true;
+                $db_obj->close();
+                exit();
+            }
+            $sql = ""; // delete statement DELETE FROM table_name WHERE condition;
+            $stmt = $db_obj->prepare($sql);
+            //$stmt->bind_param("i", ); param binden mit id
+            if ($stmt->execute()) {
+                //move_uploaded_file(); unlink the file unlink('data.txt');
+            } else {
+                $errors["connection"] = true;
+            }
+            $stmt->close();
+            $db_obj->close();
+            */
 }
 
 // Insert vom News-Upload
@@ -106,7 +126,7 @@ if (
                         <textarea class="form-control <?php if ($errors["exists"]) echo 'is-invalid'; ?>" name="text" id="exampleFormControlTextarea1" rows="3"></textarea>
                     </div>
                     <div class="col-sm-6 offset-sm-3 text-center">
-                        <label for="formFile" class="form-label">Profilbild</label>
+                        <label for="formFile" class="form-label">Thumbnail</label>
                         <input class="form-control <?php if ($errors["exists"]) echo 'is-invalid'; ?>" name="file" type="file" id="formFile" accept="image/*">
                     </div>
                     <div class="col-sm-10 offset-sm-1 text-center">
@@ -129,7 +149,7 @@ if (
         $result = $db_obj->query($sql); ?>
         <?php if ($result->num_rows > 0) : ?>
             <?php while ($row = $result->fetch_assoc()) : ?>
-                <a style="text-decoration: none" href="" class="text-dark">
+                <a style="text-decoration: none" href="blog.php" class="text-dark">
                     <div class="row mb-4 border-bottom pb-2">
                         <div class="col-3">
                             <img src="<?php echo $row["path"] ?>" class="img-fluid shadow-1-strong rounded" alt="bild<?php $row["title"] ?>" />
@@ -142,15 +162,15 @@ if (
                                 ?>
                             </p>
                             <?php if (isset($_SESSION["username"]) && $_SESSION["admin"]) { ?>
-                                <form enctype="multipart/form-data" method="POST">
-                                    <div class="col-9">
-                                        <div class="mb-2">
+                                <div class="col-9">
+                                    <div class="mb-2">
+                                        <form enctype="multipart/form-data" method="POST">
                                             <input type="hidden" name="id" value="<?php echo $row["id"] ?>">
                                             <input type="hidden" name="delete" value="delete">
                                             <button type="submit" class="btn btn-danger">Löschen</button>
-                                        </div>
+                                        </form>
                                     </div>
-                                </form>
+                                </div>
                             <?php } ?>
                         </div>
                     </div>

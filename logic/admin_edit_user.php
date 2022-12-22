@@ -72,8 +72,9 @@ if (
             $db_obj = new mysqli($host, $user, $password, $database);
             if ($db_obj->connect_error) {
                 $errors["connection"] = true;
-                exit();
+                $db_obj->close();
                 header("Refresh: 2, url=admin_profilverwaltung.php");
+                exit();
             }
             $id = $_POST["id"];
             $active = $_POST["active"];
@@ -87,12 +88,10 @@ if (
             $profilepic = $_FILES["file"]["tmp_name"];
             $path = $uploadDir . $uname . ".jpg";
 
-
-
             $sql = "UPDATE `users` SET `active`=?, `username`=?, `password`=?, `useremail`=?, `formofadress`=?, `firstname`=?, `secondname`=?, `path`=? WHERE `id`=$id";
             $stmt = $db_obj->prepare($sql);
             $stmt->bind_param("isssssss", $active, $uname, $pass, $mail, $fod, $fname, $sname, $path);
-
+            
             $sql = "SELECT * FROM `users` WHERE `username` = '$uname'";
             $result = $db_obj->query($sql);
             if ($result->num_rows > 0 && $result->fetch_assoc()["id"] !== $id) {

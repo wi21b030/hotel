@@ -10,7 +10,6 @@ $errors["password2"] = false;
 $errors["file"] = false;
 $errors["exists"] = false;
 $errors["insert"] = false;
-$errors["injection"] = false;
 
 function test_input($data) {
     $data = trim($data);
@@ -119,7 +118,7 @@ if (
                         $errors["insert"] = true;
                     }
                 } else {
-                    $errors["injection"] = true;
+                    $errors["insert"] = true;
                 }
             }
             $stmt -> close();
@@ -145,17 +144,19 @@ if (
 
 <body>
     <div class="container-fluid">
-        <?php if($errors["exists"]) { ?>
+        <?php if($errors["exists"]) { 
+                $errors["exists"] = false;
+                header("Refresh: 2, location: registrierung.php");
+            ?>
             <div class="alert alert-danger text-center" role="alert">
                 Registrierung nicht möglich, Username bereits vergeben!
             </div>
-        <?php } elseif ($errors["insert"]){ ?>
+        <?php } elseif ($errors["insert"]){ 
+                $errors["insert"] = false;
+                header("Refresh: 2, location: registrierung.php");
+            ?>
              <div class="alert alert-danger text-center" role="alert">
-                Registrierung nicht möglich aufgrund eines Fehlers mit der Datenbank!
-            </div>
-        <?php } elseif ($errors["injection"]){ ?>
-             <div class="alert alert-danger text-center" role="alert">
-                Registrierung nicht möglich, weil es einen Injection-Versuch gab!
+                Registrierung nicht möglich!
             </div>
         <?php }?>
         <form action="registrierung.php" enctype="multipart/form-data" method="POST">
