@@ -96,6 +96,9 @@ if (
             $result = $db_obj->query($sql);
             if ($result->num_rows > 0 && $result->fetch_assoc()["id"] !== $id) {
                 $errors["update"] = true;
+                $stmt->close();
+                $db_obj->close();
+                exit();
             } else {
                 if ($stmt->execute()) {
                     move_uploaded_file($profilepic, $path);
@@ -103,6 +106,9 @@ if (
                     header("Refresh: 2, url=admin_profilverwaltung.php");
                 } else {
                     $errors["update"] = true;
+                    $stmt->close();
+                    $db_obj->close();
+                    exit();
                 }
             }
             $stmt->close();

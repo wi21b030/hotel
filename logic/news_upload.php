@@ -4,6 +4,8 @@ $errors = [];
 $errors["exists"] = false;
 $errors["upload"] = false;
 $errors["connection"] = false;
+$errors["delete"] = false;
+$deleted = false;
 
 if (!file_exists($uploadDirPic)) {
     mkdir($uploadDirPic);
@@ -13,27 +15,47 @@ if (!file_exists($uploadDirPic)) {
 if($_SERVER["REQUEST_METHOD"] === "POST"
     && isset($_POST["delete"])
     && $_POST["delete"] === "delete") {
-        // edit delete code
-
-        /*
         require_once('config/dbaccess.php');
-            $db_obj = new mysqli($host, $user, $password, $database);
-            if ($db_obj->connect_error) {
-                $errors["connection"] = true;
+        $db_obj = new mysqli($host, $user, $password, $database);
+        if ($db_obj->connect_error) {
+            $errors["delete"] = true;
+            $db_obj->close();
+            exit();
+        }
+
+        $id = $_POST["id"];
+        $sql = "DELETE FROM `news` WHERE `id` = ?";
+        $stmt = $db_obj->prepare($sql);
+        $stmt->bind_param("i", $id);
+
+        $sql = "SELECT * FROM `news` WHERE `id` = '$id'";
+        $result = $db_obj->query($sql);
+        if ($result->num_rows > 0) {
+            $row = $result->fetch_assoc();
+            $status = unlink($row["path"]);  
+            if($status){  
+                if ($stmt->execute()) {
+                    $deleted = true;
+                } else {
+                    $errors["delete"] = true;
+                    $stmt->close();
+                    $db_obj->close();
+                    exit();
+                }
+                $stmt->close();
+                $db_obj->close();
+            }else{ 
+                $errors["delete"] = true;
+                $stmt->close();
                 $db_obj->close();
                 exit();
-            }
-            $sql = ""; // delete statement DELETE FROM table_name WHERE condition;
-            $stmt = $db_obj->prepare($sql);
-            //$stmt->bind_param("i", ); param binden mit id
-            if ($stmt->execute()) {
-                //move_uploaded_file(); unlink the file unlink('data.txt');
-            } else {
-                $errors["connection"] = true;
-            }
+            }  
+        } else {
+            $errors["delete"] = true;
             $stmt->close();
             $db_obj->close();
-            */
+            exit();
+        }
 }
 
 // Insert vom News-Upload
@@ -53,6 +75,7 @@ if (
             $db_obj = new mysqli($host, $user, $password, $database);
             if ($db_obj->connect_error) {
                 $errors["connection"] = true;
+                $db_obj->close();
                 exit();
             }
             $title = $_POST["title"];
@@ -69,11 +92,17 @@ if (
             $result = $db_obj->query($sql);
             if ($result->num_rows > 0) {
                 $errors["exists"] = true;
+                $stmt->close();
+                $db_obj->close();
+                exit();
             } else {
                 if ($stmt->execute()) {
                     move_uploaded_file($pic, $path);
                 } else {
                     $errors["connection"] = true;
+                    $stmt->close();
+                    $db_obj->close();
+                    exit();
                 }
             }
             $stmt->close();
@@ -94,7 +123,7 @@ if (
     <meta charset="UTF-8">
     <meta http-equiv="X-UA-Compatible" content="IE=edge">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Upload</title>
+    <title>Blog</title>
 </head>
 
 <body>
@@ -103,16 +132,34 @@ if (
             <?php if ($errors["upload"] || $errors["connection"]) {
                 $errors["upload"] = false;
                 $errors["connection"] = false;
-                header("Refresh: 2, url=blog.php"); ?>
+                header("Refresh: 2, url=blog.php"); 
+            ?>
                 <div class="alert alert-danger text-center" role="alert">
                     Upload nicht möglich aufgrund fehlender oder fehlerhafter Daten!
                 </div>
             <?php } ?>
             <?php if ($errors["exists"]) {
                 $errors["exists"] = false;
-                header("Refresh: 2, url=blog.php"); ?>
+                header("Refresh: 2, url=blog.php"); 
+            ?>
                 <div class="alert alert-danger text-center" role="alert">
                     Upload nicht möglich, Beitrag mit gleichem Titel und Text existiert bereits!
+                </div>
+            <?php } ?>
+            <?php if ($deleted) {
+                $deleted = false;
+                header("Refresh: 2, url=blog.php"); 
+            ?>
+                <div class="alert alert-success text-center" role="alert">
+                    Beitrag wurde gelöscht!
+                </div>
+            <?php } ?>
+            <?php if ($errors["delete"]) {
+                $errors["delete"] = false;
+                header("Refresh: 2, url=blog.php"); 
+            ?>
+                <div class="alert alert-danger text-center" role="alert">
+                    Beitrag konnte nicht gelöscht werden!
                 </div>
             <?php } ?>
             <form enctype="multipart/form-data" method="POST">
