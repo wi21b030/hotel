@@ -7,11 +7,11 @@ $errors["nosuchuser"] = false;
 
 if ($_SERVER["REQUEST_METHOD"] === "POST") {
     if (!empty($_POST["username"]) && !empty($_POST["password"])) {
-
         require_once ('config/dbaccess.php');
         $db_obj = new mysqli($host, $user, $password, $database);
         if ($db_obj->connect_error) {
             $errors["connection"] = true;
+            $db_obj->close();
             exit();
         }
         $uname = $_POST["username"];
@@ -21,7 +21,6 @@ if ($_SERVER["REQUEST_METHOD"] === "POST") {
         $result = $db_obj->query($sql);
         if ($result->num_rows == 0) {
             $errors["nosuchuser"] = true;
-            header("Refresh: 2, url=login.php");
         } else {
             $row = $result->fetch_assoc(); 
             if (password_verify($pass,$row["password"])){
@@ -33,7 +32,7 @@ if ($_SERVER["REQUEST_METHOD"] === "POST") {
                 $errors["password"] = true;
             }
         }
-        $db_obj-> close();
+        $db_obj->close();
     } else {
         $errors["username"] = true;
         $errors["password"] = true;
@@ -47,22 +46,28 @@ if ($_SERVER["REQUEST_METHOD"] === "POST") {
     <meta charset="UTF-8">
     <meta http-equiv="X-UA-Compatible" content="IE=edge">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Login-Logout</title>
+    <title>Login</title>
 </head>
 
 <body>
     <?php if (!isset($_SESSION["username"])) { ?>
         <div class="container-fluid">
-        <?php if($errors["nosuchuser"]) { ?>
+        <?php if($errors["nosuchuser"]) { 
+            $errors["nosuchuser"] = false;
+            header("Refresh: 2, url=login.php");    
+        ?>
             <div class="alert alert-danger text-center" role="alert">
                 Login nicht möglich, dieser User existiert nicht oder ist inaktiv!
             </div>
-        <?php } elseif ($errors["connection"]){ ?>
+        <?php } elseif ($errors["connection"]){ 
+            $errors["connection"] = false;
+            header("Refresh: 2, url=login.php"); 
+        ?>
              <div class="alert alert-danger text-center" role="alert">
                 Login nicht möglich aufgrund eines Fehlers mit der Datenbank!
             </div>
-        <?php }?>
-            <form action="login.php" method="POST">
+        <?php } ?>
+            <form method="POST">
                 <div class="row">
                     <div class="col-sm-6 offset-sm-3 text-center">
                         <label for="exampleInputEmail1" class="form-label">Username</label>
