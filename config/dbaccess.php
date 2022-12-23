@@ -1,6 +1,6 @@
 <?php 
     $host = "localhost";
     $user = "royal";
-    $password = "royalespire";
-    $database = "royalespire";
+    $password = "royal";
+    $database = "royal";
 ?>
