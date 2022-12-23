@@ -1,5 +1,5 @@
 <?php
-$uploadDirPic = "./uploads/news/pic/";
+$uploadDirPic = "uploads/news/pic/";
 $errors = [];
 $errors["exists"] = false;
 $errors["upload"] = false;
@@ -38,24 +38,15 @@ if($_SERVER["REQUEST_METHOD"] === "POST"
                     $deleted = true;
                 } else {
                     $errors["delete"] = true;
-                    $stmt->close();
-                    $db_obj->close();
-                    exit();
                 }
-                $stmt->close();
-                $db_obj->close();
             }else{ 
                 $errors["delete"] = true;
-                $stmt->close();
-                $db_obj->close();
-                exit();
             }  
         } else {
             $errors["delete"] = true;
-            $stmt->close();
-            $db_obj->close();
-            exit();
         }
+        $stmt->close();
+        $db_obj->close();
 }
 
 // Insert vom News-Upload
@@ -88,21 +79,15 @@ if (
             $stmt = $db_obj->prepare($sql);
             $stmt->bind_param("siss", $title, $uploadtime, $text, $path);
 
-            $sql = "SELECT * FROM `news` WHERE `title` = '$title' AND `text` = '$text'";
+            $sql = "SELECT * FROM `news` WHERE `title` = '$title'";
             $result = $db_obj->query($sql);
             if ($result->num_rows > 0) {
                 $errors["exists"] = true;
-                $stmt->close();
-                $db_obj->close();
-                exit();
             } else {
                 if ($stmt->execute()) {
                     move_uploaded_file($pic, $path);
                 } else {
                     $errors["connection"] = true;
-                    $stmt->close();
-                    $db_obj->close();
-                    exit();
                 }
             }
             $stmt->close();
@@ -143,7 +128,7 @@ if (
                 header("Refresh: 2, url=blog.php"); 
             ?>
                 <div class="alert alert-danger text-center" role="alert">
-                    Upload nicht möglich, Beitrag mit gleichem Titel und Text existiert bereits!
+                    Upload nicht möglich, Beitrag mit gleichem Titel existiert bereits!
                 </div>
             <?php } ?>
             <?php if ($deleted) {
@@ -199,7 +184,7 @@ if (
                 <a style="text-decoration: none" href="blog.php" class="text-dark">
                     <div class="row mb-4 border-bottom pb-2">
                         <div class="col-3">
-                            <img src="<?php echo $row["path"] ?>" class="img-fluid shadow-1-strong rounded" alt="bild<?php $row["title"] ?>" />
+                            <img src="<?php echo $row["path"] ?>" class="img-fluid shadow-1-strong rounded" alt="bild<?php $row["path"] ?>" />
                         </div>
                         <div class="col-9">
                             <p class="mb-2"><strong><?php echo $row["title"] ?></strong></p>

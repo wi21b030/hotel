@@ -1,5 +1,5 @@
 <?php
-$uploadDir = "./uploads/profilepics/";
+$uploadDir = "uploads/profilepics/";
 $errors = [];
 $errors["firstname"] = false;
 $errors["secondname"] = false;
@@ -10,6 +10,7 @@ $errors["password2"] = false;
 $errors["file"] = false;
 $errors["exists"] = false;
 $errors["insert"] = false;
+$registered = false;
 
 function test_input($data) {
     $data = trim($data);
@@ -94,9 +95,6 @@ if (
                     $result = $db_obj->query($sql);
                     if ($result->num_rows > 0) {
                         $errors["exists"] = true;
-                        $stmt->close();
-                        $db_obj->close();
-                        exit();
                     } else {
                         if($uname === $_POST["username"]
                             && password_verify($_POST["password"],$pass)
@@ -113,24 +111,15 @@ if (
                                     $_SESSION["id"] = $row["id"];
                                     $_SESSION["username"] = $uname;
                                     $_SESSION["admin"] = $row["admin"];
-                                    header("Location: login.php");
+                                    $registered = true;
                                 } else {
                                     $errors["insert"] = true;
-                                    $stmt->close();
-                                    $db_obj->close();
-                                    exit();
                                 }
                             } else {
                                 $errors["insert"] = true;
-                                $stmt->close();
-                                $db_obj->close();
-                                exit();
                             }
                         } else {
                             $errors["insert"] = true;
-                            $stmt->close();
-                            $db_obj->close();
-                            exit();
                         }
                     }
                     $stmt -> close();
@@ -164,14 +153,21 @@ if (
             <div class="alert alert-danger text-center" role="alert">
                 Registrierung nicht möglich, Username bereits vergeben!
             </div>
-        <?php } elseif ($errors["insert"]){ 
+        <?php } elseif ($errors["insert"]) { 
                 $errors["insert"] = false;
                 header("Refresh: 2, location: registrierung.php");
         ?>
             <div class="alert alert-danger text-center" role="alert">
                 Registrierung nicht möglich!
             </div>
-        <?php }?>
+        <?php } elseif($registered) { 
+                    $registered = false;
+                    header("Refresh: 2, location: registrierung.php");            
+        ?>
+            <div class="alert alert-success text-center" role="alert">
+                Registrierung erfolgreich!
+            </div>  
+        <?php } ?>
         <form action="registrierung.php" enctype="multipart/form-data" method="POST">
             <div class="row">
                 <div class="col-sm-6 offset-sm-3 text-center">

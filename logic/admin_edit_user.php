@@ -1,5 +1,5 @@
 <?php
-$uploadDir = "./uploads/profilepics/";
+$uploadDir = "uploads/profilepics/";
 $errors = [];
 $errors["firstname"] = false;
 $errors["secondname"] = false;
@@ -88,17 +88,14 @@ if (
             $profilepic = $_FILES["file"]["tmp_name"];
             $path = $uploadDir . $uname . ".jpg";
 
-            $sql = "UPDATE `users` SET `active`=?, `username`=?, `password`=?, `useremail`=?, `formofadress`=?, `firstname`=?, `secondname`=?, `path`=? WHERE `id`=$id";
+            $sql = "UPDATE `users` SET `active`=?, `username`=?, `password`=?, `useremail`=?, `formofadress`=?, `firstname`=?, `secondname`=?, `path`=? WHERE `id`=?";
             $stmt = $db_obj->prepare($sql);
-            $stmt->bind_param("isssssss", $active, $uname, $pass, $mail, $fod, $fname, $sname, $path);
+            $stmt->bind_param("isssssssi", $active, $uname, $pass, $mail, $fod, $fname, $sname, $path, $id);
             
             $sql = "SELECT * FROM `users` WHERE `username` = '$uname'";
             $result = $db_obj->query($sql);
             if ($result->num_rows > 0 && $result->fetch_assoc()["id"] !== $id) {
                 $errors["update"] = true;
-                $stmt->close();
-                $db_obj->close();
-                exit();
             } else {
                 if ($stmt->execute()) {
                     move_uploaded_file($profilepic, $path);
@@ -106,9 +103,6 @@ if (
                     header("Refresh: 2, url=admin_profilverwaltung.php");
                 } else {
                     $errors["update"] = true;
-                    $stmt->close();
-                    $db_obj->close();
-                    exit();
                 }
             }
             $stmt->close();
@@ -211,6 +205,7 @@ if (
         $db_obj = new mysqli($host, $user, $password, $database);
         if ($db_obj->connect_error) {
             $errors["connection"] = true;
+            $db_obj->close();
             exit();
         }
         $sql = "SELECT * FROM `users` WHERE `id` = '$id'";

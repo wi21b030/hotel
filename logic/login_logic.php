@@ -7,7 +7,6 @@ $errors["nosuchuser"] = false;
 
 if ($_SERVER["REQUEST_METHOD"] === "POST") {
     if (!empty($_POST["username"]) && !empty($_POST["password"])) {
-
         require_once ('config/dbaccess.php');
         $db_obj = new mysqli($host, $user, $password, $database);
         if ($db_obj->connect_error) {
@@ -22,9 +21,6 @@ if ($_SERVER["REQUEST_METHOD"] === "POST") {
         $result = $db_obj->query($sql);
         if ($result->num_rows == 0) {
             $errors["nosuchuser"] = true;
-            header("Refresh: 2, url=login.php");
-            $db_obj->close();
-            exit();
         } else {
             $row = $result->fetch_assoc(); 
             if (password_verify($pass,$row["password"])){
@@ -34,8 +30,6 @@ if ($_SERVER["REQUEST_METHOD"] === "POST") {
                 header("Location: login.php");
             } else {
                 $errors["password"] = true;
-                $db_obj->close();
-                exit();
             }
         }
         $db_obj->close();
@@ -72,8 +66,8 @@ if ($_SERVER["REQUEST_METHOD"] === "POST") {
              <div class="alert alert-danger text-center" role="alert">
                 Login nicht möglich aufgrund eines Fehlers mit der Datenbank!
             </div>
-        <?php }?>
-            <form action="login.php" method="POST">
+        <?php } ?>
+            <form method="POST">
                 <div class="row">
                     <div class="col-sm-6 offset-sm-3 text-center">
                         <label for="exampleInputEmail1" class="form-label">Username</label>
