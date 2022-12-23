@@ -184,7 +184,7 @@ if (
                 <a style="text-decoration: none" href="blog.php" class="text-dark">
                     <div class="row mb-4 border-bottom pb-2">
                         <div class="col-3">
-                            <img src="<?php echo $row["path"] ?>" class="img-fluid shadow-1-strong rounded" alt="bild<?php $row["path"] ?>" />
+                            <img src="<?php echo $row["path"] ?>" class="img-fluid shadow-1-strong rounded" alt="<?php $row["title"] ?>" />
                         </div>
                         <div class="col-9">
                             <p class="mb-2"><strong><?php echo $row["title"] ?></strong></p>
