@@ -5,6 +5,7 @@ $errors["exists"] = false;
 $errors["upload"] = false;
 $errors["connection"] = false;
 $errors["delete"] = false;
+$uploaded = false;
 $deleted = false;
 
 if (!file_exists($uploadDirPic)) {
@@ -86,6 +87,7 @@ if (
             } else {
                 if ($stmt->execute()) {
                     move_uploaded_file($pic, $path);
+                    $uploaded = true;
                 } else {
                     $errors["connection"] = true;
                 }
@@ -114,6 +116,14 @@ if (
 <body>
     <?php if (isset($_SESSION["username"]) && $_SESSION["admin"]) : ?>
         <div class="container-fluid">
+            <?php if ($uploaded) {
+                $uploaded = false;
+                header("Refresh: 2, url=blog.php"); 
+            ?>
+                <div class="alert alert-success text-center" role="alert">
+                    Beitrag wurde hochgeladen!
+                </div>
+            <?php } ?>
             <?php if ($errors["upload"] || $errors["connection"]) {
                 $errors["upload"] = false;
                 $errors["connection"] = false;

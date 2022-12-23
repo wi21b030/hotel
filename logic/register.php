@@ -77,9 +77,8 @@ if (
                         $db_obj->close();
                         exit();
                     }
-                    $_POST["password"] = htmlspecialchars(password_hash($_POST["password"], PASSWORD_DEFAULT), ENT_QUOTES);
                     $uname = htmlspecialchars($_POST["username"], ENT_QUOTES);
-                    $pass = htmlspecialchars($_POST["password"], ENT_QUOTES);
+                    $pass = htmlspecialchars(password_hash($_POST["password"], PASSWORD_DEFAULT), ENT_QUOTES);
                     $mail = htmlspecialchars($_POST["useremail"], ENT_QUOTES);
                     $fod = $_POST["formofadress"];
                     $fname = htmlspecialchars($_POST["firstname"], ENT_QUOTES);
@@ -148,21 +147,21 @@ if (
     <div class="container-fluid">
         <?php if($errors["exists"]) { 
                 $errors["exists"] = false;
-                header("Refresh: 2, location: registrierung.php");
+                header("Refresh: 2, url=registrierung.php");
         ?>
             <div class="alert alert-danger text-center" role="alert">
                 Registrierung nicht möglich, Username bereits vergeben!
             </div>
         <?php } elseif ($errors["insert"]) { 
                 $errors["insert"] = false;
-                header("Refresh: 2, location: registrierung.php");
+                header("Refresh: 2, url=registrierung.php");
         ?>
             <div class="alert alert-danger text-center" role="alert">
                 Registrierung nicht möglich!
             </div>
         <?php } elseif($registered) { 
                     $registered = false;
-                    header("Refresh: 2, location: registrierung.php");            
+                    header("Refresh: 2, url=login.php");           
         ?>
             <div class="alert alert-success text-center" role="alert">
                 Registrierung erfolgreich!
