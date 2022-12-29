@@ -64,11 +64,11 @@ if (
         $db_obj = new mysqli($host, $user, $password, $database);
         if ($db_obj->connect_error) {
             $errors["connection"] = true;
-            header("Refresh: 2, url=admin_profilverwaltung.php");
+            header("Refresh: 2, url=user_profilverwaltung.php");
 
             exit();
         }
-        $id = $_POST["id"];
+        $id = $_SESSION["id"];
         $active = $_POST["active"];
         $_POST["password"] = htmlspecialchars(password_hash($_POST["password"], PASSWORD_DEFAULT), ENT_QUOTES);
         $uname = htmlspecialchars($_POST["username"], ENT_QUOTES);
@@ -94,7 +94,7 @@ if (
             if ($stmt->execute()) {
                 move_uploaded_file($profilepic, $path);
                 $errors["success"] = true;
-                header("Refresh: 2, url=admin_profilverwaltung.php");
+                header("Refresh: 2, url=user_profilverwaltung.php");
             } else {
                 $errors["update"] = true;
             }
@@ -142,7 +142,7 @@ if (
     <?php } ?>
     <?php if ($errors["update"]) {
         $errors["update"] = false;
-        header("Refresh: 2, url=admin_profilverwaltung.php");
+        header("Refresh: 2, url=user_profilverwaltung.php");
     ?>
         <div class="container-fluid">
             <div class="row">
@@ -154,48 +154,10 @@ if (
             </div>
         </div>
     <?php } ?>
+   
     <?php
-    // Dropdown-Liste mit allen Usern (aber keine Admins)
-    require_once('config/dbaccess.php');
-    $db_obj = new mysqli($host, $user, $password, $database);
-    if ($db_obj->connect_error) {
-        $errors["connection"] = true;
-        exit();
-    }
-    $sql = "SELECT * FROM `users` WHERE `admin` = FALSE ORDER BY `username`";
-    $result = $db_obj->query($sql); ?>
-    <?php if ($result->num_rows > 0) { ?>
-        <form action="admin_profilverwaltung.php" method="POST">
-            <div class="row">
-                <div class="col-sm-6 offset-sm-3 text-center">
-                    <label style="display:<?php if (isset($_POST["edit"]) && $_POST["edit"] === "edit") {
-                                                echo "none";
-                                            } ?>;" for="username" class="form-label">User</label>
-                    <select name="id" style="display:<?php if (isset($_POST["edit"]) && $_POST["edit"] === "edit") {
-                                                            echo "none";
-                                                        } ?>;" class="form-select" name="username" aria-label="Default select example" required>
-                        <?php while ($row = $result->fetch_assoc()) : ?>
-                            <option value="<?php echo $row["id"] ?>"><?php echo $row["username"] ?></option>
-                        <?php endwhile ?>
-                    </select>
-                </div>
-                <div class="col-sm-10 offset-sm-1 text-center">
-                    <input type="hidden" name="edit" value="edit">
-                    <button style="display:<?php if (isset($_POST["edit"]) && $_POST["edit"] === "edit") {
-                                                echo "none";
-                                            } ?>;" class="btn btn-primary mt-3">Bearbeiten</button>
-                </div>
-            </div>
-        </form>
-    <?php } ?>
-    <?php $db_obj->close(); ?>
-    <?php
-    if (
-        $_SERVER["REQUEST_METHOD"] === "POST"
-        && isset($_POST["edit"])
-        && $_POST["edit"] === "edit"
-    ) {
-        $id = $_POST["id"];
+   
+        $id = $_SESSION["id"];
         require_once('config/dbaccess.php');
         $db_obj = new mysqli($host, $user, $password, $database);
         if ($db_obj->connect_error) {
@@ -261,7 +223,7 @@ if (
                 </form>
             </div>
         <?php
-        }
+        
         $db_obj->close();
         ?>
     <?php } ?>
