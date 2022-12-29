@@ -49,7 +49,7 @@ if (isset($_POST['checkin'], $_POST['checkout'], $_POST['breakfast'], $_POST['pa
                     $price += 5;
                 }
                 
-                $sql = "INSERT INTO `reservation` (`checkin`, `checkout`, `breakfast`, `parking`, `pet`, `users_username`, `time`, `user_id`) VALUES (?,?,?,?,?,?,?,?)";
+                $sql = "INSERT INTO `reservation` (`checkin`, `checkout`, `breakfast`, `parking`, `pet`, `user_username`, `time`, `user_id`) VALUES (?,?,?,?,?,?,?,?)";
                 $stmt = $db_obj -> prepare ($sql);
                 $stmt -> bind_param("ssiiissi", $checkin, $checkout, $breakfast, $parking, $pet, $user, $datenow, $iduser);
                 $stmt->execute();
