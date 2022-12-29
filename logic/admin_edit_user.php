@@ -1,5 +1,5 @@
 <?php
-$uploadDir = "./uploads/profilepics/";
+$uploadDir = "uploads/profilepics/";
 $errors = [];
 $errors["firstname"] = false;
 $errors["secondname"] = false;
@@ -24,6 +24,7 @@ function test_input($data)
     return $data;
 }
 
+// Error Handling sobald man "Updaten" klickt
 if (
     $_SERVER["REQUEST_METHOD"] === "POST"
     && isset($_POST["updaten"])
@@ -52,55 +53,63 @@ if (
     }
 }
 
+
+
 if (
     $_SERVER["REQUEST_METHOD"] === "POST"
     && isset($_POST["updaten"])
     && $_POST["updaten"] === "updaten"
 ) {
-    $extension = pathinfo($_FILES["file"]["name"], PATHINFO_EXTENSION);
-    if ($extension == 'jpg' || $extension == 'jpeg' || $extension == 'png' || $extension == 'gif') {
+    if(!$errors["firstname"]
+        && !$errors["secondname"]
+        && !$errors["useremail"]
+        && !$errors["username"]
+        && !$errors["password"]){
+        $extension = pathinfo($_FILES["file"]["name"], PATHINFO_EXTENSION);
+        if ($extension == 'jpg' || $extension == 'jpeg' || $extension == 'png' || $extension == 'gif') {
 
-        require_once('config/dbaccess.php');
-        $db_obj = new mysqli($host, $user, $password, $database);
-        if ($db_obj->connect_error) {
-            $errors["connection"] = true;
-            header("Refresh: 2, url=admin_profilverwaltung.php");
-
-            exit();
-        }
-        $id = $_POST["id"];
-        $active = $_POST["active"];
-        $_POST["password"] = htmlspecialchars(password_hash($_POST["password"], PASSWORD_DEFAULT), ENT_QUOTES);
-        $uname = htmlspecialchars($_POST["username"], ENT_QUOTES);
-        $pass = htmlspecialchars($_POST["password"], ENT_QUOTES);
-        $mail = htmlspecialchars($_POST["useremail"], ENT_QUOTES);
-        $fod = $_POST["formofadress"];
-        $fname = htmlspecialchars($_POST["firstname"], ENT_QUOTES);
-        $sname = htmlspecialchars($_POST["secondname"], ENT_QUOTES);
-        $profilepic = $_FILES["file"]["tmp_name"];
-        $path = $uploadDir . $uname . ".jpg";
-
-
-
-        $sql = "UPDATE `users` SET `active`=?, `username`=?, `password`=?, `useremail`=?, `formofadress`=?, `firstname`=?, `secondname`=?, `path`=? WHERE `id`=$id";
-        $stmt = $db_obj->prepare($sql);
-        $stmt->bind_param("isssssss", $active, $uname, $pass, $mail, $fod, $fname, $sname, $path);
-
-        $sql = "SELECT * FROM `users` WHERE `username` = '$uname'";
-        $result = $db_obj->query($sql);
-        if ($result->num_rows > 0 && $result->fetch_assoc()["id"] !== $id) {
-            $errors["update"] = true;
-        } else {
-            if ($stmt->execute()) {
-                move_uploaded_file($profilepic, $path);
-                $errors["success"] = true;
+            require_once('config/dbaccess.php');
+            $db_obj = new mysqli($host, $user, $password, $database);
+            if ($db_obj->connect_error) {
+                $errors["connection"] = true;
+                $db_obj->close();
                 header("Refresh: 2, url=admin_profilverwaltung.php");
-            } else {
-                $errors["update"] = true;
+                exit();
             }
+            $id = $_POST["id"];
+            $active = $_POST["active"];
+            $_POST["password"] = htmlspecialchars(password_hash($_POST["password"], PASSWORD_DEFAULT), ENT_QUOTES);
+            $uname = htmlspecialchars($_POST["username"], ENT_QUOTES);
+            $pass = htmlspecialchars($_POST["password"], ENT_QUOTES);
+            $mail = htmlspecialchars($_POST["useremail"], ENT_QUOTES);
+            $fod = $_POST["formofadress"];
+            $fname = htmlspecialchars($_POST["firstname"], ENT_QUOTES);
+            $sname = htmlspecialchars($_POST["secondname"], ENT_QUOTES);
+            $profilepic = $_FILES["file"]["tmp_name"];
+            $path = $uploadDir . $uname . ".jpg";
+
+            $sql = "UPDATE `users` SET `active`=?, `username`=?, `password`=?, `useremail`=?, `formofadress`=?, `firstname`=?, `secondname`=?, `path`=? WHERE `id`=?";
+            $stmt = $db_obj->prepare($sql);
+            $stmt->bind_param("isssssssi", $active, $uname, $pass, $mail, $fod, $fname, $sname, $path, $id);
+            
+            $sql = "SELECT * FROM `users` WHERE `username` = '$uname'";
+            $result = $db_obj->query($sql);
+            if ($result->num_rows > 0 && $result->fetch_assoc()["id"] !== $id) {
+                $errors["update"] = true;
+            } else {
+                if ($stmt->execute()) {
+                    move_uploaded_file($profilepic, $path);
+                    $errors["success"] = true;
+                    header("Refresh: 2, url=admin_profilverwaltung.php");
+                } else {
+                    $errors["update"] = true;
+                }
+            }
+            $stmt->close();
+            $db_obj->close();
+        } else {
+            $errors["update"] = true;
         }
-        $stmt->close();
-        $db_obj->close();
     } else {
         $errors["update"] = true;
     }
@@ -168,12 +177,8 @@ if (
         <form action="admin_profilverwaltung.php" method="POST">
             <div class="row">
                 <div class="col-sm-6 offset-sm-3 text-center">
-                    <label style="display:<?php if (isset($_POST["edit"]) && $_POST["edit"] === "edit") {
-                                                echo "none";
-                                            } ?>;" for="username" class="form-label">User</label>
-                    <select name="id" style="display:<?php if (isset($_POST["edit"]) && $_POST["edit"] === "edit") {
-                                                            echo "none";
-                                                        } ?>;" class="form-select" name="username" aria-label="Default select example" required>
+                    <label style="display:<?php if (isset($_POST["edit"]) && $_POST["edit"] === "edit") { echo "none"; } ?>;" for="username" class="form-label">User</label>
+                    <select name="id" style="display:<?php if (isset($_POST["edit"]) && $_POST["edit"] === "edit") { echo "none"; } ?>;" class="form-select" name="username" aria-label="Default select example" required>
                         <?php while ($row = $result->fetch_assoc()) : ?>
                             <option value="<?php echo $row["id"] ?>"><?php echo $row["username"] ?></option>
                         <?php endwhile ?>
@@ -200,6 +205,7 @@ if (
         $db_obj = new mysqli($host, $user, $password, $database);
         if ($db_obj->connect_error) {
             $errors["connection"] = true;
+            $db_obj->close();
             exit();
         }
         $sql = "SELECT * FROM `users` WHERE `id` = '$id'";
