@@ -18,9 +18,9 @@ if (isset($_POST['checkin'], $_POST['checkout'], $_POST['breakfast'], $_POST['pa
     $breakfast = $_POST["breakfast"];
     $parking = $_POST["parking"];
     $pet = $_POST["pet"];
+    $id = $_POST["id"];
     $user = $_SESSION["username"];
     $iduser = $_SESSION["id"];
-    $reservierungID = $_POST["ReservierungID"];
     $price = 50;
     if ($breakfast) {
         $price += 10;
@@ -32,7 +32,7 @@ if (isset($_POST['checkin'], $_POST['checkout'], $_POST['breakfast'], $_POST['pa
         $price += 5;
     }
 
-    $sql = "UPDATE `reservation` SET `checkin`=?, `checkout`=?, `breakfast`=?, `parking`=?, `pet`=?, `user_username`=?, `time`=?, `user_id`=? WHERE `user_id`=$iduser AND `id` = $reservierungID ";
+    $sql = "UPDATE `reservation` SET `checkin`=?, `checkout`=?, `breakfast`=?, `parking`=?, `pet`=?, `users_username`=?, `time`=?, `user_id`=? WHERE `id` = $id";
     $stmt = $db_obj->prepare($sql);
     $stmt->bind_param("ssiiissi", $checkin, $checkout, $breakfast, $parking, $pet, $user, $datenow, $iduser);
     $stmt->execute();
@@ -137,9 +137,8 @@ if (isset($_POST['checkin'], $_POST['checkout'], $_POST['breakfast'], $_POST['pa
                                 <input type="hidden" value="<?php echo $row["id"] ?>" class="form-control " name="id" id="id">
                             </div>
                             <div class="mb-3">
-                                <input type="hidden" name="updaten" value="updaten">
+                                <input type="hidden" name="reserve" value="reserve">
                                 <button class="btn btn-primary">Updaten</button>
-                                <button class="btn btn-danger">Stornieren</button>
                             </div>
                         </div>
                     </div>
