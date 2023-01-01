@@ -32,7 +32,7 @@ session_start();
                 <?php } ?>
                 <?php if (isset($_SESSION["username"]) && !$_SESSION["admin"]) { ?>
                     <li class="nav-item">
-                        <a class="nav-link" href="eigene_reservierungen.php">Meine Reservierungen</a>
+                        <a class="nav-link" href="meine_reservierungen.php">Meine Reservierungen</a>
                     </li>
                 <?php } ?>
                 <?php if (isset($_SESSION["username"]) && $_SESSION["admin"]) { ?>

@@ -44,35 +44,46 @@ if (isset($_POST['checkin'], $_POST['checkout'], $_POST['breakfast'], $_POST['pa
 
 ?>
 
-<?php if ($result->num_rows > 0) { ?>
-            <form method="POST">
-                <div class="row">
-                    <div class="col-sm-6 offset-sm-3 text-center">
-                        <label style="display:<?php if (isset($_POST["edit"]) && $_POST["edit"] === "edit") {
-                                                    echo "none";
-                                                } ?>;" for="username" class="form-label">Reservierungen</label>
-                        <select name="id" style="display:<?php if (isset($_POST["edit"]) && $_POST["edit"] === "edit") {
-                                                                echo "none";
-                                                            } ?>;" class="form-select" aria-label="Default select example" required>
-                            <?php while ($row = $result->fetch_assoc()) : ?>
-                                <option value="<?php echo $row["id"] ?>"><?php echo $row["checkin"] . " bis " . $row["checkout"] ?></option>
-                            <?php endwhile ?>
-                        </select>
-                    </div>
-                    <div class="col-sm-10 offset-sm-1 text-center">
-                        <input type="hidden" name="edit" value="edit">
-                        <button style="display:<?php if (isset($_POST["edit"]) && $_POST["edit"] === "edit") {
-                                                    echo "none";
-                                                } ?>;" class="btn btn-primary mt-3">Bearbeiten</button>
-                    </div>
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+    <meta charset="UTF-8">
+    <meta http-equiv="X-UA-Compatible" content="IE=edge">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Meine Reservierungen</title>
+</head>
+
+<body>
+    <?php if ($result->num_rows > 0) { ?>
+        <form method="POST">
+            <div class="row">
+                <div class="col-sm-6 offset-sm-3 text-center">
+                    <label style="display:<?php if (isset($_POST["edit"]) && $_POST["edit"] === "edit") {
+                                                echo "none";
+                                            } ?>;" for="username" class="form-label">Reservierungen</label>
+                    <select name="id" style="display:<?php if (isset($_POST["edit"]) && $_POST["edit"] === "edit") {
+                                                            echo "none";
+                                                        } ?>;" class="form-select" aria-label="Default select example" required>
+                        <?php while ($row = $result->fetch_assoc()) : ?>
+                            <option value="<?php echo $row["id"] ?>"><?php echo $row["checkin"] . " bis " . $row["checkout"] ?></option>
+                        <?php endwhile ?>
+                    </select>
                 </div>
-            </form>
-        <?php } ?>
+                <div class="col-sm-10 offset-sm-1 text-center">
+                    <input type="hidden" name="edit" value="edit">
+                    <button style="display:<?php if (isset($_POST["edit"]) && $_POST["edit"] === "edit") {
+                                                echo "none";
+                                            } ?>;" class="btn btn-primary mt-3">Bearbeiten</button>
+                </div>
+            </div>
+        </form>
+    <?php } ?>
 
 
 
 
-        <?php
+    <?php
     // Formular zum Ändern der Reservierung
     if (
         $_SERVER["REQUEST_METHOD"] === "POST"
@@ -149,3 +160,6 @@ if (isset($_POST['checkin'], $_POST['checkout'], $_POST['breakfast'], $_POST['pa
         $db_obj->close();
         ?>
     <?php } ?>
+</body>
+
+</html>

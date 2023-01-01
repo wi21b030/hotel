@@ -227,7 +227,7 @@ if (
                             </div>
                             <div class="mb-3">
                                 <label for="passwordalt" class="form-label">Altes Passwort</label>
-                                <input type="passwordalt" class="form-control <?php if ($errors['oldpassword']) echo 'is-invalid'; ?>" name="passwordalt" id="passwordalt" minlength="8"  required>
+                                <input type="password" class="form-control <?php if ($errors['oldpassword']) echo 'is-invalid'; ?>" name="passwordalt" id="passwordalt" minlength="8"  required>
                             </div>
                             <div class="mb-3">
                                 <label for="password" class="form-label">Neues Passwort</label>
