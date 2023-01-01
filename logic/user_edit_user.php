@@ -149,20 +149,10 @@ if (
                 </div>
             </div>
         </div>
-        <?php } ?>
-        <?php if ($errors["oldpassword"]) { ?>
-        <div class="container-fluid">
-            <div class="row">
-                <div class="col-sm-6 offset-sm-3 text-center">
-                    <div class="alert alert-danger text-center" role="alert">
-                        Die alte Passwort ist falsch!
-                    </div>
-                </div>
-            </div>
-        </div>
     <?php } ?>
-    <?php if ($errors["update"]) {
+    <?php if ($errors["update"] || $errors["oldpassword"]) {
         $errors["update"] = false;
+        $errors["oldpassword"] = false;
         header("Refresh: 2, url=mein_profil.php");
     ?>
         <div class="container-fluid">

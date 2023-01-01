@@ -13,48 +13,51 @@ if (!file_exists($uploadDirPic)) {
 }
 
 // Delete vom News-Upload
-if($_SERVER["REQUEST_METHOD"] === "POST"
+if (
+    $_SERVER["REQUEST_METHOD"] === "POST"
     && isset($_POST["delete"])
-    && $_POST["delete"] === "delete") {
-        require_once('config/dbaccess.php');
-        $db_obj = new mysqli($host, $user, $password, $database);
-        if ($db_obj->connect_error) {
-            $errors["delete"] = true;
-            $db_obj->close();
-            exit();
-        }
+    && $_POST["delete"] === "delete"
+) {
+    require_once('config/dbaccess.php');
+    $db_obj = new mysqli($host, $user, $password, $database);
+    if ($db_obj->connect_error) {
+        $errors["delete"] = true;
+        $db_obj->close();
+        exit();
+    }
 
-        $id = $_POST["id"];
-        $sql = "DELETE FROM `news` WHERE `id` = ?";
-        $stmt = $db_obj->prepare($sql);
-        $stmt->bind_param("i", $id);
+    $id = $_POST["id"];
+    $sql = "DELETE FROM `news` WHERE `id` = ?";
+    $stmt = $db_obj->prepare($sql);
+    $stmt->bind_param("i", $id);
 
-        $sql = "SELECT * FROM `news` WHERE `id` = '$id'";
-        $result = $db_obj->query($sql);
-        if ($result->num_rows > 0) {
-            $row = $result->fetch_assoc();
-            $status = unlink($row["path"]);  
-            if($status){  
-                if ($stmt->execute()) {
-                    $deleted = true;
-                } else {
-                    $errors["delete"] = true;
-                }
-            }else{ 
+    $sql = "SELECT * FROM `news` WHERE `id` = '$id'";
+    $result = $db_obj->query($sql);
+    if ($result->num_rows > 0) {
+        $row = $result->fetch_assoc();
+        $status = unlink($row["path"]);
+        if ($status) {
+            if ($stmt->execute()) {
+                $deleted = true;
+            } else {
                 $errors["delete"] = true;
-            }  
+            }
         } else {
             $errors["delete"] = true;
         }
-        $stmt->close();
-        $db_obj->close();
+    } else {
+        $errors["delete"] = true;
+    }
+    $stmt->close();
+    $db_obj->close();
 }
 
 // Insert vom News-Upload
 if (
     $_SERVER["REQUEST_METHOD"] === "POST"
     && isset($_POST["uploaden"])
-    && $_POST["uploaden"] === "uploaden") {
+    && $_POST["uploaden"] === "uploaden"
+) {
     if (
         !empty($_POST["title"])
         && !empty($_POST["text"])
@@ -118,7 +121,7 @@ if (
         <div class="container-fluid">
             <?php if ($uploaded) {
                 $uploaded = false;
-                header("Refresh: 2, url=blog.php"); 
+                header("Refresh: 2, url=blog.php");
             ?>
                 <div class="alert alert-success text-center" role="alert">
                     Beitrag wurde hochgeladen!
@@ -127,7 +130,7 @@ if (
             <?php if ($errors["upload"] || $errors["connection"]) {
                 $errors["upload"] = false;
                 $errors["connection"] = false;
-                header("Refresh: 2, url=blog.php"); 
+                header("Refresh: 2, url=blog.php");
             ?>
                 <div class="alert alert-danger text-center" role="alert">
                     Upload nicht möglich aufgrund fehlender oder fehlerhafter Daten!
@@ -135,7 +138,7 @@ if (
             <?php } ?>
             <?php if ($errors["exists"]) {
                 $errors["exists"] = false;
-                header("Refresh: 2, url=blog.php"); 
+                header("Refresh: 2, url=blog.php");
             ?>
                 <div class="alert alert-danger text-center" role="alert">
                     Upload nicht möglich, Beitrag mit gleichem Titel existiert bereits!
@@ -143,7 +146,7 @@ if (
             <?php } ?>
             <?php if ($deleted) {
                 $deleted = false;
-                header("Refresh: 2, url=blog.php"); 
+                header("Refresh: 2, url=blog.php");
             ?>
                 <div class="alert alert-success text-center" role="alert">
                     Beitrag wurde gelöscht!
@@ -151,7 +154,7 @@ if (
             <?php } ?>
             <?php if ($errors["delete"]) {
                 $errors["delete"] = false;
-                header("Refresh: 2, url=blog.php"); 
+                header("Refresh: 2, url=blog.php");
             ?>
                 <div class="alert alert-danger text-center" role="alert">
                     Beitrag konnte nicht gelöscht werden!
@@ -160,20 +163,22 @@ if (
             <form enctype="multipart/form-data" method="POST">
                 <div class="row">
                     <div class="col-sm-6 offset-sm-3 text-center">
-                        <label for="exampleInputEmail1" class="form-label">Überschrift</label>
-                        <input type="text" name="title" class="form-control <?php if ($errors["exists"]) echo 'is-invalid'; ?>" id="exampleInputEmail1">
-                    </div>
-                    <div class="col-sm-6 offset-sm-3 text-center">
-                        <label for="exampleFormControlTextarea1">Dazugehöriger Text</label>
-                        <textarea class="form-control <?php if ($errors["exists"]) echo 'is-invalid'; ?>" name="text" id="exampleFormControlTextarea1" rows="3"></textarea>
-                    </div>
-                    <div class="col-sm-6 offset-sm-3 text-center">
+                        <div class="mb-2">
+                            <label for="exampleInputEmail1" class="form-label">Überschrift</label>
+                            <input type="text" name="title" class="form-control <?php if ($errors["exists"]) echo 'is-invalid'; ?>" id="exampleInputEmail1">
+                        </div>
+                        <div class="mb-2">
+                            <label for="exampleFormControlTextarea1">Dazugehöriger Text</label>
+                            <textarea class="form-control <?php if ($errors["exists"]) echo 'is-invalid'; ?>" name="text" id="exampleFormControlTextarea1" rows="3"></textarea>
+                        </div>
+                        <div class="mb-2">
                         <label for="formFile" class="form-label">Thumbnail</label>
                         <input class="form-control <?php if ($errors["exists"]) echo 'is-invalid'; ?>" name="file" type="file" id="formFile" accept="image/*">
-                    </div>
-                    <div class="col-sm-10 offset-sm-1 text-center">
-                        <input type="hidden" name="uploaden" value="uploaden">
-                        <button type="submit" class="btn btn-primary">Upload</button>
+                        </div>
+                        <div class="mb-2">
+                            <input type="hidden" name="uploaden" value="uploaden">
+                            <button type="submit" class="btn btn-primary">Upload</button>
+                        </div>
                     </div>
                 </div>
             </form>

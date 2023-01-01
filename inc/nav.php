@@ -15,14 +15,15 @@ session_start();
                     <li class="nav-item">
                         <a class="nav-link" href="login.php">Login</a>
                     </li>
-                <?php } elseif (isset($_SESSION["username"]) && !$_SESSION["admin"]) { ?>
+                <?php } elseif (isset($_SESSION["username"])) { ?>
                     <li class="nav-item">
-                        <a class="nav-link" href="mein_profil.php">Mein Profil</a>
+                        <a class="nav-link" href="mein_profil.php"><?php echo $_SESSION["username"]; ?></a>
                     </li>
                 <?php } ?>
                 <?php if (isset($_SESSION["username"]) && $_SESSION["admin"]) { ?>
+
                     <li class="nav-item">
-                        <a class="nav-link" href="admin_profilverwaltung.php">Profil-Verwaltung</a>
+                        <a class="nav-link" href="admin_userverwaltung.php">User-Verwaltung</a>
                     </li>
                 <?php } ?>
                 <?php if (isset($_SESSION["username"]) && !$_SESSION["admin"]) { ?>
