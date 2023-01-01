@@ -94,7 +94,7 @@ if($_SERVER["REQUEST_METHOD"] === "POST"
         $errors["connection"] = true;
         exit();
     }
-    $sql = "SELECT DISTINCT user_id, user_username FROM `reservation` ORDER BY `user_username`";
+    $sql = "SELECT DISTINCT user_id, users_username FROM `reservation` ORDER BY `users_username`";
     $result = $db_obj->query($sql); ?>
     <?php if ($result->num_rows > 0) { ?>
         <form method="POST">
@@ -107,7 +107,7 @@ if($_SERVER["REQUEST_METHOD"] === "POST"
                                                             echo "none";
                                                         } ?>;" class="form-select" name="username" aria-label="Default select example" required>
                         <?php while ($row = $result->fetch_assoc()) : ?>
-                            <option value="<?php echo $row["user_id"] ?>"><?php echo $row["user_username"] ?></option>
+                            <option value="<?php echo $row["user_id"] ?>"><?php echo $row["users_username"] ?></option>
                         <?php endwhile ?>
                     </select>
                 </div>

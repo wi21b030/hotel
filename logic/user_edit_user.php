@@ -11,6 +11,7 @@ $errors["file"] = false;
 $errors["update"] = false;
 $errors["connection"] = false;
 $errors["success"] = false;
+$errors["oldpassword"] = false;
 
 if (!file_exists($uploadDir)) {
     mkdir($uploadDir);
@@ -50,6 +51,8 @@ if (
     if (empty($_POST["password"]) || !isset($_POST["password"])) {
         $errors["password"] = true;
     }
+
+   
 }
 
 if (
@@ -64,15 +67,15 @@ if (
         $db_obj = new mysqli($host, $user, $password, $database);
         if ($db_obj->connect_error) {
             $errors["connection"] = true;
-            header("Refresh: 2, url=user_profilverwaltung.php");
+            header("Refresh: 2, url=mein_profil.php");
 
             exit();
         }
         $id = $_SESSION["id"];
-        $active = $_POST["active"];
         $_POST["password"] = htmlspecialchars(password_hash($_POST["password"], PASSWORD_DEFAULT), ENT_QUOTES);
         $uname = htmlspecialchars($_POST["username"], ENT_QUOTES);
         $pass = htmlspecialchars($_POST["password"], ENT_QUOTES);
+        $oldpass = htmlspecialchars($_POST["passwordalt"], ENT_QUOTES);
         $mail = htmlspecialchars($_POST["useremail"], ENT_QUOTES);
         $fod = $_POST["formofadress"];
         $fname = htmlspecialchars($_POST["firstname"], ENT_QUOTES);
@@ -81,29 +84,36 @@ if (
         $path = $uploadDir . $uname . ".jpg";
 
 
-
-        $sql = "UPDATE `users` SET `active`=?, `username`=?, `password`=?, `useremail`=?, `formofadress`=?, `firstname`=?, `secondname`=?, `path`=? WHERE `id`=$id";
-        $stmt = $db_obj->prepare($sql);
-        $stmt->bind_param("isssssss", $active, $uname, $pass, $mail, $fod, $fname, $sname, $path);
-
+        
+            $sql = "UPDATE `users` SET  `username`=?, `password`=?, `useremail`=?, `formofadress`=?, `firstname`=?, `secondname`=?, `path`=? WHERE `id`=$id";
+            $stmt = $db_obj->prepare($sql);
+            $stmt->bind_param("sssssss", $uname, $pass, $mail, $fod, $fname, $sname, $path);
+        
+       
         $sql = "SELECT * FROM `users` WHERE `username` = '$uname'";
         $result = $db_obj->query($sql);
-        if ($result->num_rows > 0 && $result->fetch_assoc()["id"] !== $id) {
+        $row = $result->fetch_assoc();
+        if (password_verify($oldpass, $row["password"])) {
+            $stmt->execute();
+            move_uploaded_file($profilepic, $path);
+            $errors["success"] = true;
+            header("Refresh: 2, url=mein_profil.php");
+        } else {
+            $errors["oldpassword"] = true;
+            $errors["update"] = true;
+
+        }
+        if ($result->num_rows > 0 && $row["id"] !== $id) {
             $errors["update"] = true;
         } else {
-            if ($stmt->execute()) {
-                move_uploaded_file($profilepic, $path);
-                $errors["success"] = true;
-                header("Refresh: 2, url=user_profilverwaltung.php");
-            } else {
-                $errors["update"] = true;
-            }
+            
         }
         $stmt->close();
         $db_obj->close();
     } else {
         $errors["update"] = true;
     }
+    
 }
 ?>
 
@@ -139,10 +149,21 @@ if (
                 </div>
             </div>
         </div>
+        <?php } ?>
+        <?php if ($errors["oldpassword"]) { ?>
+        <div class="container-fluid">
+            <div class="row">
+                <div class="col-sm-6 offset-sm-3 text-center">
+                    <div class="alert alert-danger text-center" role="alert">
+                        Die alte Passwort ist falsch!
+                    </div>
+                </div>
+            </div>
+        </div>
     <?php } ?>
     <?php if ($errors["update"]) {
         $errors["update"] = false;
-        header("Refresh: 2, url=user_profilverwaltung.php");
+        header("Refresh: 2, url=mein_profil.php");
     ?>
         <div class="container-fluid">
             <div class="row">
@@ -171,6 +192,12 @@ if (
         } else {
             $row = $result->fetch_assoc(); ?>
             <div class="container-fluid">
+                <div class="row mb-2 mt-1">
+                <div class="col-sm-6 offset-sm-3 text-center">
+                    <img src="<?php echo $row["path"] ?>" class="rounded-3" style="width: 150px;"
+                    alt="Avatar" />
+                </div>
+                </div>
                 <form enctype="multipart/form-data" method="POST">
                     <div class="row">
                         <div class="col-sm-6 offset-sm-3 text-center">
@@ -199,20 +226,18 @@ if (
                                 <input type="text" value="<?php echo $row["username"] ?>" class="form-control <?php if ($errors['username']) echo 'is-invalid'; ?>" name="username" id="username" required>
                             </div>
                             <div class="mb-3">
-                                <label for="password" class="form-label">Passwort</label>
+                                <label for="passwordalt" class="form-label">Altes Passwort</label>
+                                <input type="passwordalt" class="form-control <?php if ($errors['oldpassword']) echo 'is-invalid'; ?>" name="passwordalt" id="passwordalt" minlength="8"  required>
+                            </div>
+                            <div class="mb-3">
+                                <label for="password" class="form-label">Neues Passwort</label>
                                 <input type="password" class="form-control <?php if ($errors['password']) echo 'is-invalid'; ?>" name="password" id="password" minlength="8" required>
                             </div>
                             <div class="mb-3">
                                 <label for="formFile" class="form-label">Profilbild</label>
                                 <input class="form-control <?php if ($errors['file']) echo 'is-invalid'; ?>" name="file" type="file" id="formFile" accept="image/*" required>
                             </div>
-                            <div class="mb-3">
-                                <label for="active" class="form-label">Account-Validität</label>
-                                <select class="form-select" name="active" aria-label="Default select example" required>
-                                    <option value="0">Nicht Aktiv</option>
-                                    <option value="1">Aktiv</option>
-                                </select>
-                            </div>
+                            
                             <div class="mb-3">
                                 <input type="hidden" name="updaten" value="updaten">
                                 <button class="btn btn-primary">Updaten</button>
