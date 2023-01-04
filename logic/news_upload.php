@@ -12,6 +12,31 @@ if (!file_exists($uploadDirPic)) {
     mkdir($uploadDirPic);
 }
 
+// ressample image here, only works if extension 'gd' installed -> returns true if resampled
+function thumbnailmade($pic, $path) {
+    $made = false;
+    list($width, $height)=getimagesize($pic);
+    $ratio = $width/$height;
+    if( $ratio > 1) {
+        $nwidth = 500;
+        $nheight = 500/$ratio;
+    }
+    else {
+        $nwidth = 500*$ratio;
+        $nheight = 500;
+    }
+    // if instead we want to use specific ratio then use commented code below
+    // $nwidth = $width * 0.75;
+    // $nheight = $height* 0.75;
+    $newimage = imagecreatetruecolor($nwidth, $nheight);
+    $source = imagecreatefromjpeg($pic);
+    imagecopyresampled($newimage, $source, 0, 0, 0, 0, $nwidth, $nheight, $width, $height);
+    if(imagejpeg($newimage, $path)){
+        $made = true;
+    }
+    return $made;
+}
+
 // Delete vom News-Upload
 if (
     $_SERVER["REQUEST_METHOD"] === "POST"
@@ -89,8 +114,11 @@ if (
                 $errors["exists"] = true;
             } else {
                 if ($stmt->execute()) {
-                    move_uploaded_file($pic, $path);
-                    $uploaded = true;
+                    if(thumbnailmade($pic, $path)) { // created own function for checking if thumbnail made
+                        $uploaded = true;
+                    } else {
+                        $errors["upload"] = true;
+                    }
                 } else {
                     $errors["connection"] = true;
                 }
@@ -199,7 +227,7 @@ if (
                 <a style="text-decoration: none" href="blog.php" class="text-dark">
                     <div class="row mb-4 border-bottom pb-2">
                         <div class="col-3">
-                            <img src="<?php echo $row["path"] ?>" class="img-fluid shadow-1-strong rounded" alt="<?php $row["title"] ?>" />
+                            <img src="<?php echo $row["path"] ?>" class="img-fluid shadow-1-strong rounded" alt="<?php $row["title"] ?>"/>
                         </div>
                         <div class="col-9">
                             <p class="mb-2"><strong><?php echo $row["title"] ?></strong></p>

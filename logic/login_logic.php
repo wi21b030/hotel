@@ -17,20 +17,26 @@ if ($_SERVER["REQUEST_METHOD"] === "POST") {
         $uname = $_POST["username"];
         $pass = $_POST["password"];
 
-        $sql = "SELECT * FROM `users` WHERE `username` = '$uname' AND `active` = TRUE";
-        $result = $db_obj->query($sql);
-        if ($result->num_rows == 0) {
-            $errors["nosuchuser"] = true;
-        } else {
-            $row = $result->fetch_assoc(); 
-            if (password_verify($pass,$row["password"])){
-                $_SESSION["id"] = $row["id"];
-                $_SESSION["username"] = $uname;
-                $_SESSION["admin"] = $row["admin"];
-                header("Location: login.php");
+        $sql = "SELECT * FROM `users` WHERE `username` = ? AND `active` = TRUE";
+        $stmt = $db_obj -> prepare ($sql);
+        $stmt->bind_param("s", $uname);
+        if($stmt->execute()){
+            $result = $stmt->get_result();
+            if ($result->num_rows == 0) {
+                $errors["nosuchuser"] = true;
             } else {
-                $errors["password"] = true;
+                $row = $result->fetch_assoc(); 
+                if (password_verify($pass,$row["password"])){
+                    $_SESSION["id"] = $row["id"];
+                    $_SESSION["username"] = $uname;
+                    $_SESSION["admin"] = $row["admin"];
+                    header("Location: mein_profil.php");
+                } else {
+                    $errors["password"] = true;
+                }
             }
+        } else {
+            $errors["connection"] = true;
         }
         $db_obj->close();
     } else {
@@ -76,6 +82,9 @@ if ($_SERVER["REQUEST_METHOD"] === "POST") {
                     <div class="col-sm-6 offset-sm-3 text-center">
                         <label for="password" class="form-label">Passwort</label>
                         <input type="password" name="password" class="form-control <?php if ($errors['password']) echo 'is-invalid'; ?>" id="password">
+                    </div>
+                    <div class="col-sm-6 offset-sm-3 text-center">
+                        Noch nicht registriert? Klicken Sie <a href="registrierung.php">hier!</a>
                     </div>
                     <div class="col-sm-10 offset-sm-1 text-center">
                         <button type="submit" class="btn btn-primary mt-3">Login</button>
