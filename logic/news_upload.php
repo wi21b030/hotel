@@ -30,6 +30,7 @@ function thumbnailmade($pic, $path) {
     // $nheight = $height* 0.75;
     $newimage = imagecreatetruecolor($nwidth, $nheight);
     $source = imagecreatefromjpeg($pic);
+    // used function imagecopyresampled instead of imagecopyresized because the first one delivers better quality
     imagecopyresampled($newimage, $source, 0, 0, 0, 0, $nwidth, $nheight, $width, $height);
     if(imagejpeg($newimage, $path)){
         $made = true;
