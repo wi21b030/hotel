@@ -9,7 +9,7 @@
 <body>
     <?php include "inc/nav.php"; ?>
     <div class="container-fluid">
-        <?php include "logic/own_reservations.php"; ?>
+        <?php include "logic/user_edit_reservation.php"; ?>
     </div>
 
 </body>

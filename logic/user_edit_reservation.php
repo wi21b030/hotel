@@ -1,17 +1,17 @@
 <?php
+$errors = [];
+$errors["connection"] = false;
+$updated = false;
 
-require_once('config/dbaccess.php');
-$db_obj = new mysqli($host, $user, $password, $database);
-if ($db_obj->connect_error) {
-    $errors["connection"] = true;
-    exit();
-}
-$user_id = $_SESSION["id"];
-$sql = "SELECT * FROM `reservation` WHERE `user_id` = '$user_id'";
-$result = $db_obj->query($sql);
-
-if (isset($_POST['checkin'], $_POST['checkout'], $_POST['breakfast'], $_POST['parking'], $_POST['pet']) && isset($_POST["reserve"])) {
-    // Process form data
+if ($_SERVER["REQUEST_METHOD"] === "POST" 
+    && isset($_POST['checkin'], $_POST['checkout'], $_POST['breakfast'], $_POST['parking'], $_POST['pet']) 
+    && isset($_POST["reserve"])) {
+    require_once('config/dbaccess.php');
+    $db_obj = new mysqli($host, $user, $password, $database);
+    if ($db_obj->connect_error) {
+        $errors["connection"] = true;
+        exit();
+    }
     $datenow = date('Y-m-d H:i:s', time());
     $checkin = $_POST["checkin"];
     $checkout = $_POST["checkout"];
@@ -19,8 +19,8 @@ if (isset($_POST['checkin'], $_POST['checkout'], $_POST['breakfast'], $_POST['pa
     $parking = $_POST["parking"];
     $pet = $_POST["pet"];
     $id = $_POST["id"];
-    $user = $_SESSION["username"];
-    $iduser = $_SESSION["id"];
+    $uname = $_SESSION["username"];
+    $user_id = $_SESSION["id"];
     $price = 50;
     if ($breakfast) {
         $price += 10;
@@ -32,16 +32,20 @@ if (isset($_POST['checkin'], $_POST['checkout'], $_POST['breakfast'], $_POST['pa
         $price += 5;
     }
 
+    $sql = "SELECT * FROM `reservation` WHERE `user_id` = '$user_id'";
+    $result = $db_obj->query($sql);
+    
     $sql = "UPDATE `reservation` SET `checkin`=?, `checkout`=?, `breakfast`=?, `parking`=?, `pet`=?, `users_username`=?, `time`=?, `user_id`=? WHERE `id` = $id";
     $stmt = $db_obj->prepare($sql);
-    $stmt->bind_param("ssiiissi", $checkin, $checkout, $breakfast, $parking, $pet, $user, $datenow, $iduser);
-    $stmt->execute();
+    $stmt->bind_param("ssiiissi", $checkin, $checkout, $breakfast, $parking, $pet, $uname, $datenow, $user_id);
+    if($stmt->execute()){
+        $updated = true;
+    } else {
+        $errors["connection"] = true;
+    }
     $stmt->close();
-} else {
-}
-
-
-
+    $db_obj->close();
+} 
 ?>
 
 <!DOCTYPE html>
@@ -55,6 +59,21 @@ if (isset($_POST['checkin'], $_POST['checkout'], $_POST['breakfast'], $_POST['pa
 </head>
 
 <body>
+    <?php if ($errors["connection"]) { 
+                $errors["connection"] = false;
+                header("Refresh: 2, url=meine_reservierungen.php");
+    ?>
+        <div class="alert alert-danger text-center" role="alert">
+            Reservierung konnte nicht geändert werden!
+        </div>
+    <?php } elseif ($updated) { 
+                $updated = false;
+                header("Refresh: 2, url=meine_reservierungen.php");          
+    ?>
+       <div class="alert alert-success text-center" role="alert">
+            Reservierung wurde geändert!
+        </div> 
+    <?php } ?>
     <?php if ($result->num_rows > 0) { ?>
         <form method="POST">
             <div class="row">

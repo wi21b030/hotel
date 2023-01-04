@@ -108,7 +108,7 @@ if (
                                     $row = $result->fetch_assoc();
                                     move_uploaded_file($profilepic, $path);
                                     $_SESSION["id"] = $row["id"];
-                                    $_SESSION["username"] = $uname;
+                                    $_SESSION["username"] = $row["username"];
                                     $_SESSION["admin"] = $row["admin"];
                                     $registered = true;
                                 } else {

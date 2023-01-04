@@ -1,17 +1,16 @@
 <?php
-$uploadDir = "./uploads/profilepics/";
+$uploadDir = "uploads/profilepics/";
 $errors = [];
 $errors["firstname"] = false;
 $errors["secondname"] = false;
 $errors["useremail"] = false;
 $errors["username"] = false;
-$errors["exists"] = false;
 $errors["password"] = false;
+$errors["passwordold"] = false;
 $errors["file"] = false;
-$errors["update"] = false;
 $errors["connection"] = false;
-$errors["success"] = false;
-$errors["oldpassword"] = false;
+$errors["update"] = false;
+$updated = false;
 
 if (!file_exists($uploadDir)) {
     mkdir($uploadDir);
@@ -51,8 +50,12 @@ if (
     if (empty($_POST["password"]) || !isset($_POST["password"])) {
         $errors["password"] = true;
     }
-
-   
+    if (empty($_POST["passwordold"]) || !isset($_POST["passwordold"])) {
+        $errors["passwordold"] = true;
+    }
+    if(empty($_POST["file"]) || !isset($_POST["file"])){
+        $errors["file"] = true;
+    }
 }
 
 if (
@@ -62,20 +65,18 @@ if (
 ) {
     $extension = pathinfo($_FILES["file"]["name"], PATHINFO_EXTENSION);
     if ($extension == 'jpg' || $extension == 'jpeg' || $extension == 'png' || $extension == 'gif') {
-
         require_once('config/dbaccess.php');
         $db_obj = new mysqli($host, $user, $password, $database);
         if ($db_obj->connect_error) {
             $errors["connection"] = true;
-            header("Refresh: 2, url=mein_profil.php");
-
+            $db_obj->close();
             exit();
         }
         $id = $_SESSION["id"];
         $_POST["password"] = htmlspecialchars(password_hash($_POST["password"], PASSWORD_DEFAULT), ENT_QUOTES);
         $uname = htmlspecialchars($_POST["username"], ENT_QUOTES);
         $pass = htmlspecialchars($_POST["password"], ENT_QUOTES);
-        $oldpass = htmlspecialchars($_POST["passwordalt"], ENT_QUOTES);
+        $oldpass = htmlspecialchars($_POST["passwordold"], ENT_QUOTES);
         $mail = htmlspecialchars($_POST["useremail"], ENT_QUOTES);
         $fod = $_POST["formofadress"];
         $fname = htmlspecialchars($_POST["firstname"], ENT_QUOTES);
@@ -83,37 +84,32 @@ if (
         $profilepic = $_FILES["file"]["tmp_name"];
         $path = $uploadDir . $uname . ".jpg";
 
-
+        $sql = "UPDATE `users` SET  `username`=?, `password`=?, `useremail`=?, `formofadress`=?, `firstname`=?, `secondname`=?, `path`=? WHERE `id`=$id";
+        $stmt = $db_obj->prepare($sql);
+        $stmt->bind_param("sssssss", $uname, $pass, $mail, $fod, $fname, $sname, $path);
         
-            $sql = "UPDATE `users` SET  `username`=?, `password`=?, `useremail`=?, `formofadress`=?, `firstname`=?, `secondname`=?, `path`=? WHERE `id`=$id";
-            $stmt = $db_obj->prepare($sql);
-            $stmt->bind_param("sssssss", $uname, $pass, $mail, $fod, $fname, $sname, $path);
-        
-       
         $sql = "SELECT * FROM `users` WHERE `username` = '$uname'";
         $result = $db_obj->query($sql);
         $row = $result->fetch_assoc();
-        if (password_verify($oldpass, $row["password"])) {
-            $stmt->execute();
-            move_uploaded_file($profilepic, $path);
-            $errors["success"] = true;
-            header("Refresh: 2, url=mein_profil.php");
-        } else {
-            $errors["oldpassword"] = true;
-            $errors["update"] = true;
-
-        }
         if ($result->num_rows > 0 && $row["id"] !== $id) {
             $errors["update"] = true;
         } else {
-            
+            if (password_verify($oldpass, $row["password"])) {
+                if($stmt->execute()){
+                    move_uploaded_file($profilepic, $path);
+                    $updated = true;
+                } else {
+                    $errors["connection"] = true;
+                }
+            } else {
+                $errors["update"] = true;
+            }   
         }
         $stmt->close();
         $db_obj->close();
     } else {
         $errors["update"] = true;
     }
-    
 }
 ?>
 
@@ -128,18 +124,25 @@ if (
 </head>
 
 <body>
-    <?php if ($errors["connection"]) { ?>
+    <?php if ($errors["connection"] || $errors["update"]) { 
+        $errors["connection"] = false;
+        $errors["update"] = false;
+        header("Refresh: 2, url=mein_profil.php");
+    ?>
         <div class="container-fluid">
             <div class="row">
                 <div class="col-sm-6 offset-sm-3 text-center">
-                    <div class="alert alert-success text-center" role="alert">
-                        Fehler bei der Datenbankverbindung!
+                    <div class="alert alert-danger text-center" role="alert">
+                        User konnte nicht geupdated werden!
                     </div>
                 </div>
             </div>
         </div>
     <?php } ?>
-    <?php if ($errors["success"]) { ?>
+    <?php if ($updated) { 
+            $updated = false;
+            header("Refresh: 2, url=mein_profil.php");
+    ?>
         <div class="container-fluid">
             <div class="row">
                 <div class="col-sm-6 offset-sm-3 text-center">
@@ -150,31 +153,14 @@ if (
             </div>
         </div>
     <?php } ?>
-    <?php if ($errors["update"] || $errors["oldpassword"]) {
-        $errors["update"] = false;
-        $errors["oldpassword"] = false;
-        header("Refresh: 2, url=mein_profil.php");
-    ?>
-        <div class="container-fluid">
-            <div class="row">
-                <div class="col-sm-6 offset-sm-3 text-center">
-                    <div class="alert alert-danger text-center" role="alert">
-                        User wurde nicht geupdated, aufgrund fehlerhafter Daten!
-                    </div>
-                </div>
-            </div>
-        </div>
-    <?php } ?>
-   
     <?php
-   
-        $id = $_SESSION["id"];
         require_once('config/dbaccess.php');
         $db_obj = new mysqli($host, $user, $password, $database);
         if ($db_obj->connect_error) {
             $errors["connection"] = true;
             exit();
         }
+        $id = $_SESSION["id"];
         $sql = "SELECT * FROM `users` WHERE `id` = '$id'";
         $result = $db_obj->query($sql);
         if ($result->num_rows == 0) {
@@ -216,8 +202,8 @@ if (
                                 <input type="text" value="<?php echo $row["username"] ?>" class="form-control <?php if ($errors['username']) echo 'is-invalid'; ?>" name="username" id="username" required>
                             </div>
                             <div class="mb-3">
-                                <label for="passwordalt" class="form-label">Altes Passwort</label>
-                                <input type="password" class="form-control <?php if ($errors['oldpassword']) echo 'is-invalid'; ?>" name="passwordalt" id="passwordalt" minlength="8"  required>
+                                <label for="passwordold" class="form-label">Altes Passwort</label>
+                                <input type="password" class="form-control <?php if ($errors['passwordold']) echo 'is-invalid'; ?>" name="passwordold" id="passwordold" minlength="8"  required>
                             </div>
                             <div class="mb-3">
                                 <label for="password" class="form-label">Neues Passwort</label>
@@ -237,10 +223,7 @@ if (
                     </div>
                 </form>
             </div>
-        <?php
-        
-        $db_obj->close();
-        ?>
+        <?php $db_obj->close(); ?>
     <?php } ?>
 </body>
 

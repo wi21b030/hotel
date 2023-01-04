@@ -11,9 +11,9 @@ if($_SERVER["REQUEST_METHOD"] === "POST"
     && isset($_POST["updaten"])
     && $_POST["updaten"] === "updaten") {
     if (isset($_POST['checkin'], $_POST['checkout'])) {
-        $a = $_POST["checkin"];
-        $b = $_POST["checkout"];
-        if ($a >= $b){
+        $checkin = $_POST["checkin"];
+        $checkout = $_POST["checkout"];
+        if ($checkin >= $checkout){
             $errors["date"] = true;
         }
     }
