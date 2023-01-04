@@ -1,76 +1,63 @@
-<!DOCTYPE html>
-<html lang="en">
-
 <?php
-
 $errors = [];
 $errors["checkin"] = false;
-$a = "";
-$b = "";
+$errors["checkout"] = false;
+$errors["connection"] = false;
+$reserved = false;
 $price = 0;
 
-require_once ('config/dbaccess.php');
-$db_obj = new mysqli($host, $user, $password, $database);
-if (isset($_POST['checkin'], $_POST['checkout'])) {
-    $a = $_POST["checkin"];
-    $b = $_POST["checkout"];
+if (
+    $_SERVER["REQUEST_METHOD"] === "POST"
+    && isset($_POST['checkin'], $_POST['checkout'], $_POST['breakfast'], $_POST['parking'], $_POST['pet'])
+) {
+    $checkin = $_POST["checkin"];
+    $checkout = $_POST["checkout"];
+    if ($checkin >= $checkout) {
+        $errors["checkin"] = true;
+        $errors["checkout"] = true;
+    } else {
+        require_once('config/dbaccess.php');
+        $db_obj = new mysqli($host, $user, $password, $database);
+        if ($db_obj->connect_error) {
+            $errors["connection"] = true;
+            $db_obj->close();
+            exit();
+        }
+        $datenow = date('Y-m-d H:i:s', time());
+        $breakfast = $_POST["breakfast"];
+        $parking = $_POST["parking"];
+        $pet = $_POST["pet"];
+        $user = $_SESSION["username"];
+        $iduser = $_SESSION["id"];
+        $price = 50;
+        if ($breakfast) {
+            $price += 10;
+        }
+        if ($parking) {
+            $price += 3;
+        }
+        if ($pet) {
+            $price += 5;
+        }
+
+        $sql = "INSERT INTO `reservation` (`checkin`, `checkout`, `breakfast`, `parking`, `pet`, `users_username`, `time`, `user_id`) VALUES (?,?,?,?,?,?,?,?)";
+        $stmt = $db_obj->prepare($sql);
+        $stmt->bind_param("ssiiissi", $checkin, $checkout, $breakfast, $parking, $pet, $user, $datenow, $iduser);
+        if ($stmt->execute()) {
+            $reserved = true;
+        } else {
+            $errors["connection"] = true;
+        }
+        $stmt->close();
+        $db_obj->close();
+    }
 }
-if ( $a >= $b && isset($_POST["submit_button" ] )){
-    $errors["checkin"] = true;
-    echo "falsches Datum";
-    
-    
-
-
-}
-
-
-
-
-if (isset($_POST['checkin'], $_POST['checkout'], $_POST['breakfast'], $_POST['parking'], $_POST['pet']) && !$errors["checkin"] && isset($_POST["submit_button" ])) {
-                // Process form data
-                $datenow=time();
-                $datenow = date('Y-m-d H:i:s', $datenow);
-                $checkin = $_POST["checkin"];
-                $checkout = $_POST["checkout"];
-                $breakfast = $_POST["breakfast"];
-                $parking = $_POST["parking"];
-                $pet = $_POST["pet"];
-                $user = $_SESSION["username"];
-                $iduser = $_SESSION["id"];
-                $price = 50;
-                if ($breakfast){
-                    $price += 10;
-                            }
-                if ($parking){
-                    $price += 3;
-                }
-                if ($pet){
-                    $price += 5;
-                }
-                
-                $sql = "INSERT INTO `reservation` (`checkin`, `checkout`, `breakfast`, `parking`, `pet`, `users_username`, `time`, `user_id`) VALUES (?,?,?,?,?,?,?,?)";
-                $stmt = $db_obj -> prepare ($sql);
-                $stmt -> bind_param("ssiiissi", $checkin, $checkout, $breakfast, $parking, $pet, $user, $datenow, $iduser);
-                $stmt->execute();
-                $stmt -> close();
-            } else {
-               
-
-
-            
-            }
-           
-            
-            
-           
-             
-            
-            
 ?>
 
 
 
+<!DOCTYPE html>
+<html lang="en">
 
 <head>
     <meta charset="UTF-8">
@@ -80,8 +67,44 @@ if (isset($_POST['checkin'], $_POST['checkout'], $_POST['breakfast'], $_POST['pa
 </head>
 
 <body>
+    <?php if ($errors["checkin"] || $errors["checkout"]) {
+        $errors["checkin"] = true;
+        $errors["checkout"] = true;
+        header("Refresh: 2, url=reservierung.php");
+    ?>
+        <div class="alert alert-danger text-center" role="alert">
+            Geben Sie bitte gültige Daten ein!
+        </div>
+    <?php } elseif ($errors["connection"]) {
+        $errors["connection"] = false;
+        header("Refresh: 2, url=reservierung.php");
+    ?>
+        <div class="container-fluid">
+            <div class="row">
+                <div class="col-sm-6 offset-sm-3 text-center">
+                    <div class="alert alert-danger text-center" role="alert">
+                        Reservierung konnte nicht gebucht werden!
+                    </div>
+                </div>
+            </div>
+        </div>
+    <?php } ?>
+    <?php if ($reserved) {
+        $reserved = false;
+        header("Refresh: 2, url=reservierung.php");
+    ?>
+        <div class="container-fluid">
+            <div class="row">
+                <div class="col-sm-6 offset-sm-3 text-center">
+                    <div class="alert alert-success text-center" role="alert">
+                        Reservierung wurde gebucht!
+                    </div>
+                </div>
+            </div>
+        </div>
+    <?php } ?>
     <div class="container-fluid">
-        <form action="reservierung.php" method="POST">
+        <form method="POST">
             <div class="row">
                 <div class="col-sm-6 offset-sm-3 text-center">
                     <label for="checkin" class="form-label">check-in</label>
@@ -110,21 +133,17 @@ if (isset($_POST['checkin'], $_POST['checkout'], $_POST['breakfast'], $_POST['pa
                     <select class="form-select" name="pet" aria-label="Default select example" required>
                         <option value="0">Kein Haustier dabei</option>
                         <option value="1">Haustier dabei</option>
-        
+
                     </select>
                 </div>
                 <div class="col-sm-10 offset-sm-1 text-center">
-                    <button type="submit" name="submit_button" class="btn btn-primary mt-3">Buchen</button>
+                    <button type="submit" name="buchen" class="btn btn-primary mt-3">Buchen</button>
                 </div>
                 <div class="col-sm-10 offset-sm-1 text-center">
-                <?php echo ($price) . ("$"); ?>
-                </div>    
+                    <?php echo ($price) . ("$"); ?>
+                </div>
             </div>
         </form>
-    
-        
-        
-
     </div>
 </body>
 

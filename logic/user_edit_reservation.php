@@ -1,51 +1,56 @@
 <?php
 $errors = [];
+$errors["checkin"] = false;
+$errors["checkout"] = false;
 $errors["connection"] = false;
 $updated = false;
 
-if ($_SERVER["REQUEST_METHOD"] === "POST" 
-    && isset($_POST['checkin'], $_POST['checkout'], $_POST['breakfast'], $_POST['parking'], $_POST['pet']) 
-    && isset($_POST["reserve"])) {
-    require_once('config/dbaccess.php');
-    $db_obj = new mysqli($host, $user, $password, $database);
-    if ($db_obj->connect_error) {
-        $errors["connection"] = true;
-        exit();
-    }
-    $datenow = date('Y-m-d H:i:s', time());
+if (
+    $_SERVER["REQUEST_METHOD"] === "POST"
+    && isset($_POST['checkin'], $_POST['checkout'])
+    && isset($_POST["updaten"])
+) {
     $checkin = $_POST["checkin"];
     $checkout = $_POST["checkout"];
-    $breakfast = $_POST["breakfast"];
-    $parking = $_POST["parking"];
-    $pet = $_POST["pet"];
-    $id = $_POST["id"];
-    $uname = $_SESSION["username"];
-    $user_id = $_SESSION["id"];
-    $price = 50;
-    if ($breakfast) {
-        $price += 10;
-    }
-    if ($parking) {
-        $price += 3;
-    }
-    if ($pet) {
-        $price += 5;
-    }
-
-    $sql = "SELECT * FROM `reservation` WHERE `user_id` = '$user_id'";
-    $result = $db_obj->query($sql);
-    
-    $sql = "UPDATE `reservation` SET `checkin`=?, `checkout`=?, `breakfast`=?, `parking`=?, `pet`=?, `users_username`=?, `time`=?, `user_id`=? WHERE `id` = $id";
-    $stmt = $db_obj->prepare($sql);
-    $stmt->bind_param("ssiiissi", $checkin, $checkout, $breakfast, $parking, $pet, $uname, $datenow, $user_id);
-    if($stmt->execute()){
-        $updated = true;
+    if ($checkin >= $checkout) {
+        $errors["checkin"] = true;
+        $errors["checkout"] = true;
     } else {
-        $errors["connection"] = true;
+        require_once('config/dbaccess.php');
+        $db_obj = new mysqli($host, $user, $password, $database);
+        if ($db_obj->connect_error) {
+            $errors["connection"] = true;
+            exit();
+        }
+        $breakfast = $_POST["breakfast"];
+        $parking = $_POST["parking"];
+        $pet = $_POST["pet"];
+        $id = $_POST["id"];
+        $uname = $_SESSION["username"];
+        $user_id = $_SESSION["id"];
+        $price = 50;
+        if ($breakfast) {
+            $price += 10;
+        }
+        if ($parking) {
+            $price += 3;
+        }
+        if ($pet) {
+            $price += 5;
+        }
+
+        $sql = "UPDATE `reservation` SET `checkin`=?, `checkout`=?, `breakfast`=?, `parking`=?, `pet`=?, `users_username`=?, `time`=?, `user_id`=? WHERE `id` = $id";
+        $stmt = $db_obj->prepare($sql);
+        $stmt->bind_param("ssiiissi", $checkin, $checkout, $breakfast, $parking, $pet, $uname, $datenow, $user_id);
+        if ($stmt->execute()) {
+            $updated = true;
+        } else {
+            $errors["connection"] = true;
+        }
+        $stmt->close();
+        $db_obj->close();
     }
-    $stmt->close();
-    $db_obj->close();
-} 
+}
 ?>
 
 <!DOCTYPE html>
@@ -59,22 +64,41 @@ if ($_SERVER["REQUEST_METHOD"] === "POST"
 </head>
 
 <body>
-    <?php if ($errors["connection"]) { 
-                $errors["connection"] = false;
-                header("Refresh: 2, url=meine_reservierungen.php");
+    <?php if($errors["checkin"] || $errors["checkout"]) { 
+        $errors["checkin"] = true;
+        $errors["checkout"] = true;
+        header("Refresh: 2, url=meine_reservierungen.php");
+    ?>
+        <div class="alert alert-danger text-center" role="alert">
+            Geben Sie bitte gültige Daten ein!
+        </div>
+    <?php } elseif ($errors["connection"]) {
+        $errors["connection"] = false;
+        header("Refresh: 2, url=meine_reservierungen.php");
     ?>
         <div class="alert alert-danger text-center" role="alert">
             Reservierung konnte nicht geändert werden!
         </div>
-    <?php } elseif ($updated) { 
-                $updated = false;
-                header("Refresh: 2, url=meine_reservierungen.php");          
+    <?php } elseif ($updated) {
+        $updated = false;
+        header("Refresh: 2, url=meine_reservierungen.php");
     ?>
-       <div class="alert alert-success text-center" role="alert">
+        <div class="alert alert-success text-center" role="alert">
             Reservierung wurde geändert!
-        </div> 
+        </div>
     <?php } ?>
-    <?php if ($result->num_rows > 0) { ?>
+    <?php
+    // dropdown list with reservations of logged in user
+    require_once('config/dbaccess.php');
+    $db_obj = new mysqli($host, $user, $password, $database);
+    if ($db_obj->connect_error) {
+        $errors["connection"] = true;
+        exit();
+    }
+    $user_id = $_SESSION["id"];
+    $sql = "SELECT * FROM `reservation` WHERE `user_id` = '$user_id'";
+    $result = $db_obj->query($sql);
+    if ($result->num_rows > 0) { ?>
         <form method="POST">
             <div class="row">
                 <div class="col-sm-6 offset-sm-3 text-center">
@@ -98,10 +122,6 @@ if ($_SERVER["REQUEST_METHOD"] === "POST"
             </div>
         </form>
     <?php } ?>
-
-
-
-
     <?php
     // form to change own reservations
     if (
@@ -118,66 +138,60 @@ if ($_SERVER["REQUEST_METHOD"] === "POST"
         }
         $sql = "SELECT * FROM `reservation` WHERE `id` = '$id'";
         $result = $db_obj->query($sql);
-        if ($result->num_rows == 0) {
-            echo "no reservation with this id";
-        } else {
-            $row = $result->fetch_assoc(); ?>
-            <div class="container-fluid">
-                <form method="POST">
-                    <div class="row">
-                        <div class="col-sm-6 offset-sm-3 text-center">
-                            <div class="mb-3">
-                                <label for="checkin" class="form-label">Check-In</label>
-                                <input type="date" value="<?php echo $row["checkin"] ?>" class="form-control " name="checkin" id="checkin" required>
-                            </div>
+        $row = $result->fetch_assoc(); ?>
+        <div class="container-fluid">
+            <form method="POST">
+                <div class="row">
+                    <div class="col-sm-6 offset-sm-3 text-center">
+                        <div class="mb-3">
+                            <label for="checkin" class="form-label">Check-In</label>
+                            <input type="date" value="<?php echo $row["checkin"] ?>" class="form-control " name="checkin" id="checkin" required>
+                        </div>
 
-                            <div class="mb-3">
-                                <label for="checkout" class="form-label">Check-Out</label>
-                                <input type="date" value="<?php echo $row["checkout"] ?>" class="form-control " name="checkout" id="checkout" required>
-                            </div>
+                        <div class="mb-3">
+                            <label for="checkout" class="form-label">Check-Out</label>
+                            <input type="date" value="<?php echo $row["checkout"] ?>" class="form-control " name="checkout" id="checkout" required>
+                        </div>
 
-                            <div class="mb-3">
-                                <label for="breakfast" class="form-label">Frühstück</label>
-                                <select class="form-select" name="breakfast" aria-label="Default select example" required>
-                                    <option value="1" <?php if ($row['breakfast'] == 1) { ?> selected <?php } ?>>Ja</option>
-                                    <option value="0" <?php if ($row['breakfast'] == 0) { ?> selected <?php } ?>>Nein</option>
+                        <div class="mb-3">
+                            <label for="breakfast" class="form-label">Frühstück</label>
+                            <select class="form-select" name="breakfast" aria-label="Default select example" required>
+                                <option value="1" <?php if ($row['breakfast'] == 1) { ?> selected <?php } ?>>Ja</option>
+                                <option value="0" <?php if ($row['breakfast'] == 0) { ?> selected <?php } ?>>Nein</option>
 
-                                </select>
-                            </div>
+                            </select>
+                        </div>
 
-                            <div class="mb-3">
-                                <label for="parking" class="form-label">Parkplatz</label>
-                                <select class="form-select" name="parking" aria-label="Default select example" required>
-                                    <option value="1" <?php if ($row['parking'] == 1) { ?> selected <?php } ?>>Ja</option>
-                                    <option value="0" <?php if ($row['parking'] == 0) { ?> selected <?php } ?>>Nein</option>
+                        <div class="mb-3">
+                            <label for="parking" class="form-label">Parkplatz</label>
+                            <select class="form-select" name="parking" aria-label="Default select example" required>
+                                <option value="1" <?php if ($row['parking'] == 1) { ?> selected <?php } ?>>Ja</option>
+                                <option value="0" <?php if ($row['parking'] == 0) { ?> selected <?php } ?>>Nein</option>
 
-                                </select>
-                            </div>
+                            </select>
+                        </div>
 
-                            <div class="mb-3">
-                                <label for="pet" class="form-label">Haustier</label>
-                                <select class="form-select" name="pet" aria-label="Default select example" required>
-                                    <option value="1" <?php if ($row['pet'] == 1) { ?> selected <?php } ?>>Ja</option>
-                                    <option value="0" <?php if ($row['pet'] == 0) { ?> selected <?php } ?>>Nein</option>
+                        <div class="mb-3">
+                            <label for="pet" class="form-label">Haustier</label>
+                            <select class="form-select" name="pet" aria-label="Default select example" required>
+                                <option value="1" <?php if ($row['pet'] == 1) { ?> selected <?php } ?>>Ja</option>
+                                <option value="0" <?php if ($row['pet'] == 0) { ?> selected <?php } ?>>Nein</option>
 
-                                </select>
-                            </div>
+                            </select>
+                        </div>
 
-                            <div class="mb-3">
-                                <input type="hidden" value="<?php echo $row["id"] ?>" class="form-control " name="id" id="id">
-                            </div>
-                            <div class="mb-3">
-                                <input type="hidden" name="reserve" value="reserve">
-                                <button class="btn btn-primary">Updaten</button>
-                            </div>
+                        <div class="mb-3">
+                            <input type="hidden" value="<?php echo $row["id"] ?>" class="form-control " name="id" id="id">
+                        </div>
+                        <div class="mb-3">
+                            <input type="hidden" name="updaten" value="updaten">
+                            <button class="btn btn-primary">Updaten</button>
                         </div>
                     </div>
-                </form>
-            </div>
-        <?php
-        }
-        $db_obj->close();
-        ?>
+                </div>
+            </form>
+        </div>
+        <?php $db_obj->close(); ?>
     <?php } ?>
 </body>
 
