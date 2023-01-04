@@ -85,43 +85,51 @@ if (
                     $sname = htmlspecialchars($_POST["secondname"], ENT_QUOTES);
                     $profilepic = $_FILES["file"]["tmp_name"];
                     $path = $uploadDir . $uname . ".jpg";
-                    
+                    // prepared insert statement
                     $sql = "INSERT INTO `users` (`username`, `password`, `useremail`, `formofadress`, `firstname`, `secondname`, `path`) VALUES (?,?,?,?,?,?,?)";
                     $stmt = $db_obj -> prepare ($sql);
                     $stmt -> bind_param("sssssss", $uname, $pass, $mail, $fod, $fname, $sname, $path);
-
-                    $sql = "SELECT * FROM `users` WHERE `username` = '$uname'";
-                    $result = $db_obj->query($sql);
-                    if ($result->num_rows > 0) {
-                        $errors["exists"] = true;
-                    } else {
-                        if($uname === $_POST["username"]
-                            && password_verify($_POST["password"],$pass)
-                            && password_verify($_POST["password2"],$pass)
-                            && $mail === $_POST["useremail"]
-                            && $fname === $_POST["firstname"]
-                            && $sname === $_POST["secondname"]){
-                            if ($stmt -> execute()){
-                                $sql = "SELECT * FROM `users` WHERE `username` = '$uname'";
-                                $result = $db_obj->query($sql);
-                                if($result->num_rows == 1){
-                                    $row = $result->fetch_assoc();
-                                    move_uploaded_file($profilepic, $path);
-                                    $_SESSION["id"] = $row["id"];
-                                    $_SESSION["username"] = $uname;
-                                    $_SESSION["admin"] = $row["admin"];
-                                    $registered = true;
+                    // prepared select statement to check if username exists already or not
+                    // used prepare statement for select to further protect against sql injection
+                    $uname_taken = "SELECT * FROM `users` WHERE `username` = ?";
+                    $stmt_uname_taken = $db_obj -> prepare ($uname_taken);
+                    $stmt_uname_taken -> bind_param("s", $uname);
+                    if($stmt_uname_taken->execute()){
+                        $result = $stmt_uname_taken->get_result();
+                        if ($result->num_rows > 0) {
+                            $errors["exists"] = true;
+                        } else {
+                            if($uname === $_POST["username"]
+                                && password_verify($_POST["password"],$pass)
+                                && password_verify($_POST["password2"],$pass)
+                                && $mail === $_POST["useremail"]
+                                && $fname === $_POST["firstname"]
+                                && $sname === $_POST["secondname"]){
+                                if ($stmt -> execute()){
+                                    $sql = "SELECT * FROM `users` WHERE `username` = '$uname'";
+                                    $result = $db_obj->query($sql);
+                                    if($result->num_rows == 1){
+                                        $row = $result->fetch_assoc();
+                                        move_uploaded_file($profilepic, $path);
+                                        $_SESSION["id"] = $row["id"];
+                                        $_SESSION["username"] = $uname;
+                                        $_SESSION["admin"] = $row["admin"];
+                                        $registered = true;
+                                    } else {
+                                        $errors["insert"] = true;
+                                    }
                                 } else {
                                     $errors["insert"] = true;
                                 }
                             } else {
                                 $errors["insert"] = true;
                             }
-                        } else {
-                            $errors["insert"] = true;
                         }
+                    } else {
+                        $errors["insert"] = true;
                     }
                     $stmt -> close();
+                    $stmt_uname_taken-> close();
                     $db_obj-> close();
                     }
                 } else {
@@ -161,7 +169,7 @@ if (
             </div>
         <?php } elseif($registered) { 
                     $registered = false;
-                    header("Refresh: 2, url=login.php");           
+                    header("Refresh: 2, url=mein_profil.php");           
         ?>
             <div class="alert alert-success text-center" role="alert">
                 Registrierung erfolgreich!
