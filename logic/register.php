@@ -85,10 +85,12 @@ if (
                     $sname = htmlspecialchars($_POST["secondname"], ENT_QUOTES);
                     $profilepic = $_FILES["file"]["tmp_name"];
                     $path = $uploadDir . $uname . ".jpg";
+
                     // prepared insert statement
                     $sql = "INSERT INTO `users` (`username`, `password`, `useremail`, `formofadress`, `firstname`, `secondname`, `path`) VALUES (?,?,?,?,?,?,?)";
                     $stmt = $db_obj -> prepare ($sql);
                     $stmt -> bind_param("sssssss", $uname, $pass, $mail, $fod, $fname, $sname, $path);
+                    
                     // prepared select statement to check if username exists already or not
                     // used prepare statement for select to further protect against sql injection
                     $uname_taken = "SELECT * FROM `users` WHERE `username` = ?";
