@@ -16,12 +16,13 @@ session_start();
                         <a class="nav-link" href="login.php">Login</a>
                     </li>
                 <?php } elseif (isset($_SESSION["username"])) { ?>
-                    <li class="nav-item">
-                        <a class="nav-link" href="mein_profil.php"><?php echo $_SESSION["username"]; ?></a>
+                    <li class="navbar-item">
+                        <a class="nav-link" href="mein_profil.php">
+                            <img src="uploads/profilepics/<?php echo $_SESSION["username"]; ?>.jpg" width="30" height="30" class="d-inline-block align-top rounded-circle" alt="nav_profilbild"> <?php echo $_SESSION["username"]; ?>
+                        </a>
                     </li>
                 <?php } ?>
                 <?php if (isset($_SESSION["username"]) && $_SESSION["admin"]) { ?>
-
                     <li class="nav-item">
                         <a class="nav-link" href="admin_userverwaltung.php">User-Verwaltung</a>
                     </li>
@@ -47,7 +48,11 @@ session_start();
                     </li>
                 <?php } ?>
                 <li class="nav-item">
-                    <a class="nav-link" href="blog.php"><?php if (isset($_SESSION["username"]) && $_SESSION["admin"]) { echo "Blog-Verwaltung"; } else { echo "Blog"; }?></a>
+                    <a class="nav-link" href="blog.php"><?php if (isset($_SESSION["username"]) && $_SESSION["admin"]) {
+                                                            echo "Blog-Verwaltung";
+                                                        } else {
+                                                            echo "Blog";
+                                                        } ?></a>
                 </li>
                 <li class="nav-item">
                     <a class="nav-link" href="hilfe.php">Hilfe</a>
