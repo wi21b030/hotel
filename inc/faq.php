@@ -14,13 +14,13 @@
         <?php if (!isset($_SESSION["username"])) { ?>
             <div class="accordion-item">
                 <h2 class="accordion-header" id="headingOne">
-                    <button class="accordion-button" type="button" data-bs-toggle="collapse" data-bs-target="#collapseOne" aria-expanded="true" aria-controls="collapseOne">
+                    <button class="accordion-button" type="button" data-bs-toggle="collapse" data-bs-target="#collapseOne" aria-expanded="false" aria-controls="collapseOne">
                         Wie registrieren Sie sich?
                     </button>
                 </h2>
-                <div id="collapseOne" class="accordion-collapse collapse show" aria-labelledby="headingOne" data-bs-parent="#accordionExample">
+                <div id="collapseOne" class="accordion-collapse collapse" aria-labelledby="headingOne" data-bs-parent="#accordionExample">
                     <div class="accordion-body">
-                        <a href="registrierung.php">Hier</a> gelangen Sie zur Seite für die Registrierung. Alternativ können Sie die Seite auf unserer Homepage aufrufen indem Sie auf den Button <strong>Registrierung</strong> klicken.
+                        <a href="registrierung.php">Hier</a> gelangen Sie zur Seite für die Registrierung. Alternativ können Sie die Seite auf unserer Homepage aufrufen indem Sie auf der Navigationsleiste auf <strong>Registrierung</strong> klicken.
                     </div>
                 </div>
             </div>
@@ -33,10 +33,10 @@
             </h2>
             <div id="collapseTwo" class="accordion-collapse collapse" aria-labelledby="headingTwo" data-bs-parent="#accordionExample">
                 <div class="accordion-body">
-                    <?php if (!isset($_SESSION["username"])) { ?>
-                        Wenn Sie reservieren wollen, müssen Sie <a href="registrierung.php">registriert</a> oder <a href="login.php">eingeloggt</a> sein.
-                    <?php } else { ?>
+                    <?php if (isset($_SESSION["username"]) && !$_SESSION["admin"]) { ?>
                         <a href="reservieren.php">Hier</a> gelangen Sie zur Seite zum Reservieren!
+                    <?php } else { ?>
+                        Wenn Sie reservieren wollen, müssen Sie <a href="registrierung.php">registriert</a> oder <a href="login.php">eingeloggt</a> sein.                        
                     <?php } ?>
                 </div>
             </div>

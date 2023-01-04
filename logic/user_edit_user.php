@@ -91,7 +91,7 @@ if (
         $sql = "SELECT * FROM `users` WHERE `username` = '$uname'";
         $result = $db_obj->query($sql);
         $row = $result->fetch_assoc();
-        if ($result->num_rows > 0 && $row["id"] !== $id) {
+        if ($result->num_rows > 0 && $row["id"] != $id) {
             $errors["update"] = true;
         } else {
             if (password_verify($oldpass, $row["password"])) {

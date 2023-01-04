@@ -94,7 +94,7 @@ if (
             
             $sql = "SELECT * FROM `users` WHERE `username` = '$uname'";
             $result = $db_obj->query($sql);
-            if ($result->num_rows > 0 && $result->fetch_assoc()["id"] !== $id) {
+            if ($result->num_rows > 0 && $result->fetch_assoc()["id"] != $id) {
                 $errors["update"] = true;
             } else {
                 if ($stmt->execute()) {

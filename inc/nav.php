@@ -1,5 +1,10 @@
 <?php
 session_start();
+
+if($_SERVER["REQUEST_METHOD"] === "POST" && isset($_POST["logout"])){
+    session_destroy();
+    header("Location: login.php");
+}
 ?>
 
 <?php include "bootstrap.php"; ?>
@@ -62,8 +67,8 @@ session_start();
                 </li>
             </ul>
             <?php if (isset($_SESSION["username"])) { ?>
-                <form action="logic/logout.php" class="d-flex">
-                    <button class="btn btn-outline-danger" type="submit">Logout</button>
+                <form class="d-flex" method="POST">
+                    <button class="btn btn-outline-danger" name="logout" type="submit">Logout</button>
                 </form>
             <?php } ?>
         </div>
