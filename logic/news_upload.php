@@ -225,8 +225,8 @@ if (
         $result = $db_obj->query($sql); ?>
         <?php if ($result->num_rows > 0) : ?>
             <?php while ($row = $result->fetch_assoc()) : ?>
-                <!-- every post redirects to travel guide website 1000 things search containing title of post -->
-                <a style="text-decoration: none" href="https://www.1000things.at/suche/<?php echo $row["title"] ?>" class="text-dark">
+                <!-- href="https://www.1000things.at/suche/ <?php //echo $row["title"] ?>" -->
+                <a style="text-decoration: none" href="" class="text-dark">
                     <div class="row mb-4 border-bottom pb-2">
                         <div class="col-3">
                             <img src="<?php echo $row["path"] ?>" class="img-fluid shadow-1-strong rounded" alt="<?php $row["title"] ?>"/>
