@@ -84,7 +84,7 @@ if (isset($_POST['checkin'], $_POST['checkout'], $_POST['breakfast'], $_POST['pa
 
 
     <?php
-    // Formular zum Ändern der Reservierung
+    // form to change own reservations
     if (
         $_SERVER["REQUEST_METHOD"] === "POST"
         && isset($_POST["edit"])

@@ -12,7 +12,7 @@ if (!file_exists($uploadDirPic)) {
     mkdir($uploadDirPic);
 }
 
-// ressample image here, only works if extension 'gd' installed -> returns true if resampled
+// resample image here, only works if extension 'gd' installed -> returns true if resampled
 function thumbnailmade($pic, $path) {
     $made = false;
     list($width, $height)=getimagesize($pic);
@@ -37,7 +37,7 @@ function thumbnailmade($pic, $path) {
     return $made;
 }
 
-// Delete vom News-Upload
+// delete of chosen blog post
 if (
     $_SERVER["REQUEST_METHOD"] === "POST"
     && isset($_POST["delete"])
@@ -77,7 +77,7 @@ if (
     $db_obj->close();
 }
 
-// Insert vom News-Upload
+// insert of new blog post
 if (
     $_SERVER["REQUEST_METHOD"] === "POST"
     && isset($_POST["uploaden"])
@@ -212,7 +212,7 @@ if (
             </form>
         </div>
     <?php endif ?>
-    <!-- Ausgabe ver News-Beiträge -->
+    <!-- output of news blog posts -->
     <?php if (file_exists($uploadDirPic)) : ?>
         <?php
         require_once('config/dbaccess.php');

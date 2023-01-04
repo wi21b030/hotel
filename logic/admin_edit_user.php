@@ -24,7 +24,7 @@ function test_input($data)
     return $data;
 }
 
-// Error Handling sobald man "Updaten" klickt
+// error handling for form
 if (
     $_SERVER["REQUEST_METHOD"] === "POST"
     && isset($_POST["updaten"])
@@ -164,7 +164,7 @@ if (
         </div>
     <?php } ?>
     <?php
-    // Dropdown-Liste mit allen Usern (aber keine Admins)
+    // dropdown list with all users who are not admins, sorted by username alphabetically
     require_once('config/dbaccess.php');
     $db_obj = new mysqli($host, $user, $password, $database);
     if ($db_obj->connect_error) {

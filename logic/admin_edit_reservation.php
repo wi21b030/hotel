@@ -6,7 +6,7 @@ $errors["connection"] = false;
 $errors["update"] = false;
 $updated = false;
 
-// Check ob Datum stimmt
+// check if date valid
 if($_SERVER["REQUEST_METHOD"] === "POST"
     && isset($_POST["updaten"])
     && $_POST["updaten"] === "updaten") {
@@ -19,7 +19,7 @@ if($_SERVER["REQUEST_METHOD"] === "POST"
     }
 }
 
-// Ausführung des Updates
+// execution of update statement
 if($_SERVER["REQUEST_METHOD"] === "POST"
     && isset($_POST["updaten"])
     && $_POST["updaten"] === "updaten") {
@@ -62,7 +62,7 @@ if($_SERVER["REQUEST_METHOD"] === "POST"
 </head>
 
 <body>
-    <!-- Alerts für verschiedene Edge-Cases  -->
+    <!-- alerts for different edge cases  -->
     <?php if($errors["date"]) { 
                 $errors["date"] = false;
                 header("Refresh: 2, url=admin_reservierungsverwaltung.php");
@@ -87,7 +87,7 @@ if($_SERVER["REQUEST_METHOD"] === "POST"
         </div> 
     <?php } ?>
     <?php
-    // Dropdown-Liste mit allen distinkten Usern die in der Reservierungs-Tabelle sind
+    // dropdown list with all distinct users with at least one reservation
     require_once('config/dbaccess.php');
     $db_obj = new mysqli($host, $user, $password, $database);
     if ($db_obj->connect_error) {
@@ -127,7 +127,7 @@ if($_SERVER["REQUEST_METHOD"] === "POST"
         && isset($_POST["choose"])
         && $_POST["choose"] === "choose"
     ) {
-        // Dropdown-Liste mit allen Reservierungen des ausgewählten Users
+        // dropdown list with all reservations of chosen user
         require_once('config/dbaccess.php');
         $db_obj = new mysqli($host, $user, $password, $database);
         if ($db_obj->connect_error) {
@@ -164,7 +164,7 @@ if($_SERVER["REQUEST_METHOD"] === "POST"
         <?php $db_obj->close(); ?>
     <?php } ?>
     <?php
-    // Formular zum Ändern der Reservierung
+    // form for updating reservation
     if (
         $_SERVER["REQUEST_METHOD"] === "POST"
         && isset($_POST["edit"])
