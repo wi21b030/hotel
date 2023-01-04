@@ -60,11 +60,13 @@ if (
     && isset($_POST["updaten"])
     && $_POST["updaten"] === "updaten"
 ) {
-    if(!$errors["firstname"]
+    if (
+        !$errors["firstname"]
         && !$errors["secondname"]
         && !$errors["useremail"]
         && !$errors["username"]
-        && !$errors["password"]){
+        && !$errors["password"]
+    ) {
         $extension = pathinfo($_FILES["file"]["name"], PATHINFO_EXTENSION);
         if ($extension == 'jpg' || $extension == 'jpeg' || $extension == 'png' || $extension == 'gif') {
 
@@ -91,7 +93,7 @@ if (
             $sql = "UPDATE `users` SET `active`=?, `username`=?, `password`=?, `useremail`=?, `formofadress`=?, `firstname`=?, `secondname`=?, `path`=? WHERE `id`=?";
             $stmt = $db_obj->prepare($sql);
             $stmt->bind_param("isssssssi", $active, $uname, $pass, $mail, $fod, $fname, $sname, $path, $id);
-            
+
             $sql = "SELECT * FROM `users` WHERE `username` = '$uname'";
             $result = $db_obj->query($sql);
             if ($result->num_rows > 0 && $result->fetch_assoc()["id"] != $id) {
@@ -174,11 +176,15 @@ if (
     $sql = "SELECT * FROM `users` WHERE `admin` = FALSE ORDER BY `username`";
     $result = $db_obj->query($sql); ?>
     <?php if ($result->num_rows > 0) { ?>
-        <form action="admin_profilverwaltung.php" method="POST">
+        <form method="POST">
             <div class="row">
                 <div class="col-sm-6 offset-sm-3 text-center">
-                    <label style="display:<?php if (isset($_POST["edit"]) && $_POST["edit"] === "edit") { echo "none"; } ?>;" for="username" class="form-label">User</label>
-                    <select name="id" style="display:<?php if (isset($_POST["edit"]) && $_POST["edit"] === "edit") { echo "none"; } ?>;" class="form-select" name="username" aria-label="Default select example" required>
+                    <label style="display:<?php if (isset($_POST["edit"]) && $_POST["edit"] === "edit") {
+                                                echo "none";
+                                            } ?>;" for="username" class="form-label">User</label>
+                    <select name="id" style="display:<?php if (isset($_POST["edit"]) && $_POST["edit"] === "edit") {
+                                                            echo "none";
+                                                        } ?>;" class="form-select" name="username" aria-label="Default select example" required>
                         <?php while ($row = $result->fetch_assoc()) : ?>
                             <option value="<?php echo $row["id"] ?>"><?php echo $row["username"] ?></option>
                         <?php endwhile ?>
@@ -218,6 +224,10 @@ if (
                 <form enctype="multipart/form-data" method="POST">
                     <div class="row">
                         <div class="col-sm-6 offset-sm-3 text-center">
+                            <label for="profilepic" class="form-label">Profilbild</label>
+                            <div class="mb-3">
+                                <img src="<?php echo $row["path"] ?>" class="rounded-3" style="width: 150px;" alt="Avatar" />
+                            </div>
                             <div class="mb-3">
                                 <label for="formofadress" class="form-label">Anrede</label>
                                 <select class="form-select" name="formofadress" aria-label="Default select example" required>
@@ -253,8 +263,8 @@ if (
                             <div class="mb-3">
                                 <label for="active" class="form-label">Account-Validität</label>
                                 <select class="form-select" name="active" aria-label="Default select example" required>
-                                    <option value="0">Nicht Aktiv</option>
-                                    <option value="1">Aktiv</option>
+                                    <option value="0" <?php if (!$row['active']) { ?> selected <?php } ?>>Nicht Aktiv</option>
+                                    <option value="1" <?php if ($row['active']) { ?> selected <?php } ?>>Aktiv</option>
                                 </select>
                             </div>
                             <div class="mb-3">

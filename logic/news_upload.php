@@ -18,12 +18,12 @@ function thumbnailmade($pic, $path) {
     list($width, $height)=getimagesize($pic);
     $ratio = $width/$height;
     if( $ratio > 1) {
-        $nwidth = 500;
-        $nheight = 500/$ratio;
+        $nwidth = 300;
+        $nheight = 300/$ratio;
     }
     else {
-        $nwidth = 500*$ratio;
-        $nheight = 500;
+        $nwidth = 300*$ratio;
+        $nheight = 300;
     }
     // if instead we want to use specific ratio then use commented code below
     // $nwidth = $width * 0.75;
@@ -225,7 +225,8 @@ if (
         $result = $db_obj->query($sql); ?>
         <?php if ($result->num_rows > 0) : ?>
             <?php while ($row = $result->fetch_assoc()) : ?>
-                <a style="text-decoration: none" href="blog.php" class="text-dark">
+                <!-- every post redirects to travel guide website 1000 things search containing title of post -->
+                <a style="text-decoration: none" href="https://www.1000things.at/suche/<?php echo $row["title"] ?>" class="text-dark">
                     <div class="row mb-4 border-bottom pb-2">
                         <div class="col-3">
                             <img src="<?php echo $row["path"] ?>" class="img-fluid shadow-1-strong rounded" alt="<?php $row["title"] ?>"/>

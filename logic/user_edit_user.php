@@ -53,7 +53,7 @@ if (
     if (empty($_POST["passwordold"]) || !isset($_POST["passwordold"])) {
         $errors["passwordold"] = true;
     }
-    if(empty($_POST["file"]) || !isset($_POST["file"])){
+    if (empty($_POST["file"]) || !isset($_POST["file"])) {
         $errors["file"] = true;
     }
 }
@@ -87,7 +87,7 @@ if (
         $sql = "UPDATE `users` SET  `username`=?, `password`=?, `useremail`=?, `formofadress`=?, `firstname`=?, `secondname`=?, `path`=? WHERE `id`=$id";
         $stmt = $db_obj->prepare($sql);
         $stmt->bind_param("sssssss", $uname, $pass, $mail, $fod, $fname, $sname, $path);
-        
+
         $sql = "SELECT * FROM `users` WHERE `username` = '$uname'";
         $result = $db_obj->query($sql);
         $row = $result->fetch_assoc();
@@ -95,7 +95,7 @@ if (
             $errors["update"] = true;
         } else {
             if (password_verify($oldpass, $row["password"])) {
-                if($stmt->execute()){
+                if ($stmt->execute()) {
                     move_uploaded_file($profilepic, $path);
                     $updated = true;
                 } else {
@@ -103,7 +103,7 @@ if (
                 }
             } else {
                 $errors["update"] = true;
-            }   
+            }
         }
         $stmt->close();
         $db_obj->close();
@@ -124,7 +124,7 @@ if (
 </head>
 
 <body>
-    <?php if ($errors["connection"] || $errors["update"]) { 
+    <?php if ($errors["connection"] || $errors["update"]) {
         $errors["connection"] = false;
         $errors["update"] = false;
         header("Refresh: 2, url=mein_profil.php");
@@ -139,9 +139,9 @@ if (
             </div>
         </div>
     <?php } ?>
-    <?php if ($updated) { 
-            $updated = false;
-            header("Refresh: 2, url=mein_profil.php");
+    <?php if ($updated) {
+        $updated = false;
+        header("Refresh: 2, url=mein_profil.php");
     ?>
         <div class="container-fluid">
             <div class="row">
@@ -154,75 +154,73 @@ if (
         </div>
     <?php } ?>
     <?php
-        require_once('config/dbaccess.php');
-        $db_obj = new mysqli($host, $user, $password, $database);
-        if ($db_obj->connect_error) {
-            $errors["connection"] = true;
-            exit();
-        }
-        $id = $_SESSION["id"];
-        $sql = "SELECT * FROM `users` WHERE `id` = '$id'";
-        $result = $db_obj->query($sql);
-        if ($result->num_rows == 0) {
-            $errors["exists"] = true;
-        } else {
-            $row = $result->fetch_assoc(); ?>
-            <div class="container-fluid">
-                <div class="row mb-2 mt-1">
-                <div class="col-sm-6 offset-sm-3 text-center">
-                    <img src="<?php echo $row["path"] ?>" class="rounded-3" style="width: 150px;"
-                    alt="Avatar" />
-                </div>
-                </div>
-                <form enctype="multipart/form-data" method="POST">
-                    <div class="row">
-                        <div class="col-sm-6 offset-sm-3 text-center">
-                            <div class="mb-3">
-                                <label for="formofadress" class="form-label">Anrede</label>
-                                <select class="form-select" name="formofadress" aria-label="Default select example" required>
-                                    <option value="1" <?php if ($row['formofadress'] == 1) { ?> selected <?php } ?>>Herr</option>
-                                    <option value="2" <?php if ($row['formofadress'] == 2) { ?> selected <?php } ?>>Frau</option>
-                                    <option value="3" <?php if ($row['formofadress'] == 3) { ?> selected <?php } ?>>Keine Angabe</option>
-                                </select>
-                            </div>
-                            <div class="mb-3">
-                                <label for="firstname" class="form-label">Vorname</label>
-                                <input type="text" value="<?php echo $row["firstname"] ?>" class="form-control <?php if ($errors['firstname']) echo 'is-invalid'; ?>" name="firstname" id="firstname" required>
-                            </div>
-                            <div class="mb-3">
-                                <label for="exampleInputPassword1" class="form-label">Nachname</label>
-                                <input type="text" value="<?php echo $row["secondname"] ?>" class="form-control <?php if ($errors['secondname']) echo 'is-invalid'; ?>" name="secondname" id="exampleInputPassword1" required>
-                            </div>
-                            <div class="mb-3">
-                                <label for="exampleInputEmail1" class="form-label">Email</label>
-                                <input type="email" value="<?php echo $row["useremail"] ?>" class="form-control <?php if ($errors['useremail']) echo 'is-invalid'; ?>" name="useremail" id="exampleInputEmail1" required>
-                            </div>
-                            <div class="mb-3">
-                                <label for="username" class="form-label">Username</label>
-                                <input type="text" value="<?php echo $row["username"] ?>" class="form-control <?php if ($errors['username']) echo 'is-invalid'; ?>" name="username" id="username" required>
-                            </div>
-                            <div class="mb-3">
-                                <label for="passwordold" class="form-label">Altes Passwort</label>
-                                <input type="password" class="form-control <?php if ($errors['passwordold']) echo 'is-invalid'; ?>" name="passwordold" id="passwordold" minlength="8"  required>
-                            </div>
-                            <div class="mb-3">
-                                <label for="password" class="form-label">Neues Passwort</label>
-                                <input type="password" class="form-control <?php if ($errors['password']) echo 'is-invalid'; ?>" name="password" id="password" minlength="8" required>
-                            </div>
-                            <div class="mb-3">
-                                <label for="formFile" class="form-label">Profilbild</label>
-                                <input class="form-control <?php if ($errors['file']) echo 'is-invalid'; ?>" name="file" type="file" id="formFile" accept="image/*" required>
-                            </div>
-                            
-                            <div class="mb-3">
-                                <input type="hidden" name="updaten" value="updaten">
-                                <button class="btn btn-primary">Updaten</button>
-                            </div>
-                            <input type="hidden" name="id" value="<?php echo $row["id"] ?>">
+    require_once('config/dbaccess.php');
+    $db_obj = new mysqli($host, $user, $password, $database);
+    if ($db_obj->connect_error) {
+        $errors["connection"] = true;
+        exit();
+    }
+    $id = $_SESSION["id"];
+    $sql = "SELECT * FROM `users` WHERE `id` = '$id'";
+    $result = $db_obj->query($sql);
+    if ($result->num_rows == 0) {
+        $errors["exists"] = true;
+    } else {
+        $row = $result->fetch_assoc(); ?>
+        <div class="container-fluid">
+            <form enctype="multipart/form-data" method="POST">
+                <div class="row">
+                    <div class="col-sm-6 offset-sm-3 text-center">
+                        <label for="profilepic" class="form-label">Profilbild</label>
+                        <div class="mb-3">
+                            <img src="<?php echo $row["path"] ?>" class="rounded-3" style="width: 150px;" alt="Avatar" />
                         </div>
+                        <div class="mb-3">
+                            <label for="formofadress" class="form-label">Anrede</label>
+                            <select class="form-select" name="formofadress" aria-label="Default select example" required>
+                                <option value="1" <?php if ($row['formofadress'] == 1) { ?> selected <?php } ?>>Herr</option>
+                                <option value="2" <?php if ($row['formofadress'] == 2) { ?> selected <?php } ?>>Frau</option>
+                                <option value="3" <?php if ($row['formofadress'] == 3) { ?> selected <?php } ?>>Keine Angabe</option>
+                            </select>
+                        </div>
+                        <div class="mb-3">
+                            <label for="firstname" class="form-label">Vorname</label>
+                            <input type="text" value="<?php echo $row["firstname"] ?>" class="form-control <?php if ($errors['firstname']) echo 'is-invalid'; ?>" name="firstname" id="firstname" required>
+                        </div>
+                        <div class="mb-3">
+                            <label for="exampleInputPassword1" class="form-label">Nachname</label>
+                            <input type="text" value="<?php echo $row["secondname"] ?>" class="form-control <?php if ($errors['secondname']) echo 'is-invalid'; ?>" name="secondname" id="exampleInputPassword1" required>
+                        </div>
+                        <div class="mb-3">
+                            <label for="exampleInputEmail1" class="form-label">Email</label>
+                            <input type="email" value="<?php echo $row["useremail"] ?>" class="form-control <?php if ($errors['useremail']) echo 'is-invalid'; ?>" name="useremail" id="exampleInputEmail1" required>
+                        </div>
+                        <div class="mb-3">
+                            <label for="username" class="form-label">Username</label>
+                            <input type="text" value="<?php echo $row["username"] ?>" class="form-control <?php if ($errors['username']) echo 'is-invalid'; ?>" name="username" id="username" required>
+                        </div>
+                        <div class="mb-3">
+                            <label for="passwordold" class="form-label">Altes Passwort</label>
+                            <input type="password" class="form-control <?php if ($errors['passwordold']) echo 'is-invalid'; ?>" name="passwordold" id="passwordold" minlength="8" required>
+                        </div>
+                        <div class="mb-3">
+                            <label for="password" class="form-label">Neues Passwort</label>
+                            <input type="password" class="form-control <?php if ($errors['password']) echo 'is-invalid'; ?>" name="password" id="password" minlength="8" required>
+                        </div>
+                        <div class="mb-3">
+                            <label for="formFile" class="form-label">Profilbild</label>
+                            <input class="form-control <?php if ($errors['file']) echo 'is-invalid'; ?>" name="file" type="file" id="formFile" accept="image/*" required>
+                        </div>
+
+                        <div class="mb-3">
+                            <input type="hidden" name="updaten" value="updaten">
+                            <button class="btn btn-primary">Updaten</button>
+                        </div>
+                        <input type="hidden" name="id" value="<?php echo $row["id"] ?>">
                     </div>
-                </form>
-            </div>
+                </div>
+            </form>
+        </div>
         <?php $db_obj->close(); ?>
     <?php } ?>
 </body>
