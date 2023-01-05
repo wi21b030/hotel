@@ -1,11 +1,17 @@
 Still To Do:
 
 - README.txt-File fertigstellen
+- Code kommentieren
+- Sicherheitslücken schließen (manueller Seitenabruf, SQL-Injections)
 - 4b) Ergänzen mit eigenen Style-Angaben
 - 9aiii) Reservierungen haben einen Status „neu“, „bestätigt“, oder „storniert“
 - 9biv) Mitnahme von Haustieren (individuelle Ausgestaltung möglich)
+- 15f) Anzeigen aller Reservierungen und deren Details
 - 16b) Frühstück, Parkplatz und Haustiere sind mit Aufpreisen zu versehen. Die Höhe der jeweiligen Aufpreise kann vom Projektteam frei (jedoch sinnvoll) selbst gewählt werden.
+       Nachdem auf Buchen geklickt wird, wird zuerst auf 16c) geprüft -> wenn okay dann Preis inkl. Details werden angezeigt und wenn die Person auf Button "Bestätigen" klickt, nur dann wird Reservierung eingetragen
+       Ansonsten wenn auf "Abbrechen" wird -> weitergeleitet auf "reservierung.php"
 - 16c) Für die Reservierung der einzelnen Zimmer ist auch dessen zeitliche Verfügbarkeit zu berücksichtigen!
+       Übrigens wird gerade time(), jedes Mal gespeichert wenn man eine Reservierung ändert, aber es soll nur die ursprüngliche Zeit gespeichert werden.
 - 17c) Sie können den Status einzelner Reservierungen ändern (z.B. von „neu“ auf „bestätigt“).
 - 17d) Zudem können sie die Reservierungen nach allen Statuswerten („neu“, „bestätigt“, oder „storniert“) filtern.
 - 18) Komplett
