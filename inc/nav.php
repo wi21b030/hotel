@@ -23,7 +23,7 @@ if($_SERVER["REQUEST_METHOD"] === "POST" && isset($_POST["logout"])){
                 <?php } elseif (isset($_SESSION["username"])) { ?>
                     <li class="navbar-item">
                         <a class="nav-link" href="mein_profil.php">
-                            <img src="uploads/profilepics/<?php echo $_SESSION["username"]; ?>.jpg" width="30" height="30" class="d-inline-block align-top rounded-circle" alt="nav_profilbild"> <?php echo $_SESSION["username"]; ?>
+                            <img src="<?php echo $_SESSION["profilepic"]."?".time() ?>" width="30" height="30" class="d-inline-block align-top rounded-circle" alt="nav_profilbild"> <?php echo $_SESSION["username"]; ?>
                         </a>
                     </li>
                 <?php } ?>

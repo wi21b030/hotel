@@ -1,0 +1,4 @@
+Still To Do:
+
+- README.txt-File fertigstellen
+- 4b) Ergänzen mit eigenen Style-Angaben

@@ -8,9 +8,7 @@
 </head>
 <body>
     <?php include "inc/nav.php"; ?>
-    <div class="container-fluid">
-        <?php include "logic/user_edit_user.php"; ?>
-    </div>
+    <?php include "logic/user_edit_user.php"; ?>
 
 </body>
 </html>

@@ -54,8 +54,6 @@ if (
 }
 ?>
 
-
-
 <!DOCTYPE html>
 <html lang="en">
 
@@ -67,45 +65,35 @@ if (
 </head>
 
 <body>
-    <?php if ($errors["checkin"] || $errors["checkout"]) {
-        $errors["checkin"] = true;
-        $errors["checkout"] = true;
-        header("Refresh: 2, url=reservierung.php");
-    ?>
-        <div class="alert alert-danger text-center" role="alert">
-            Geben Sie bitte gültige Daten ein!
-        </div>
-    <?php } elseif ($errors["connection"]) {
-        $errors["connection"] = false;
-        header("Refresh: 2, url=reservierung.php");
-    ?>
-        <div class="container-fluid">
-            <div class="row">
-                <div class="col-sm-6 offset-sm-3 text-center">
+    <div class="container-fluid">
+        <div class="row">
+            <div class="col-sm-6 offset-sm-3 text-center">
+                <?php if ($errors["checkin"] || $errors["checkout"]) {
+                    $errors["checkin"] = true;
+                    $errors["checkout"] = true;
+                    header("Refresh: 2, url=reservierung.php");
+                ?>
+                    <div class="alert alert-danger text-center" role="alert">
+                        Geben Sie bitte gültige Daten ein!
+                    </div>
+                <?php } elseif ($errors["connection"]) {
+                    $errors["connection"] = false;
+                    header("Refresh: 2, url=reservierung.php");
+                ?>
                     <div class="alert alert-danger text-center" role="alert">
                         Reservierung konnte nicht gebucht werden!
                     </div>
-                </div>
-            </div>
-        </div>
-    <?php } ?>
-    <?php if ($reserved) {
-        $reserved = false;
-        header("Refresh: 2, url=reservierung.php");
-    ?>
-        <div class="container-fluid">
-            <div class="row">
-                <div class="col-sm-6 offset-sm-3 text-center">
+                <?php } ?>
+                <?php if ($reserved) {
+                    $reserved = false;
+                    header("Refresh: 2, url=reservierung.php");
+                ?>
                     <div class="alert alert-success text-center" role="alert">
                         Reservierung wurde gebucht!
                     </div>
-                </div>
+                <?php } ?>
             </div>
-        </div>
-    <?php } ?>
-    <div class="container-fluid">
-        <form method="POST">
-            <div class="row">
+            <form method="POST">
                 <div class="col-sm-6 offset-sm-3 text-center">
                     <label for="checkin" class="form-label">check-in</label>
                     <input type="date" name="checkin" class="form-control <?php if ($errors['checkin']) echo 'is invalid'; ?>" required>
@@ -133,7 +121,6 @@ if (
                     <select class="form-select" name="pet" aria-label="Default select example" required>
                         <option value="0">Kein Haustier dabei</option>
                         <option value="1">Haustier dabei</option>
-
                     </select>
                 </div>
                 <div class="col-sm-10 offset-sm-1 text-center">
@@ -142,8 +129,8 @@ if (
                 <div class="col-sm-10 offset-sm-1 text-center">
                     <?php echo ($price) . ("$"); ?>
                 </div>
-            </div>
-        </form>
+            </form>
+        </div>
     </div>
 </body>
 

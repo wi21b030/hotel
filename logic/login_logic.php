@@ -4,10 +4,11 @@ $errors["username"] = false;
 $errors["password"] = false;
 $errors["connection"] = false;
 $errors["nosuchuser"] = false;
+$logged = false;
 
 if ($_SERVER["REQUEST_METHOD"] === "POST") {
     if (!empty($_POST["username"]) && !empty($_POST["password"])) {
-        require_once ('config/dbaccess.php');
+        require_once('config/dbaccess.php');
         $db_obj = new mysqli($host, $user, $password, $database);
         if ($db_obj->connect_error) {
             $errors["connection"] = true;
@@ -18,19 +19,24 @@ if ($_SERVER["REQUEST_METHOD"] === "POST") {
         $pass = $_POST["password"];
 
         $sql = "SELECT * FROM `users` WHERE `username` = ? AND `active` = TRUE";
-        $stmt = $db_obj -> prepare ($sql);
+        $stmt = $db_obj->prepare($sql);
         $stmt->bind_param("s", $uname);
-        if($stmt->execute()){
+        if ($stmt->execute()) {
             $result = $stmt->get_result();
             if ($result->num_rows == 0) {
                 $errors["nosuchuser"] = true;
             } else {
-                $row = $result->fetch_assoc(); 
-                if (password_verify($pass,$row["password"])){
+                $row = $result->fetch_assoc();
+                if (password_verify($pass, $row["password"])) {
                     $_SESSION["id"] = $row["id"];
-                    $_SESSION["username"] = $uname;
                     $_SESSION["admin"] = $row["admin"];
-                    header("Location: mein_profil.php");
+                    $_SESSION["username"] = $row["username"];
+                    $_SESSION["useremail"] = $row["useremail"];
+                    $_SESSION["formofadress"] = $row["formofadress"];
+                    $_SESSION["firstname"] = $row["firstname"];
+                    $_SESSION["secondname"] = $row["secondname"];
+                    $_SESSION["profilepic"] = $row["path"];
+                    $logged = true;
                 } else {
                     $errors["password"] = true;
                 }
@@ -56,25 +62,41 @@ if ($_SERVER["REQUEST_METHOD"] === "POST") {
 </head>
 
 <body>
+    <?php if ($logged) {
+        $logged = false;
+        header("Refresh: 1, url=mein_profil.php");
+    ?>
+        <div class="container-fluid">
+            <div class="row">
+                <div class="col-sm-6 offset-sm-3 text-center">
+                    <div class="alert alert-primary text-center" role="alert">
+                        Willkommen <?php echo $_SESSION["firstname"] ?>!
+                    </div>
+                </div>
+            </div>
+        </div>
+    <?php } ?>
     <?php if (!isset($_SESSION["username"])) { ?>
         <div class="container-fluid">
-        <?php if($errors["nosuchuser"]) { 
-            $errors["nosuchuser"] = false;
-            header("Refresh: 2, url=login.php");    
-        ?>
-            <div class="alert alert-danger text-center" role="alert">
-                Login nicht möglich, dieser User existiert nicht oder ist inaktiv!
-            </div>
-        <?php } elseif ($errors["connection"]){ 
-            $errors["connection"] = false;
-            header("Refresh: 2, url=login.php"); 
-        ?>
-             <div class="alert alert-danger text-center" role="alert">
-                Login nicht möglich aufgrund eines Fehlers mit der Datenbank!
-            </div>
-        <?php } ?>
-            <form method="POST">
-                <div class="row">
+            <div class="row">
+                <div class="col-sm-6 offset-sm-3 text-center">
+                    <?php if ($errors["nosuchuser"]) {
+                        $errors["nosuchuser"] = false;
+                        header("Refresh: 2, url=login.php");
+                    ?>
+                        <div class="alert alert-danger text-center" role="alert">
+                            Login nicht möglich, dieser User existiert nicht oder ist inaktiv!
+                        </div>
+                    <?php } elseif ($errors["connection"]) {
+                        $errors["connection"] = false;
+                        header("Refresh: 2, url=login.php");
+                    ?>
+                        <div class="alert alert-danger text-center" role="alert">
+                            Login nicht möglich aufgrund eines Fehlers mit der Datenbank!
+                        </div>
+                    <?php } ?>
+                </div>
+                <form method="POST">
                     <div class="col-sm-6 offset-sm-3 text-center">
                         <label for="exampleInputEmail1" class="form-label">Username</label>
                         <input type="text" name="username" class="form-control <?php if ($errors['username']) echo 'is-invalid'; ?>" id="exampleInputEmail1">
@@ -89,8 +111,8 @@ if ($_SERVER["REQUEST_METHOD"] === "POST") {
                     <div class="col-sm-10 offset-sm-1 text-center">
                         <button type="submit" class="btn btn-primary mt-3">Login</button>
                     </div>
-                </div>
-            </form>
+                </form>
+            </div>
         </div>
     <?php } ?>
 </body>

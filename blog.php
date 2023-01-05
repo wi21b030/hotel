@@ -10,11 +10,8 @@
 
 <body>
     <?php include "inc/nav.php"; ?>
-    <div class="container-fluid">
-        <div> 
-            <?php include "logic/news_upload.php"; ?>
-        </div>
-    </div>
+    <?php include "logic/news_upload.php"; ?>
+
 </body>
 
 </html>

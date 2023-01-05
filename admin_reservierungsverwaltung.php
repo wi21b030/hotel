@@ -8,9 +8,6 @@
 </head>
 <body>
     <?php include "inc/nav.php"; ?>
-    <div class="container-fluid">
-        <?php include "logic/admin_edit_reservation.php"; ?>
-    </div>
-
+    <?php include "logic/admin_edit_reservation.php"; ?>
 </body>
 </html>

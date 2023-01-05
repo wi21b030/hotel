@@ -10,7 +10,7 @@ $errors["password"] = false;
 $errors["file"] = false;
 $errors["update"] = false;
 $errors["connection"] = false;
-$errors["success"] = false;
+$updated = false;
 
 if (!file_exists($uploadDir)) {
     mkdir($uploadDir);
@@ -75,7 +75,7 @@ if (
             if ($db_obj->connect_error) {
                 $errors["connection"] = true;
                 $db_obj->close();
-                header("Refresh: 2, url=admin_profilverwaltung.php");
+                header("Refresh: 2, url=admin_userverwaltung.php");
                 exit();
             }
             $id = $_POST["id"];
@@ -100,9 +100,9 @@ if (
                 $errors["update"] = true;
             } else {
                 if ($stmt->execute()) {
-                    move_uploaded_file($profilepic, $path);
-                    $errors["success"] = true;
-                    header("Refresh: 2, url=admin_profilverwaltung.php");
+                    if (move_uploaded_file($profilepic, $path)) {
+                        $updated = true;
+                    }
                 } else {
                     $errors["update"] = true;
                 }
@@ -125,46 +125,38 @@ if (
     <meta charset="UTF-8">
     <meta http-equiv="X-UA-Compatible" content="IE=edge">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Profil-Verwaltung</title>
+    <title>User-Verwaltung</title>
 </head>
 
 <body>
-    <?php if ($errors["connection"]) { ?>
-        <div class="container-fluid">
-            <div class="row">
-                <div class="col-sm-6 offset-sm-3 text-center">
+    <div class="container-fluid">
+        <div class="row">
+            <div class="col-sm-6 offset-sm-3 text-center">
+                <?php if ($errors["connection"]) { ?>
                     <div class="alert alert-success text-center" role="alert">
                         Fehler bei der Datenbankverbindung!
                     </div>
-                </div>
-            </div>
-        </div>
-    <?php } ?>
-    <?php if ($errors["success"]) { ?>
-        <div class="container-fluid">
-            <div class="row">
-                <div class="col-sm-6 offset-sm-3 text-center">
+
+                <?php } ?>
+                <?php if ($updated) {
+                    $updated = false;
+                    header("Refresh: 2, url=admin_userverwaltung.php");
+                ?>
                     <div class="alert alert-success text-center" role="alert">
                         User wurde geupdated!
                     </div>
-                </div>
-            </div>
-        </div>
-    <?php } ?>
-    <?php if ($errors["update"]) {
-        $errors["update"] = false;
-        header("Refresh: 2, url=admin_profilverwaltung.php");
-    ?>
-        <div class="container-fluid">
-            <div class="row">
-                <div class="col-sm-6 offset-sm-3 text-center">
+                <?php } ?>
+                <?php if ($errors["update"]) {
+                    $errors["update"] = false;
+                    header("Refresh: 2, url=admin_userverwaltung.php");
+                ?>
                     <div class="alert alert-danger text-center" role="alert">
                         User wurde nicht geupdated, aufgrund fehlerhafter Daten!
                     </div>
-                </div>
+                <?php } ?>
             </div>
         </div>
-    <?php } ?>
+    </div>
     <?php
     // dropdown list with all users who are not admins, sorted by username alphabetically
     require_once('config/dbaccess.php');
@@ -176,28 +168,30 @@ if (
     $sql = "SELECT * FROM `users` WHERE `admin` = FALSE ORDER BY `username`";
     $result = $db_obj->query($sql); ?>
     <?php if ($result->num_rows > 0) { ?>
-        <form method="POST">
-            <div class="row">
-                <div class="col-sm-6 offset-sm-3 text-center">
-                    <label style="display:<?php if (isset($_POST["edit"]) && $_POST["edit"] === "edit") {
-                                                echo "none";
-                                            } ?>;" for="username" class="form-label">User</label>
-                    <select name="id" style="display:<?php if (isset($_POST["edit"]) && $_POST["edit"] === "edit") {
-                                                            echo "none";
-                                                        } ?>;" class="form-select" name="username" aria-label="Default select example" required>
-                        <?php while ($row = $result->fetch_assoc()) : ?>
-                            <option value="<?php echo $row["id"] ?>"><?php echo $row["username"] ?></option>
-                        <?php endwhile ?>
-                    </select>
+        <div class="container-fluid">
+            <form method="POST">
+                <div class="row">
+                    <div class="col-sm-6 offset-sm-3 text-center">
+                        <label style="display:<?php if (isset($_POST["edit"]) && $_POST["edit"] === "edit") {
+                                                    echo "none";
+                                                } ?>;" for="username" class="form-label">User</label>
+                        <select name="id" style="display:<?php if (isset($_POST["edit"]) && $_POST["edit"] === "edit") {
+                                                                echo "none";
+                                                            } ?>;" class="form-select" name="username" aria-label="Default select example" required>
+                            <?php while ($row = $result->fetch_assoc()) : ?>
+                                <option value="<?php echo $row["id"] ?>"><?php echo $row["username"] ?></option>
+                            <?php endwhile ?>
+                        </select>
+                    </div>
+                    <div class="col-sm-10 offset-sm-1 text-center">
+                        <input type="hidden" name="edit" value="edit">
+                        <button style="display:<?php if (isset($_POST["edit"]) && $_POST["edit"] === "edit") {
+                                                    echo "none";
+                                                } ?>;" class="btn btn-primary mt-3">Bearbeiten</button>
+                    </div>
                 </div>
-                <div class="col-sm-10 offset-sm-1 text-center">
-                    <input type="hidden" name="edit" value="edit">
-                    <button style="display:<?php if (isset($_POST["edit"]) && $_POST["edit"] === "edit") {
-                                                echo "none";
-                                            } ?>;" class="btn btn-primary mt-3">Bearbeiten</button>
-                </div>
-            </div>
-        </form>
+            </form>
+        </div>
     <?php } ?>
     <?php $db_obj->close(); ?>
     <?php
@@ -226,7 +220,7 @@ if (
                         <div class="col-sm-6 offset-sm-3 text-center">
                             <label for="profilepic" class="form-label">Profilbild</label>
                             <div class="mb-3">
-                                <img src="<?php echo $row["path"] ?>" class="rounded-3" style="width: 150px;" alt="Avatar" />
+                                <img src="<?php echo $row["path"] . "?" . time() ?>" class="rounded-3" style="width: 150px;" alt="Avatar" />
                             </div>
                             <div class="mb-3">
                                 <label for="formofadress" class="form-label">Anrede</label>
@@ -268,10 +262,10 @@ if (
                                 </select>
                             </div>
                             <div class="mb-3">
+                                <input type="hidden" name="id" value="<?php echo $row["id"] ?>">
                                 <input type="hidden" name="updaten" value="updaten">
                                 <button class="btn btn-primary">Updaten</button>
                             </div>
-                            <input type="hidden" name="id" value="<?php echo $row["id"] ?>">
                         </div>
                     </div>
                 </form>
