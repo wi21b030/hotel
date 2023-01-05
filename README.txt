@@ -18,6 +18,9 @@ Hinweise:
   Username: hadi
   Passwort: 12345678
 
+  Username: kevin
+  Passwort: 12345678
+
 - Wenn Sie Google-Chrome verwenden, kann es zu Problemen kommen, wenn man Bilder ändert beziehungsweise löscht (bspw. Profilbild-Änderung). 
   Um dies zu vermeiden wurde mithilfe eine Stack-Overflow-Posts dies umgangnen. Siehe: https://stackoverflow.com/questions/2089559/picture-is-not-refreshing-in-my-browser
 

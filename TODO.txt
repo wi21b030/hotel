@@ -2,3 +2,10 @@ Still To Do:
 
 - README.txt-File fertigstellen
 - 4b) Ergänzen mit eigenen Style-Angaben
+- 9aiii) Reservierungen haben einen Status „neu“, „bestätigt“, oder „storniert“
+- 9biv) Mitnahme von Haustieren (individuelle Ausgestaltung möglich)
+- 16b) Frühstück, Parkplatz und Haustiere sind mit Aufpreisen zu versehen. Die Höhe der jeweiligen Aufpreise kann vom Projektteam frei (jedoch sinnvoll) selbst gewählt werden.
+- 16c) Für die Reservierung der einzelnen Zimmer ist auch dessen zeitliche Verfügbarkeit zu berücksichtigen!
+- 17c) Sie können den Status einzelner Reservierungen ändern (z.B. von „neu“ auf „bestätigt“).
+- 17d) Zudem können sie die Reservierungen nach allen Statuswerten („neu“, „bestätigt“, oder „storniert“) filtern.
+- 18) Komplett
