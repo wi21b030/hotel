@@ -29,13 +29,13 @@ if (
     && isset($_POST["updaten"])
     && $_POST["updaten"] === "updaten"
 ) {
-    if (empty($_POST["firstname"]) || !isset($_POST["firstname"])) {
+    if (empty($_POST["firstname"]) || !isset($_POST["firstname"]) || strlen(trim($_POST["firstname"])) == 0) {
         $errors["firstname"] = true;
     }
-    if (empty($_POST["secondname"]) || !isset($_POST["secondname"])) {
+    if (empty($_POST["secondname"]) || !isset($_POST["secondname"]) || strlen(trim($_POST["secondname"])) == 0) {
         $errors["secondname"] = true;
     }
-    if (empty($_POST["useremail"]) || !isset($_POST["useremail"])) {
+    if (empty($_POST["useremail"]) || !isset($_POST["useremail"]) || strlen(trim($_POST["useremail"])) == 0) {
         $errors["useremail"] = true;
     }
     if (!empty($_POST["useremail"])) {
@@ -44,13 +44,13 @@ if (
             $errors["useremail"] = true;
         }
     }
-    if (empty($_POST["username"]) || !isset($_POST["username"])) {
+    if (empty($_POST["username"]) || !isset($_POST["username"])  || strlen(trim($_POST["username"])) == 0) {
         $errors["username"] = true;
     }
-    if (empty($_POST["password"]) || !isset($_POST["password"])) {
+    if (empty($_POST["password"]) || !isset($_POST["password"])  || strlen(trim($_POST["password"])) == 0) {
         $errors["password"] = true;
     }
-    if (empty($_POST["passwordold"]) || !isset($_POST["passwordold"])) {
+    if (empty($_POST["passwordold"]) || !isset($_POST["passwordold"])  || strlen(trim($_POST["passwordold"])) == 0) {
         $errors["passwordold"] = true;
     }
     if (empty($_POST["file"]) || !isset($_POST["file"])) {
@@ -78,7 +78,7 @@ if (
         $pass = htmlspecialchars($_POST["password"], ENT_QUOTES);
         $oldpass = htmlspecialchars($_POST["passwordold"], ENT_QUOTES);
         $mail = htmlspecialchars($_POST["useremail"], ENT_QUOTES);
-        $fod = $_POST["formofadress"];
+        $fod = htmlspecialchars($_POST["formofadress"], ENT_QUOTES);
         $fname = htmlspecialchars($_POST["firstname"], ENT_QUOTES);
         $sname = htmlspecialchars($_POST["secondname"], ENT_QUOTES);
         $profilepic = $_FILES["file"]["tmp_name"];

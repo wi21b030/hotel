@@ -30,13 +30,13 @@ if (
     && isset($_POST["updaten"])
     && $_POST["updaten"] === "updaten"
 ) {
-    if (empty($_POST["firstname"]) || !isset($_POST["firstname"])) {
+    if (empty($_POST["firstname"]) || !isset($_POST["firstname"]) || strlen(trim($_POST["firstname"])) == 0) {
         $errors["firstname"] = true;
     }
-    if (empty($_POST["secondname"]) || !isset($_POST["secondname"])) {
+    if (empty($_POST["secondname"]) || !isset($_POST["secondname"]) || strlen(trim($_POST["secondname"])) == 0) {
         $errors["secondname"] = true;
     }
-    if (empty($_POST["useremail"]) || !isset($_POST["useremail"])) {
+    if (empty($_POST["useremail"]) || !isset($_POST["useremail"]) || strlen(trim($_POST["useremail"])) == 0) {
         $errors["useremail"] = true;
     }
     if (!empty($_POST["useremail"])) {
@@ -45,10 +45,10 @@ if (
             $errors["useremail"] = true;
         }
     }
-    if (empty($_POST["username"]) || !isset($_POST["username"])) {
+    if (empty($_POST["username"]) || !isset($_POST["username"]) || strlen(trim($_POST["username"])) == 0) {
         $errors["username"] = true;
     }
-    if (empty($_POST["password"]) || !isset($_POST["password"])) {
+    if (empty($_POST["password"]) || !isset($_POST["password"]) || strlen(trim($_POST["password"])) == 0) {
         $errors["password"] = true;
     }
 }

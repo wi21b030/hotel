@@ -22,28 +22,28 @@ function test_input($data)
 
 
 if ($_SERVER["REQUEST_METHOD"] === "POST" && isset($_POST["register"])) {
-    if (empty($_POST["firstname"])) {
+    if (empty($_POST["firstname"]) || strlen(trim($_POST["firstname"])) == 0) {
         $errors["firstname"] = true;
     }
-    if (empty($_POST["secondname"])) {
+    if (empty($_POST["secondname"]) || strlen(trim($_POST["secondname"])) == 0) {
         $errors["secondname"] = true;
     }
-    if (empty($_POST["useremail"])) {
+    if (empty($_POST["useremail"]) || strlen(trim($_POST["useremail"])) == 0) {
         $errors["useremail"] = true;
     }
-    if (!empty($_POST["useremail"])) {
+    if (!empty($_POST["useremail"]) || strlen(trim($_POST["useremail"])) == 0) {
         $check = test_input($_POST["useremail"]);
         if (!filter_var($check, FILTER_VALIDATE_EMAIL)) {
             $errors["useremail"] = true;
         }
     }
-    if (empty($_POST["username"])) {
+    if (empty($_POST["username"]) || strlen(trim($_POST["username"])) == 0) {
         $errors["username"] = true;
     }
-    if (empty($_POST["password"])) {
+    if (empty($_POST["password"]) || strlen(trim($_POST["password"])) == 0) {
         $errors["password"] = true;
     }
-    if (empty($_POST["password2"])) {
+    if (empty($_POST["password2"]) || strlen(trim($_POST["password2"])) == 0) {
         $errors["password2"] = true;
     }
     if ($_POST["password"] !== $_POST["password2"]) {
