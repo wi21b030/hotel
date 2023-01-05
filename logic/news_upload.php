@@ -197,7 +197,7 @@ if (
                         <div class="col-sm-6 offset-sm-3 text-center">
                             <div class="mb-2">
                                 <label for="exampleInputEmail1" class="form-label">Überschrift</label>
-                                <input type="text" name="title" class="form-control <?php if ($errors["exists"]) echo 'is-invalid'; ?>" id="exampleInputEmail1">
+                                <input type="text" name="title" class="form-control <?php if ($errors["exists"]) echo 'is-invalid'; ?>" id="exampleInputEmail1" required>
                             </div>
                             <div class="mb-2">
                                 <label for="exampleFormControlTextarea1">Dazugehöriger Text</label>
@@ -205,7 +205,7 @@ if (
                             </div>
                             <div class="mb-2">
                                 <label for="formFile" class="form-label">Thumbnail</label>
-                                <input class="form-control <?php if ($errors["exists"]) echo 'is-invalid'; ?>" name="file" type="file" id="formFile" accept="image/*">
+                                <input class="form-control <?php if ($errors["exists"]) echo 'is-invalid'; ?>" name="file" type="file" id="formFile" accept="image/*" required>
                             </div>
                             <div class="mb-2">
                                 <input type="hidden" name="uploaden" value="uploaden">
