@@ -1,4 +1,4 @@
-<?php 
+<?php
 $errors = [];
 $errors["nosuchbooking"] = false;
 $errors["date"] = false;
@@ -7,23 +7,27 @@ $errors["update"] = false;
 $updated = false;
 
 // check if date valid
-if($_SERVER["REQUEST_METHOD"] === "POST"
+if (
+    $_SERVER["REQUEST_METHOD"] === "POST"
     && isset($_POST["updaten"])
-    && $_POST["updaten"] === "updaten") {
+    && $_POST["updaten"] === "updaten"
+) {
     if (isset($_POST['checkin'], $_POST['checkout'])) {
         $checkin = $_POST["checkin"];
         $checkout = $_POST["checkout"];
-        if ($checkin >= $checkout){
+        if ($checkin >= $checkout) {
             $errors["date"] = true;
         }
     }
 }
 
 // execution of update statement
-if($_SERVER["REQUEST_METHOD"] === "POST"
+if (
+    $_SERVER["REQUEST_METHOD"] === "POST"
     && isset($_POST["updaten"])
-    && $_POST["updaten"] === "updaten") {
-    if(!$errors["date"]){
+    && $_POST["updaten"] === "updaten"
+) {
+    if (!$errors["date"]) {
         require_once('config/dbaccess.php');
         $db_obj = new mysqli($host, $user, $password, $database);
         if ($db_obj->connect_error) {
@@ -40,7 +44,7 @@ if($_SERVER["REQUEST_METHOD"] === "POST"
         $sql = "UPDATE `reservation` SET `checkin`=?, `checkout`=?, `breakfast`=?, `parking`=?, `pet`=? WHERE `id` = '$id'";
         $stmt = $db_obj->prepare($sql);
         $stmt->bind_param("ssiii", $checkin, $checkout, $breakfast, $parking, $pet);
-        if($stmt->execute()){
+        if ($stmt->execute()) {
             $updated = true;
         } else {
             $errors["update"] = true;
@@ -63,29 +67,35 @@ if($_SERVER["REQUEST_METHOD"] === "POST"
 
 <body>
     <!-- alerts for different edge cases  -->
-    <?php if($errors["date"]) { 
-                $errors["date"] = false;
-                header("Refresh: 2, url=admin_reservierungsverwaltung.php");
-    ?>
-        <div class="alert alert-danger text-center" role="alert">
-            Reservierung konnte nicht geändert werden, wählen Sie gültige Daten!
+    <div class="container-fluid">
+        <div class="row">
+            <div class="col-sm-6 offset-sm-3 text-center">
+                <?php if ($errors["date"]) {
+                    $errors["date"] = false;
+                    header("Refresh: 2, url=admin_reservierungsverwaltung.php");
+                ?>
+                    <div class="alert alert-danger text-center" role="alert">
+                        Reservierung konnte nicht geändert werden, wählen Sie gültige Daten!
+                    </div>
+                <?php } elseif ($errors["connection"] || $errors["update"]) {
+                    $errors["connection"] = false;
+                    $errors["update"] = false;
+                    header("Refresh: 2, url=admin_reservierungsverwaltung.php");
+                ?>
+                    <div class="alert alert-danger text-center" role="alert">
+                        Reservierung konnte nicht geändert werden!
+                    </div>
+                <?php } elseif ($updated) {
+                    $updated = false;
+                    header("Refresh: 2, url=admin_reservierungsverwaltung.php");
+                ?>
+                    <div class="alert alert-success text-center" role="alert">
+                        Reservierung wurde geändert!
+                    </div>
+                <?php } ?>
+            </div>
         </div>
-    <?php } elseif ($errors["connection"] || $errors["update"]) { 
-                $errors["connection"] = false;
-                $errors["update"] = false;
-                header("Refresh: 2, url=admin_reservierungsverwaltung.php");
-    ?>
-        <div class="alert alert-danger text-center" role="alert">
-            Reservierung konnte nicht geändert werden!
-        </div>
-    <?php } elseif ($updated) { 
-                $updated = false;
-                header("Refresh: 2, url=admin_reservierungsverwaltung.php");          
-    ?>
-       <div class="alert alert-success text-center" role="alert">
-            Reservierung wurde geändert!
-        </div> 
-    <?php } ?>
+    </div>
     <?php
     // dropdown list with all distinct users with at least one reservation
     require_once('config/dbaccess.php');
@@ -97,28 +107,30 @@ if($_SERVER["REQUEST_METHOD"] === "POST"
     $sql = "SELECT DISTINCT user_id, users_username FROM `reservation` ORDER BY `users_username`";
     $result = $db_obj->query($sql); ?>
     <?php if ($result->num_rows > 0) { ?>
-        <form method="POST">
-            <div class="row">
-                <div class="col-sm-6 offset-sm-3 text-center">
-                    <label style="display:<?php if ((isset($_POST["choose"]) && $_POST["choose"] === "choose") || (isset($_POST["edit"]) && $_POST["edit"] === "edit")) {
-                                                echo "none";
-                                            } ?>;" for="username" class="form-label">User</label>
-                    <select name="id" style="display:<?php if ((isset($_POST["choose"]) && $_POST["choose"] === "choose") || (isset($_POST["edit"]) && $_POST["edit"] === "edit")) {
-                                                            echo "none";
-                                                        } ?>;" class="form-select" name="username" aria-label="Default select example" required>
-                        <?php while ($row = $result->fetch_assoc()) : ?>
-                            <option value="<?php echo $row["user_id"] ?>"><?php echo $row["users_username"] ?></option>
-                        <?php endwhile ?>
-                    </select>
+        <div class="container-fluid">
+            <form method="POST">
+                <div class="row">
+                    <div class="col-sm-6 offset-sm-3 text-center">
+                        <label style="display:<?php if ((isset($_POST["choose"]) && $_POST["choose"] === "choose") || (isset($_POST["edit"]) && $_POST["edit"] === "edit")) {
+                                                    echo "none";
+                                                } ?>;" for="username" class="form-label">User</label>
+                        <select name="id" style="display:<?php if ((isset($_POST["choose"]) && $_POST["choose"] === "choose") || (isset($_POST["edit"]) && $_POST["edit"] === "edit")) {
+                                                                echo "none";
+                                                            } ?>;" class="form-select" name="username" aria-label="Default select example" required>
+                            <?php while ($row = $result->fetch_assoc()) : ?>
+                                <option value="<?php echo $row["user_id"] ?>"><?php echo $row["users_username"] ?></option>
+                            <?php endwhile ?>
+                        </select>
+                    </div>
+                    <div class="col-sm-10 offset-sm-1 text-center">
+                        <input type="hidden" name="choose" value="choose">
+                        <button style="display:<?php if ((isset($_POST["choose"]) && $_POST["choose"] === "choose") || (isset($_POST["edit"]) && $_POST["edit"] === "edit")) {
+                                                    echo "none";
+                                                } ?>;" class="btn btn-primary mt-3">Wählen</button>
+                    </div>
                 </div>
-                <div class="col-sm-10 offset-sm-1 text-center">
-                    <input type="hidden" name="choose" value="choose">
-                    <button style="display:<?php if ((isset($_POST["choose"]) && $_POST["choose"] === "choose") || (isset($_POST["edit"]) && $_POST["edit"] === "edit")) {
-                                                echo "none";
-                                            } ?>;" class="btn btn-primary mt-3">Wählen</button>
-                </div>
-            </div>
-        </form>
+            </form>
+        </div>
     <?php } ?>
     <?php $db_obj->close(); ?>
     <?php
@@ -138,28 +150,30 @@ if($_SERVER["REQUEST_METHOD"] === "POST"
         $sql = "SELECT * FROM `reservation` WHERE `user_id` = '$user_id'";
         $result = $db_obj->query($sql); ?>
         <?php if ($result->num_rows > 0) { ?>
-            <form method="POST">
-                <div class="row">
-                    <div class="col-sm-6 offset-sm-3 text-center">
-                        <label style="display:<?php if (isset($_POST["edit"]) && $_POST["edit"] === "edit") {
-                                                    echo "none";
-                                                } ?>;" for="username" class="form-label">Reservierungen</label>
-                        <select name="id" style="display:<?php if (isset($_POST["edit"]) && $_POST["edit"] === "edit") {
-                                                                echo "none";
-                                                            } ?>;" class="form-select" aria-label="Default select example" required>
-                            <?php while ($row = $result->fetch_assoc()) : ?>
-                                <option value="<?php echo $row["id"] ?>"><?php echo $row["checkin"] . " bis " . $row["checkout"] ?></option>
-                            <?php endwhile ?>
-                        </select>
+            <div class="container-fluid">
+                <form method="POST">
+                    <div class="row">
+                        <div class="col-sm-6 offset-sm-3 text-center">
+                            <label style="display:<?php if (isset($_POST["edit"]) && $_POST["edit"] === "edit") {
+                                                        echo "none";
+                                                    } ?>;" for="username" class="form-label">Reservierungen</label>
+                            <select name="id" style="display:<?php if (isset($_POST["edit"]) && $_POST["edit"] === "edit") {
+                                                                    echo "none";
+                                                                } ?>;" class="form-select" aria-label="Default select example" required>
+                                <?php while ($row = $result->fetch_assoc()) : ?>
+                                    <option value="<?php echo $row["id"] ?>"><?php echo $row["checkin"] . " bis " . $row["checkout"] ?></option>
+                                <?php endwhile ?>
+                            </select>
+                        </div>
+                        <div class="col-sm-10 offset-sm-1 text-center">
+                            <input type="hidden" name="edit" value="edit">
+                            <button style="display:<?php if (isset($_POST["edit"]) && $_POST["edit"] === "edit") {
+                                                        echo "none";
+                                                    } ?>;" class="btn btn-primary mt-3">Bearbeiten</button>
+                        </div>
                     </div>
-                    <div class="col-sm-10 offset-sm-1 text-center">
-                        <input type="hidden" name="edit" value="edit">
-                        <button style="display:<?php if (isset($_POST["edit"]) && $_POST["edit"] === "edit") {
-                                                    echo "none";
-                                                } ?>;" class="btn btn-primary mt-3">Bearbeiten</button>
-                    </div>
-                </div>
-            </form>
+                </form>
+            </div>
         <?php } ?>
         <?php $db_obj->close(); ?>
     <?php } ?>
@@ -220,14 +234,10 @@ if($_SERVER["REQUEST_METHOD"] === "POST"
                                 <select class="form-select" name="pet" aria-label="Default select example" required>
                                     <option value="1" <?php if ($row['pet'] == 1) { ?> selected <?php } ?>>Ja</option>
                                     <option value="0" <?php if ($row['pet'] == 0) { ?> selected <?php } ?>>Nein</option>
-
                                 </select>
                             </div>
-
                             <div class="mb-3">
                                 <input type="hidden" value="<?php echo $row["id"] ?>" class="form-control " name="id" id="id">
-                            </div>
-                            <div class="mb-3">
                                 <input type="hidden" name="updaten" value="updaten">
                                 <button class="btn btn-primary">Updaten</button>
                             </div>
