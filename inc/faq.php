@@ -20,7 +20,7 @@
                 </h2>
                 <div id="collapseOne" class="accordion-collapse collapse" aria-labelledby="headingOne" data-bs-parent="#accordionExample">
                     <div class="accordion-body">
-                        <a href="registrierung.php">Hier</a> gelangen Sie zur Seite für die Registrierung. Alternativ können Sie die Seite auf unserer Homepage aufrufen indem Sie auf der Navigationsleiste auf <strong>Registrierung</strong> klicken.
+                        <a href="registrierung.php">Hier</a> gelangen Sie zur Seite für die Registrierung. Alternativ können Sie die Seite aufrufen indem Sie auf der Navigationsleiste auf <strong>Registrierung</strong> klicken.
                     </div>
                 </div>
             </div>
@@ -73,7 +73,7 @@
             </h2>
             <div id="collapseFive" class="accordion-collapse collapse" aria-labelledby="headingFive" data-bs-parent="#accordionExample">
                 <div class="accordion-body">
-                    Wir bieten für unsere Kunden Parkplätze an, aber bei der Reservierung muss angegeben werden, ob man ein Parkplatz in Anspruch nehmen möchte. Ansonsten gibt es keinen Anspruch auf Parkplätze und es darf in unserem Gelände nicht geparkt werden.
+                    Wir bieten für unsere Kunden Parkplätze an, aber dies muss bei der Reservierung angegeben werden.
                 </div>
             </div>
         </div>
