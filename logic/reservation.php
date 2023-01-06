@@ -8,7 +8,7 @@ $price = 0;
 
 if (
     $_SERVER["REQUEST_METHOD"] === "POST"
-    && isset($_POST['checkin'], $_POST['checkout'], $_POST['breakfast'], $_POST['parking'], $_POST['pet'])
+    && isset($_POST['checkin'], $_POST['checkout'], $_POST['breakfast'], $_POST['parking'], $_POST['pet'], $_POST["buchen"])
 ) {
     $checkin = $_POST["checkin"];
     $checkout = $_POST["checkout"];
