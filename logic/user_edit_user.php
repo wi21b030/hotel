@@ -199,7 +199,7 @@ if (
                     <div class="mb-3">
                         <input type="hidden" name="id" value="<?php echo $_SESSION["id"] ?>">
                         <input type="hidden" name="updaten" value="updaten">
-                        <button class="btn btn-primary">Updaten</button>
+                        <button class="btn btn-primary">Aktualisieren</button>
                     </div>
                 </form>
             </div>

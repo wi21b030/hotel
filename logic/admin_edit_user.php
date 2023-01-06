@@ -16,6 +16,7 @@ if (!file_exists($uploadDir)) {
     mkdir($uploadDir);
 }
 
+// function that we found via W3School that validates input
 function test_input($data)
 {
     $data = trim($data);
@@ -24,11 +25,10 @@ function test_input($data)
     return $data;
 }
 
-// error handling for form
+// error handling for user-data form
 if (
     $_SERVER["REQUEST_METHOD"] === "POST"
-    && isset($_POST["updaten"])
-    && $_POST["updaten"] === "updaten"
+    && isset($_POST["update"])
 ) {
     if (empty($_POST["firstname"]) || !isset($_POST["firstname"]) || strlen(trim($_POST["firstname"])) == 0) {
         $errors["firstname"] = true;
@@ -57,8 +57,7 @@ if (
 
 if (
     $_SERVER["REQUEST_METHOD"] === "POST"
-    && isset($_POST["updaten"])
-    && $_POST["updaten"] === "updaten"
+    && isset($_POST["update"])
 ) {
     if (
         !$errors["firstname"]
@@ -67,6 +66,7 @@ if (
         && !$errors["username"]
         && !$errors["password"]
     ) {
+        // here we check if we have truly been given an image via the file-upload
         $extension = pathinfo($_FILES["file"]["name"], PATHINFO_EXTENSION);
         if ($extension == 'jpg' || $extension == 'jpeg' || $extension == 'png' || $extension == 'gif') {
 
@@ -74,12 +74,10 @@ if (
             $db_obj = new mysqli($host, $user, $password, $database);
             if ($db_obj->connect_error) {
                 $errors["connection"] = true;
-                $db_obj->close();
-                header("Refresh: 2, url=admin_userverwaltung.php");
-                exit();
             }
             $id = $_POST["id"];
             $active = $_POST["active"];
+            // here we make sure we are protected from JavaScript Injections
             $_POST["password"] = htmlspecialchars(password_hash($_POST["password"], PASSWORD_DEFAULT), ENT_QUOTES);
             $uname = htmlspecialchars($_POST["username"], ENT_QUOTES);
             $pass = htmlspecialchars($_POST["password"], ENT_QUOTES);
@@ -90,6 +88,7 @@ if (
             $profilepic = $_FILES["file"]["tmp_name"];
             $path = $uploadDir . $uname . ".jpg";
 
+            // prepared update statement
             $sql = "UPDATE `users` SET `active`=?, `username`=?, `password`=?, `useremail`=?, `formofadress`=?, `firstname`=?, `secondname`=?, `path`=? WHERE `id`=?";
             $stmt = $db_obj->prepare($sql);
             $stmt->bind_param("isssssssi", $active, $uname, $pass, $mail, $fod, $fname, $sname, $path, $id);
@@ -116,6 +115,8 @@ if (
         $errors["update"] = true;
     }
 }
+
+
 ?>
 
 <!DOCTYPE html>
@@ -129,10 +130,15 @@ if (
 </head>
 
 <body>
+    <!-- multiple alerts for different errors or success notifications -->
     <div class="container-fluid">
         <div class="row">
             <div class="col-sm-6 offset-sm-3 text-center">
-                <?php if ($errors["connection"]) { ?>
+                <?php if ($errors["connection"]) {
+                    // we always set the booleans back to false so that it is not always true if the connection did#
+                    // not work, otherwise the website will keep refreshing endlessly
+                    $errors["connection"] = false;
+                    header("Refresh: 2, url=admin_userverwaltung.php"); ?>
                     <div class="alert alert-success text-center" role="alert">
                         Fehler bei der Datenbankverbindung!
                     </div>
@@ -159,46 +165,42 @@ if (
     </div>
     <?php
     // dropdown list with all users who are not admins, sorted by username alphabetically
-    require_once('config/dbaccess.php');
-    $db_obj = new mysqli($host, $user, $password, $database);
-    if ($db_obj->connect_error) {
-        $errors["connection"] = true;
-        exit();
-    }
-    $sql = "SELECT * FROM `users` WHERE `admin` = FALSE ORDER BY `username`";
-    $result = $db_obj->query($sql); ?>
-    <?php if ($result->num_rows > 0) { ?>
-        <div class="container-fluid">
-            <form method="POST">
-                <div class="row">
-                    <div class="col-sm-6 offset-sm-3 text-center">
-                        <label style="display:<?php if (isset($_POST["edit"]) && $_POST["edit"] === "edit") {
-                                                    echo "none";
-                                                } ?>;" for="username" class="form-label">User</label>
-                        <select name="id" style="display:<?php if (isset($_POST["edit"]) && $_POST["edit"] === "edit") {
-                                                                echo "none";
-                                                            } ?>;" class="form-select" name="username" aria-label="Default select example" required>
-                            <?php while ($row = $result->fetch_assoc()) : ?>
-                                <option value="<?php echo $row["id"] ?>"><?php echo $row["username"] ?></option>
-                            <?php endwhile ?>
-                        </select>
+    if (!isset($_POST["edit"]) && !isset($_POST["view"])) {
+        require_once('config/dbaccess.php');
+        $db_obj = new mysqli($host, $user, $password, $database);
+        if ($db_obj->connect_error) {
+            $errors["connection"] = true;
+            exit();
+        }
+        $sql = "SELECT * FROM `users` WHERE `admin` = FALSE ORDER BY `username`";
+        $result = $db_obj->query($sql);
+        if ($result->num_rows > 0) { ?>
+            <div class="container-fluid">
+                <form method="POST">
+                    <div class="row">
+                        <div class="col-sm-6 offset-sm-3 text-center">
+                            <label for="username" class="form-label">User</label>
+                            <select name="id" class="form-select" name="username" aria-label="Default select example" required>
+                                <?php while ($row = $result->fetch_assoc()) : ?>
+                                    <!-- for each user we set the value as their id so we can pass the information to the next form to be used -->
+                                    <option value="<?php echo $row["id"] ?>"><?php echo $row["username"] ?></option>
+                                <?php endwhile ?>
+                            </select>
+                        </div>
+                        <div class="col-sm-10 offset-sm-1 text-center">
+                            <input type="hidden" name="edit" value="edit">
+                            <button class="btn btn-primary mt-3">Bearbeiten</button>
+                        </div>
                     </div>
-                    <div class="col-sm-10 offset-sm-1 text-center">
-                        <input type="hidden" name="edit" value="edit">
-                        <button style="display:<?php if (isset($_POST["edit"]) && $_POST["edit"] === "edit") {
-                                                    echo "none";
-                                                } ?>;" class="btn btn-primary mt-3">Bearbeiten</button>
-                    </div>
-                </div>
-            </form>
-        </div>
-    <?php } ?>
-    <?php $db_obj->close(); ?>
+                </form>
+            </div>
+    <?php }
+        $db_obj->close();
+    } ?>
     <?php
     if (
         $_SERVER["REQUEST_METHOD"] === "POST"
         && isset($_POST["edit"])
-        && $_POST["edit"] === "edit"
     ) {
         $id = $_POST["id"];
         require_once('config/dbaccess.php');
@@ -263,9 +265,30 @@ if (
                             </div>
                             <div class="mb-3">
                                 <input type="hidden" name="id" value="<?php echo $row["id"] ?>">
-                                <input type="hidden" name="updaten" value="updaten">
-                                <button class="btn btn-primary">Updaten</button>
+                                <input type="hidden" name="update">
+                                <button class="btn btn-primary">Aktualisieren</button>
                             </div>
+                        </div>
+                    </div>
+                </form>
+            </div>
+            <?php
+            $sql = "SELECT * FROM `reservation` WHERE `user_id`='$id' ORDER BY `checkin`, `checkout`";
+            $result = $db_obj->query($sql); ?>
+            <div class="container-fluid">
+                <form method="POST">
+                    <div class="row">
+                        <div class="col-sm-6 offset-sm-3 text-center">
+                            <label for="username" class="form-label">Reservierungen</label>
+                            <select name="id" class="form-select" aria-label="Default select example" required>
+                                <?php while ($row = $result->fetch_assoc()) : ?>
+                                    <option value="<?php echo $row["id"] ?>"><?php echo $row['checkin'] . " bis " . $row["checkout"]; ?></option>
+                                <?php endwhile ?>
+                            </select>
+                        </div>
+                        <div class="col-sm-10 offset-sm-1 text-center">
+                            <input type="hidden" name="view">
+                            <button class="btn btn-primary mt-3">Details einsehen</button>
                         </div>
                     </div>
                 </form>
@@ -275,6 +298,80 @@ if (
         $db_obj->close();
         ?>
     <?php } ?>
+    <?php
+    // form for updating reservation
+    if (
+        $_SERVER["REQUEST_METHOD"] === "POST"
+        && isset($_POST["view"])
+    ) {
+        $id = $_POST["id"];
+        require_once('config/dbaccess.php');
+        $db_obj = new mysqli($host, $user, $password, $database);
+        if ($db_obj->connect_error) {
+            $errors["connection"] = true;
+            exit();
+        }
+        $sql = "SELECT * FROM `reservation` WHERE `id` = '$id'";
+        $result = $db_obj->query($sql);
+        $row = $result->fetch_assoc(); ?>
+        <div class="container-fluid">
+            <form method="POST">
+                <div class="row">
+                    <div class="col-sm-6 offset-sm-3 text-center">
+                        <div class="mb-3">
+                            <label for="checkin" class="form-label">Check-In</label>
+                            <input type="date" value="<?php echo $row["checkin"] ?>" class="form-control " name="checkin" id="checkin" disabled>
+                        </div>
+
+                        <div class="mb-3">
+                            <label for="checkout" class="form-label">Check-Out</label>
+                            <input type="date" value="<?php echo $row["checkout"] ?>" class="form-control " name="checkout" id="checkout" disabled>
+                        </div>
+
+                        <div class="mb-3">
+                            <label for="breakfast" class="form-label">Frühstück</label>
+                            <select class="form-select" name="breakfast" aria-label="Default select example" disabled>
+                                <option value="1" <?php if ($row['breakfast'] == 1) { ?> selected <?php } ?>>Ja</option>
+                                <option value="0" <?php if ($row['breakfast'] == 0) { ?> selected <?php } ?>>Nein</option>
+                            </select>
+                        </div>
+
+                        <div class="mb-3">
+                            <label for="parking" class="form-label">Parkplatz</label>
+                            <select class="form-select" name="parking" aria-label="Default select example" disabled>
+                                <option value="1" <?php if ($row['parking'] == 1) { ?> selected <?php } ?>>Ja</option>
+                                <option value="0" <?php if ($row['parking'] == 0) { ?> selected <?php } ?>>Nein</option>
+
+                            </select>
+                        </div>
+
+                        <div class="mb-3">
+                            <label for="pet" class="form-label">Haustier</label>
+                            <select class="form-select" name="pet" aria-label="Default select example" disabled>
+                                <option value="1" <?php if ($row['pet'] == 1) { ?> selected <?php } ?>>Ja</option>
+                                <option value="0" <?php if ($row['pet'] == 0) { ?> selected <?php } ?>>Nein</option>
+                            </select>
+                        </div>
+                        <div class="mb-3">
+                            <!-- Preis einnfügen sobald verfügbar -->
+                            <label for="price" class="form-label">Preis</label>
+                            <input type="text" class="form-control " name="price" id="checkin" placeholder="1234€" disabled>
+                        </div>
+                        <div class="mb-3">
+                            <label for="status" class="form-label">Status</label>
+                            <select class="form-select" name="status" aria-label="Default select example" disabled>
+                                <option value="0" <?php if ($row['status'] == 0) { ?> selected <?php } ?>>Neu</option>
+                                <option value="1" <?php if ($row['status'] == 1) { ?> selected <?php } ?>>Bestätigt</option>
+                                <option value="2" <?php if ($row['status'] == 2) { ?> selected <?php } ?>>Storniert</option>
+                            </select>
+                        </div>
+                    </div>
+                </div>
+            </form>
+        </div>
+    <?php $db_obj->close();
+    }
+    ?>
 </body>
 
 </html>
