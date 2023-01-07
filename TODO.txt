@@ -4,8 +4,6 @@ Still To Do:
 
 - README.txt-File fertigstellen
 - Code kommentieren
-- Sicherheitslücken schließen (manueller Seitenabruf, SQL-Injections)
-- Vielleicht noch modularen Aufbau etwas verbessern bei Seiten mit vielen Forms
 
 --- Bausteine ---
 
