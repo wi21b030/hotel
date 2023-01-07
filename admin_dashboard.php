@@ -19,7 +19,7 @@
                     <img src="uploads/icons/user.png" class="card-img-top dashboard-size" alt="...">
                     <div class="card-body">
                         <h5>User-Verwaltung</h5>
-                        <a href="admin_userverwaltung.php" class="btn btn-success">Bearbeiten</a>
+                        <a href="admin_userverwaltung.php" class="btn btn-success">Weiter</a>
                     </div>
                 </div>
             </div>
@@ -28,7 +28,7 @@
                     <img src="uploads/icons/appointment.png" class="card-img-top dashboard-size" alt="...">
                     <div class="card-body">
                         <h5>Reservierungs-Verwaltung</h5>
-                        <a href="admin_reservierungsverwaltung.php" class="btn btn-success">Bearbeiten</a>
+                        <a href="admin_reservierungsverwaltung.php" class="btn btn-success">Weiter</a>
                     </div>
                 </div>
             </div>
@@ -37,7 +37,7 @@
                     <img src="uploads/icons/blog.png" class="card-img-top dashboard-size" alt="...">
                     <div class="card-body">
                         <h5>Blog-Verwaltung</h5>
-                        <a href="blog.php" class="btn btn-success">Bearbeiten</a>
+                        <a href="blog.php" class="btn btn-success">Weiter</a>
                     </div>
                 </div>
             </div>
