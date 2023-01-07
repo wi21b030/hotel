@@ -12,6 +12,7 @@ if ($_SERVER["REQUEST_METHOD"] === "POST") {
         && !empty($_POST["password"])
         && strlen(trim($_POST["username"])) != 0
         && strlen(trim($_POST["password"])) != 0
+        && strlen(trim($_POST["password"])) >= 8
     ) {
         require_once('config/dbaccess.php');
         $db_obj = new mysqli($host, $user, $password, $database);
