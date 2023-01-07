@@ -3,7 +3,7 @@
 -- https://www.phpmyadmin.net/
 --
 -- Host: 127.0.0.1
--- Erstellungszeit: 05. Jan 2023 um 19:40
+-- Erstellungszeit: 07. Jan 2023 um 22:36
 -- Server-Version: 10.4.27-MariaDB
 -- PHP-Version: 8.1.12
 
@@ -42,7 +42,8 @@ CREATE TABLE `news` (
 INSERT INTO `news` (`id`, `title`, `uploadtime`, `text`, `path`) VALUES
 (52, 'Die besten Restaurants', 1672869281, 'Unsere Geheimtipps!', 'uploads/news/pic/Die besten Restaurants.jpg'),
 (53, 'Die besten Bars von Wien', 1672870126, 'Hier die Top Bars!', 'uploads/news/pic/Die besten Bars von Wien.jpg'),
-(54, 'Die besten Sightseeing-Orte', 1672937376, 'Die Top 10!', 'uploads/news/pic/Die besten Sightseeing-Orte.jpg');
+(55, 'Die besten Sightseeing-Orte', 1672948683, 'Die Top 10!', 'uploads/news/pic/Die besten Sightseeing-Orte.jpg'),
+(56, 'Vierter Beitrag', 1673020496, 'Text', 'uploads/news/pic/Vierter Beitrag.jpg');
 
 -- --------------------------------------------------------
 
@@ -59,17 +60,18 @@ CREATE TABLE `reservation` (
   `pet` tinyint(1) NOT NULL,
   `users_username` varchar(80) NOT NULL,
   `time` timestamp(6) NOT NULL DEFAULT current_timestamp(6) ON UPDATE current_timestamp(6),
-  `user_id` int(11) NOT NULL
+  `user_id` int(11) NOT NULL,
+  `status` int(1) NOT NULL DEFAULT 0
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8 COLLATE=utf8_general_ci;
 
 --
 -- Daten für Tabelle `reservation`
 --
 
-INSERT INTO `reservation` (`id`, `checkin`, `checkout`, `breakfast`, `parking`, `pet`, `users_username`, `time`, `user_id`) VALUES
-(1, '2022-12-01', '2022-12-03', 1, 1, 1, 'hadi', '2023-01-01 14:51:17.000000', 34),
-(2, '2022-12-01', '2022-12-29', 1, 1, 1, 'hadi', '2022-12-29 20:26:36.000000', 34),
-(4, '2023-01-04', '2023-01-11', 0, 0, 0, 'kevin', '2023-01-04 20:08:02.000000', 37);
+INSERT INTO `reservation` (`id`, `checkin`, `checkout`, `breakfast`, `parking`, `pet`, `users_username`, `time`, `user_id`, `status`) VALUES
+(1, '2022-12-01', '2022-12-03', 1, 1, 1, 'hadi', '2023-01-06 19:20:20.599275', 34, 1),
+(2, '2022-12-01', '2022-12-29', 1, 1, 1, 'hadi', '2022-12-29 20:26:36.000000', 34, 0),
+(4, '2023-01-04', '2023-01-11', 0, 0, 0, 'kevin', '2023-01-07 14:36:35.794632', 37, 2);
 
 -- --------------------------------------------------------
 
@@ -96,8 +98,8 @@ CREATE TABLE `users` (
 
 INSERT INTO `users` (`id`, `admin`, `active`, `username`, `password`, `useremail`, `formofadress`, `firstname`, `secondname`, `path`) VALUES
 (23, 1, 1, 'admin', '$2y$10$Pgf7Rd4eqE1l3A8sdQAE2.USLzQFsj36/4GuBakz6dALR1WYxKPvO', 'wi21b030@technikum-wien.at', '1', 'Safwan', 'Zullash', 'uploads/profilepics/admin.jpg'),
-(34, 0, 1, 'hadi', '$2y$10$gdYK9rXxm67eJC261gH.5.j.4Q7V2SzWeCK6vl.vcpE7.pPkegR3S', 'hadi@gmail.com', '1', 'Hadi', 'Heydari', 'uploads/profilepics/hadi.jpg'),
-(37, 0, 1, 'kevin', '$2y$10$z1HLqBvoGXqOzOBD5W2amOD9gJW.HdI2WCAvJbuNBQGUpzhQWMRLm', 'kevin@xhunga.at', '1', 'Kevin', 'Xhunga', 'uploads/profilepics/kevin.jpg');
+(34, 0, 1, 'hadi', '$2y$10$NsOXUkrkZSVXhjCTtz2sUOSCAWRzm5TWIZC3usTDPDNUjwmL2lI3q', 'hadi@gmail.com', '1', 'Hadi', 'Heydari', 'uploads/profilepics/hadi.jpg'),
+(37, 0, 1, 'kevin', '$2y$10$QxoriboPg0kq8V9FbMWTUOAtt9E70UrRJpk1UBsU.MXnuTdiCVN4.', 'kevin@xhunga.at', '2', 'Kevin', 'Xhunga', 'uploads/profilepics/kevin.jpg');
 
 --
 -- Indizes der exportierten Tabellen
@@ -131,7 +133,7 @@ ALTER TABLE `users`
 -- AUTO_INCREMENT für Tabelle `news`
 --
 ALTER TABLE `news`
-  MODIFY `id` int(11) NOT NULL AUTO_INCREMENT, AUTO_INCREMENT=55;
+  MODIFY `id` int(11) NOT NULL AUTO_INCREMENT, AUTO_INCREMENT=57;
 
 --
 -- AUTO_INCREMENT für Tabelle `reservation`
@@ -143,7 +145,7 @@ ALTER TABLE `reservation`
 -- AUTO_INCREMENT für Tabelle `users`
 --
 ALTER TABLE `users`
-  MODIFY `id` int(11) NOT NULL AUTO_INCREMENT, AUTO_INCREMENT=40;
+  MODIFY `id` int(11) NOT NULL AUTO_INCREMENT, AUTO_INCREMENT=42;
 COMMIT;
 
 /*!40101 SET CHARACTER_SET_CLIENT=@OLD_CHARACTER_SET_CLIENT */;
