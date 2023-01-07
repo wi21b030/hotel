@@ -35,7 +35,7 @@
 
       <!-- News -->
       <a style="text-decoration: none" href="" class="text-dark">
-        <div class="row mb-4 border-bottom pb-2">
+        <div class="row mt-2 border-bottom pb-2">
           <div class="col-3">
             <img src="uploads/bilder/lounge-globus-4990.jpg" class="img-fluid shadow-1-strong rounded" alt="lounge" />
           </div>
@@ -51,7 +51,7 @@
 
       <!-- News -->
       <a style="text-decoration: none" href="" class="text-dark">
-        <div class="row mb-4 border-bottom pb-2">
+        <div class="row mt-2 border-bottom pb-2">
           <div class="col-3">
             <img src="uploads/bilder/henri_wien_fruehstueck_3_por4582.1400x700.jpg" class="img-fluid shadow-1-strong rounded" alt="essen" />
           </div>

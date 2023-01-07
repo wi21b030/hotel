@@ -222,7 +222,7 @@ if (
                     <!-- href="https://www.1000things.at/suche/ <?php //echo $row["title"] 
                                                                 ?>" -->
                     <a style="text-decoration: none" href="" class="text-dark">
-                        <div class="row mb-4 border-bottom pb-2">
+                        <div class="row mt-2 border-bottom pb-2">
                             <div class="col-3">
                                 <img src="<?php echo $row["path"] . "?" . time() ?>" class="img-fluid shadow-1-strong rounded" alt="<?php $row["title"] ?>" />
                             </div>

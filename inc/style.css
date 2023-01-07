@@ -7,7 +7,16 @@
     width:100px; 
 }
 
-.dashboard-size{
+.dashboard-card-size{
+    width: 180px; 
+    height:auto;
+}
+
+.dashboard-picture-size{
     width:50px;
     height:auto;
+}
+
+.dashboard-margin{
+    margin-top: 50px;
 }
