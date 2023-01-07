@@ -47,10 +47,10 @@ if (
     if (empty($_POST["username"]) || !isset($_POST["username"])  || strlen(trim($_POST["username"])) == 0) {
         $errors["username"] = true;
     }
-    if (empty($_POST["password"]) || !isset($_POST["password"])  || strlen(trim($_POST["password"])) == 0) {
+    if (empty($_POST["password"]) || !isset($_POST["password"])  || strlen(trim($_POST["password"])) == 0 || strlen(trim($_POST["password"])) < 8 ){
         $errors["password"] = true;
     }
-    if (empty($_POST["password2"]) || !isset($_POST["password2"])  || strlen(trim($_POST["password2"])) == 0) {
+    if (empty($_POST["password2"]) || !isset($_POST["password2"])  || strlen(trim($_POST["password2"])) == 0 || strlen(trim($_POST["password2"])) < 8) {
         $errors["passwordold"] = true;
     }
     if ($_POST["password"] != $_POST["password2"]) {
