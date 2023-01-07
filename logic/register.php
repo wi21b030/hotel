@@ -20,121 +20,85 @@ function test_input($data)
     return $data;
 }
 
-
-if ($_SERVER["REQUEST_METHOD"] === "POST" && isset($_POST["register"])) {
-    if (empty($_POST["firstname"]) || strlen(trim($_POST["firstname"])) == 0) {
-        $errors["firstname"] = true;
-    }
-    if (empty($_POST["secondname"]) || strlen(trim($_POST["secondname"])) == 0) {
-        $errors["secondname"] = true;
-    }
-    if (empty($_POST["useremail"]) || strlen(trim($_POST["useremail"])) == 0) {
-        $errors["useremail"] = true;
-    }
-    if (!empty($_POST["useremail"]) || strlen(trim($_POST["useremail"])) == 0) {
-        $check = test_input($_POST["useremail"]);
-        if (!filter_var($check, FILTER_VALIDATE_EMAIL)) {
-            $errors["useremail"] = true;
-        }
-    }
-    if (empty($_POST["username"]) || strlen(trim($_POST["username"])) == 0) {
-        $errors["username"] = true;
-    }
-    if (empty($_POST["password"]) || strlen(trim($_POST["password"])) == 0) {
-        $errors["password"] = true;
-    }
-    if (empty($_POST["password2"]) || strlen(trim($_POST["password2"])) == 0) {
-        $errors["password2"] = true;
-    }
-    if ($_POST["password"] !== $_POST["password2"]) {
-        $errors["password"] = true;
-        $errors["password2"] = true;
-    }
-}
-
 if (!file_exists($uploadDir)) {
     mkdir($uploadDir);
 }
 
-if (
-    $_SERVER["REQUEST_METHOD"] === "POST"
-    && isset($_POST["register"])
-) {
-    if (isset($_FILES["file"]) && !empty($_FILES["file"])) {
+if ($_SERVER["REQUEST_METHOD"] === "POST" && isset($_POST["register"])) {
+    if (empty($_POST["firstname"]) || strlen(trim($_POST["firstname"])) == 0) {
+        $errors["firstname"] = true;
+    } elseif (empty($_POST["secondname"]) || strlen(trim($_POST["secondname"])) == 0) {
+        $errors["secondname"] = true;
+    } elseif (empty($_POST["useremail"]) || strlen(trim($_POST["useremail"])) == 0) {
+        $errors["useremail"] = true;
+    } elseif (!empty($_POST["useremail"]) || strlen(trim($_POST["useremail"])) == 0) {
+        $check = test_input($_POST["useremail"]);
+        if (!filter_var($check, FILTER_VALIDATE_EMAIL)) {
+            $errors["useremail"] = true;
+        }
+    } elseif (empty($_POST["username"]) || strlen(trim($_POST["username"])) == 0) {
+        $errors["username"] = true;
+    } elseif (empty($_POST["password"]) || strlen(trim($_POST["password"])) == 0) {
+        $errors["password"] = true;
+    } elseif (empty($_POST["password2"]) || strlen(trim($_POST["password2"])) == 0) {
+        $errors["password2"] = true;
+    } elseif ($_POST["password"] !== $_POST["password2"]) {
+        $errors["password"] = true;
+        $errors["password2"] = true;
+    } elseif (isset($_FILES["file"]) && !empty($_FILES["file"])) {
         $extension = pathinfo($_FILES["file"]["name"], PATHINFO_EXTENSION);
         if ($extension == 'jpg' || $extension == 'jpeg' || $extension == 'png' || $extension == 'gif') {
-            if (
-                !$errors["firstname"]
-                && !$errors["secondname"]
-                && !$errors["useremail"]
-                && !$errors["username"]
-                && !$errors["password"]
-                && !$errors["password2"]
-            ) {
-                require_once('config/dbaccess.php');
-                $db_obj = new mysqli($host, $user, $password, $database);
-                if ($db_obj->connect_error) {
-                    $errors["insert"] = true;
-                    $db_obj->close();
-                    exit();
-                }
-                $uname = htmlspecialchars($_POST["username"], ENT_QUOTES);
-                $pass = htmlspecialchars(password_hash($_POST["password"], PASSWORD_DEFAULT), ENT_QUOTES);
-                $mail = htmlspecialchars($_POST["useremail"], ENT_QUOTES);
-                $fod = $_POST["formofadress"];
-                $fname = htmlspecialchars($_POST["firstname"], ENT_QUOTES);
-                $sname = htmlspecialchars($_POST["secondname"], ENT_QUOTES);
-                $profilepic = $_FILES["file"]["tmp_name"];
-                $path = $uploadDir . $uname . ".jpg";
+            require_once('config/dbaccess.php');
+            $db_obj = new mysqli($host, $user, $password, $database);
+            if ($db_obj->connect_error) {
+                $errors["insert"] = true;
+                $db_obj->close();
+                exit();
+            }
+            $uname = htmlspecialchars($_POST["username"], ENT_QUOTES);
+            $pass = htmlspecialchars(password_hash($_POST["password"], PASSWORD_DEFAULT), ENT_QUOTES);
+            $mail = htmlspecialchars($_POST["useremail"], ENT_QUOTES);
+            $fod = $_POST["formofadress"];
+            $fname = htmlspecialchars($_POST["firstname"], ENT_QUOTES);
+            $sname = htmlspecialchars($_POST["secondname"], ENT_QUOTES);
+            $profilepic = $_FILES["file"]["tmp_name"];
+            $path = $uploadDir . $uname . ".jpg";
 
-                $sql = "INSERT INTO `users` (`username`, `password`, `useremail`, `formofadress`, `firstname`, `secondname`, `path`) VALUES (?,?,?,?,?,?,?)";
-                $stmt = $db_obj->prepare($sql);
-                $stmt->bind_param("sssssss", $uname, $pass, $mail, $fod, $fname, $sname, $path);
+            $sql = "INSERT INTO `users` (`username`, `password`, `useremail`, `formofadress`, `firstname`, `secondname`, `path`) VALUES (?,?,?,?,?,?,?)";
+            $stmt = $db_obj->prepare($sql);
+            $stmt->bind_param("sssssss", $uname, $pass, $mail, $fod, $fname, $sname, $path);
 
-                $sql = "SELECT * FROM `users` WHERE `username` = '$uname'";
-                $result = $db_obj->query($sql);
-                if ($result->num_rows > 0) {
-                    $errors["exists"] = true;
-                } else {
-                    if (
-                        $uname === $_POST["username"]
-                        && password_verify($_POST["password"], $pass)
-                        && password_verify($_POST["password2"], $pass)
-                        && $mail === $_POST["useremail"]
-                        && $fname === $_POST["firstname"]
-                        && $sname === $_POST["secondname"]
-                    ) {
-                        if ($stmt->execute()) {
-                            $sql = "SELECT * FROM `users` WHERE `username` = '$uname'";
-                            $result = $db_obj->query($sql);
-                            if ($result->num_rows == 1) {
-                                $row = $result->fetch_assoc();
-                                if (move_uploaded_file($profilepic, $path)) {
-                                    $_SESSION["id"] = $row["id"];
-                                    $_SESSION["admin"] = $row["admin"];
-                                    $_SESSION["username"] = $row["username"];
-                                    $_SESSION["useremail"] = $row["useremail"];
-                                    $_SESSION["formofadress"] = $row["formofadress"];
-                                    $_SESSION["firstname"] = $row["firstname"];
-                                    $_SESSION["secondname"] = $row["secondname"];
-                                    $_SESSION["profilepic"] = $row["path"];
-                                    $registered = true;
-                                } else {
-                                    $errors["insert"] = true;
-                                }
-                            } else {
-                                $errors["insert"] = true;
-                            }
-                        } else {
-                            $errors["insert"] = true;
-                        }
+            $sql = "SELECT * FROM `users` WHERE `username` = ?";
+            $select = $db_obj->prepare($sql);
+            $select->bind_param("s", $uname);
+            $select->execute();
+            $result = $select->get_result();
+            if ($result->num_rows > 0) {
+                $errors["exists"] = true;
+            } else {
+                if ($stmt->execute()) {
+                    $sql = "SELECT * FROM `users` WHERE `username` = '$uname'";
+                    $result = $db_obj->query($sql);
+                    $row = $result->fetch_assoc();
+                    if (move_uploaded_file($profilepic, $path)) {
+                        $_SESSION["id"] = $row["id"];
+                        $_SESSION["admin"] = $row["admin"];
+                        $_SESSION["username"] = $row["username"];
+                        $_SESSION["useremail"] = $row["useremail"];
+                        $_SESSION["formofadress"] = $row["formofadress"];
+                        $_SESSION["firstname"] = $row["firstname"];
+                        $_SESSION["secondname"] = $row["secondname"];
+                        $_SESSION["profilepic"] = $row["path"];
+                        $registered = true;
                     } else {
                         $errors["insert"] = true;
                     }
+                } else {
+                    $errors["insert"] = true;
                 }
-                $stmt->close();
-                $db_obj->close();
             }
+            $stmt->close();
+            $db_obj->close();
         } else {
             $errors["file"] = true;
         }
@@ -142,6 +106,7 @@ if (
         $errors["file"] = true;
     }
 }
+
 ?>
 
 <!DOCTYPE html>

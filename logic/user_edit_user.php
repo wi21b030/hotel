@@ -27,99 +27,86 @@ function test_input($data)
 if (
     $_SERVER["REQUEST_METHOD"] === "POST"
     && isset($_POST["updaten"])
-    && $_POST["updaten"] === "updaten"
 ) {
     if (empty($_POST["firstname"]) || !isset($_POST["firstname"]) || strlen(trim($_POST["firstname"])) == 0) {
         $errors["firstname"] = true;
-    }
-    if (empty($_POST["secondname"]) || !isset($_POST["secondname"]) || strlen(trim($_POST["secondname"])) == 0) {
+    } else if (empty($_POST["secondname"]) || !isset($_POST["secondname"]) || strlen(trim($_POST["secondname"])) == 0) {
         $errors["secondname"] = true;
-    }
-    if (empty($_POST["useremail"]) || !isset($_POST["useremail"]) || strlen(trim($_POST["useremail"])) == 0) {
+    } elseif (empty($_POST["useremail"]) || !isset($_POST["useremail"]) || strlen(trim($_POST["useremail"])) == 0) {
         $errors["useremail"] = true;
-    }
-    if (!empty($_POST["useremail"])) {
+    } elseif (!empty($_POST["useremail"])) {
         $check = test_input($_POST["useremail"]);
         if (!filter_var($check, FILTER_VALIDATE_EMAIL)) {
             $errors["useremail"] = true;
         }
-    }
-    if (empty($_POST["username"]) || !isset($_POST["username"])  || strlen(trim($_POST["username"])) == 0) {
+    } elseif (empty($_POST["username"]) || !isset($_POST["username"])  || strlen(trim($_POST["username"])) == 0) {
         $errors["username"] = true;
-    }
-    if (empty($_POST["password"]) || !isset($_POST["password"])  || strlen(trim($_POST["password"])) == 0) {
+    } elseif (empty($_POST["password"]) || !isset($_POST["password"])  || strlen(trim($_POST["password"])) == 0) {
         $errors["password"] = true;
-    }
-    if (empty($_POST["passwordold"]) || !isset($_POST["passwordold"])  || strlen(trim($_POST["passwordold"])) == 0) {
+    } elseif (empty($_POST["passwordold"]) || !isset($_POST["passwordold"])  || strlen(trim($_POST["passwordold"])) == 0) {
         $errors["passwordold"] = true;
-    }
-    if (empty($_POST["file"]) || !isset($_POST["file"])) {
+    } elseif (empty($_POST["file"]) || !isset($_POST["file"])) {
         $errors["file"] = true;
-    }
-}
+    } elseif (isset($_FILES["file"]) && !empty($_FILES["file"])) {
+        $extension = pathinfo($_FILES["file"]["name"], PATHINFO_EXTENSION);
+        if ($extension == 'jpg' || $extension == 'jpeg' || $extension == 'png' || $extension == 'gif') {
+            require_once('config/dbaccess.php');
+            $db_obj = new mysqli($host, $user, $password, $database);
+            if ($db_obj->connect_error) {
+                $errors["connection"] = true;
+                $db_obj->close();
+                exit();
+            }
+            $id = $_SESSION["id"];
+            $_POST["password"] = htmlspecialchars(password_hash($_POST["password"], PASSWORD_DEFAULT), ENT_QUOTES);
+            $uname = htmlspecialchars($_POST["username"], ENT_QUOTES);
+            $pass = htmlspecialchars($_POST["password"], ENT_QUOTES);
+            $oldpass = htmlspecialchars($_POST["passwordold"], ENT_QUOTES);
+            $mail = htmlspecialchars($_POST["useremail"], ENT_QUOTES);
+            $fod = htmlspecialchars($_POST["formofadress"], ENT_QUOTES);
+            $fname = htmlspecialchars($_POST["firstname"], ENT_QUOTES);
+            $sname = htmlspecialchars($_POST["secondname"], ENT_QUOTES);
+            $profilepic = $_FILES["file"]["tmp_name"];
+            $path = $uploadDir . $uname . ".jpg";
 
-if (
-    $_SERVER["REQUEST_METHOD"] === "POST"
-    && isset($_POST["updaten"])
-    && $_POST["updaten"] === "updaten"
-) {
-    $extension = pathinfo($_FILES["file"]["name"], PATHINFO_EXTENSION);
-    if ($extension == 'jpg' || $extension == 'jpeg' || $extension == 'png' || $extension == 'gif') {
-        require_once('config/dbaccess.php');
-        $db_obj = new mysqli($host, $user, $password, $database);
-        if ($db_obj->connect_error) {
-            $errors["connection"] = true;
-            $db_obj->close();
-            exit();
-        }
-        $id = $_SESSION["id"];
-        $_POST["password"] = htmlspecialchars(password_hash($_POST["password"], PASSWORD_DEFAULT), ENT_QUOTES);
-        $uname = htmlspecialchars($_POST["username"], ENT_QUOTES);
-        $pass = htmlspecialchars($_POST["password"], ENT_QUOTES);
-        $oldpass = htmlspecialchars($_POST["passwordold"], ENT_QUOTES);
-        $mail = htmlspecialchars($_POST["useremail"], ENT_QUOTES);
-        $fod = htmlspecialchars($_POST["formofadress"], ENT_QUOTES);
-        $fname = htmlspecialchars($_POST["firstname"], ENT_QUOTES);
-        $sname = htmlspecialchars($_POST["secondname"], ENT_QUOTES);
-        $profilepic = $_FILES["file"]["tmp_name"];
-        $path = $uploadDir . $uname . ".jpg";
+            $sql = "UPDATE `users` SET  `username`=?, `password`=?, `useremail`=?, `formofadress`=?, `firstname`=?, `secondname`=?, `path`=? WHERE `id`=$id";
+            $stmt = $db_obj->prepare($sql);
+            $stmt->bind_param("sssssss", $uname, $pass, $mail, $fod, $fname, $sname, $path);
 
-        $sql = "UPDATE `users` SET  `username`=?, `password`=?, `useremail`=?, `formofadress`=?, `firstname`=?, `secondname`=?, `path`=? WHERE `id`=$id";
-        $stmt = $db_obj->prepare($sql);
-        $stmt->bind_param("sssssss", $uname, $pass, $mail, $fod, $fname, $sname, $path);
-
-        $sql = "SELECT * FROM `users` WHERE `username` = '$uname'";
-        $result = $db_obj->query($sql);
-        $row = $result->fetch_assoc();
-        if ($result->num_rows > 0 && $row["id"] != $id) {
-            $errors["update"] = true;
-        } else {
-            if (password_verify($oldpass, $row["password"])) {
-                if ($stmt->execute()) {
-                    if (move_uploaded_file($profilepic, $path)) {
-                        $_SESSION["id"] = $row["id"];
-                        $_SESSION["admin"] = $row["admin"];
-                        $_SESSION["username"] = $row["username"];
-                        $_SESSION["useremail"] = $row["useremail"];
-                        $_SESSION["formofadress"] = $row["formofadress"];
-                        $_SESSION["firstname"] = $row["firstname"];
-                        $_SESSION["secondname"] = $row["secondname"];
-                        $_SESSION["profilepic"] = $row["path"];
-                        $updated = true;
+            $sql = "SELECT * FROM `users` WHERE `username` = ?";
+            $select = $db_obj->prepare($sql);
+            $select->bind_param("s", $uname);
+            $select->execute();
+            $result = $select->get_result();
+            $row = $result->fetch_assoc();
+            if ($result->num_rows > 0 && $row["id"] != $id) {
+                $errors["update"] = true;
+            } else {
+                if (password_verify($oldpass, $row["password"])) {
+                    if ($stmt->execute()) {
+                        if (move_uploaded_file($profilepic, $path)) {
+                            $_SESSION["id"] = $row["id"];
+                            $_SESSION["admin"] = $row["admin"];
+                            $_SESSION["username"] = $row["username"];
+                            $_SESSION["useremail"] = $row["useremail"];
+                            $_SESSION["formofadress"] = $row["formofadress"];
+                            $_SESSION["firstname"] = $row["firstname"];
+                            $_SESSION["secondname"] = $row["secondname"];
+                            $_SESSION["profilepic"] = $row["path"];
+                            $updated = true;
+                        } else {
+                            $errors["update"] = true;
+                        }
                     } else {
-                        $errors["update"] = true;
+                        $errors["connection"] = true;
                     }
                 } else {
-                    $errors["connection"] = true;
+                    $errors["update"] = true;
                 }
-            } else {
-                $errors["update"] = true;
             }
+            $stmt->close();
+            $db_obj->close();
         }
-        $stmt->close();
-        $db_obj->close();
-    } else {
-        $errors["update"] = true;
     }
 }
 ?>
@@ -198,7 +185,7 @@ if (
                     </div>
                     <div class="mb-3">
                         <input type="hidden" name="id" value="<?php echo $_SESSION["id"] ?>">
-                        <input type="hidden" name="updaten" value="updaten">
+                        <input type="hidden" name="updaten">
                         <button class="btn btn-primary">Aktualisieren</button>
                     </div>
                 </form>

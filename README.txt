@@ -16,7 +16,7 @@ Hinweise:
 
 - Beispiel-User-Login-Daten für Website:
   Username: hadi
-  Passwort: 12345678
+  Passwort: 23456789
 
   Username: kevin
   Passwort: 12345678

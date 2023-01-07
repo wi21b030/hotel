@@ -25,51 +25,28 @@ function test_input($data)
     return $data;
 }
 
-// error handling for user-data form
 if (
     $_SERVER["REQUEST_METHOD"] === "POST"
     && isset($_POST["update"])
 ) {
     if (empty($_POST["firstname"]) || !isset($_POST["firstname"]) || strlen(trim($_POST["firstname"])) == 0) {
         $errors["firstname"] = true;
-    }
-    if (empty($_POST["secondname"]) || !isset($_POST["secondname"]) || strlen(trim($_POST["secondname"])) == 0) {
+    } elseif (empty($_POST["secondname"]) || !isset($_POST["secondname"]) || strlen(trim($_POST["secondname"])) == 0) {
         $errors["secondname"] = true;
-    }
-    if (empty($_POST["useremail"]) || !isset($_POST["useremail"]) || strlen(trim($_POST["useremail"])) == 0) {
+    } elseif (empty($_POST["useremail"]) || !isset($_POST["useremail"]) || strlen(trim($_POST["useremail"])) == 0) {
         $errors["useremail"] = true;
-    }
-    if (!empty($_POST["useremail"])) {
+    } elseif (!empty($_POST["useremail"])) {
         $check = test_input($_POST["useremail"]);
         if (!filter_var($check, FILTER_VALIDATE_EMAIL)) {
             $errors["useremail"] = true;
         }
-    }
-    if (empty($_POST["username"]) || !isset($_POST["username"]) || strlen(trim($_POST["username"])) == 0) {
+    } elseif (empty($_POST["username"]) || !isset($_POST["username"]) || strlen(trim($_POST["username"])) == 0) {
         $errors["username"] = true;
-    }
-    if (empty($_POST["password"]) || !isset($_POST["password"]) || strlen(trim($_POST["password"])) == 0) {
+    } elseif (empty($_POST["password"]) || !isset($_POST["password"]) || strlen(trim($_POST["password"])) == 0) {
         $errors["password"] = true;
-    }
-}
-
-
-
-if (
-    $_SERVER["REQUEST_METHOD"] === "POST"
-    && isset($_POST["update"])
-) {
-    if (
-        !$errors["firstname"]
-        && !$errors["secondname"]
-        && !$errors["useremail"]
-        && !$errors["username"]
-        && !$errors["password"]
-    ) {
-        // here we check if we have truly been given an image via the file-upload
+    } elseif (isset($_FILES["file"]) && !empty($_FILES["file"])) {
         $extension = pathinfo($_FILES["file"]["name"], PATHINFO_EXTENSION);
         if ($extension == 'jpg' || $extension == 'jpeg' || $extension == 'png' || $extension == 'gif') {
-
             require_once('config/dbaccess.php');
             $db_obj = new mysqli($host, $user, $password, $database);
             if ($db_obj->connect_error) {
@@ -108,15 +85,9 @@ if (
             }
             $stmt->close();
             $db_obj->close();
-        } else {
-            $errors["update"] = true;
         }
-    } else {
-        $errors["update"] = true;
     }
 }
-
-
 ?>
 
 <!DOCTYPE html>
