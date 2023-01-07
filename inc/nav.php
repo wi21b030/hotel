@@ -1,7 +1,7 @@
 <?php
 session_start();
 
-if($_SERVER["REQUEST_METHOD"] === "POST" && isset($_POST["logout"])){
+if ($_SERVER["REQUEST_METHOD"] === "POST" && isset($_POST["logout"])) {
     session_destroy();
     header("Location: login.php");
 }
@@ -23,7 +23,7 @@ if($_SERVER["REQUEST_METHOD"] === "POST" && isset($_POST["logout"])){
                 <?php } elseif (isset($_SESSION["username"])) { ?>
                     <li class="navbar-item">
                         <a class="nav-link" href="mein_profil.php">
-                            <img src="<?php echo $_SESSION["profilepic"]."?".time() ?>" width="30" height="30" class="d-inline-block align-top rounded-circle" alt="nav_profilbild"> <?php echo $_SESSION["username"]; ?>
+                            <img src="<?php echo $_SESSION["profilepic"] . "?" . time() ?>" width="30" height="30" class="d-inline-block align-top rounded-circle" alt="nav_profilbild"> <?php echo $_SESSION["username"]; ?>
                         </a>
                     </li>
                 <?php } ?>
@@ -53,11 +53,11 @@ if($_SERVER["REQUEST_METHOD"] === "POST" && isset($_POST["logout"])){
                     </li>
                 <?php } ?>
                 <li class="nav-item">
-                    <a class="nav-link" href="blog.php"><?php if (isset($_SESSION["username"]) && $_SESSION["admin"]) {
-                                                            echo "Blog-Verwaltung";
-                                                        } else {
-                                                            echo "Blog";
-                                                        } ?></a>
+                    <?php if (isset($_SESSION["username"]) && $_SESSION["admin"]) { ?>
+                        <a class="nav-link" href="blog.php">Blog-Verwaltung</a>
+                    <?php } else { ?>
+                        <a class="nav-link" href="blog.php">Blog</a>
+                    <?php } ?>
                 </li>
                 <li class="nav-item">
                     <a class="nav-link" href="hilfe.php">Hilfe</a>
