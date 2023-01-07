@@ -11,7 +11,6 @@
 <body>
     <?php include "inc/nav.php"; ?>
     <?php include "logic/news_upload.php"; ?>
-
 </body>
 
 </html>

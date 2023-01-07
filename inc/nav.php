@@ -6,18 +6,6 @@ if ($_SERVER["REQUEST_METHOD"] === "POST" && isset($_POST["logout"])) {
     header("Location: login.php");
 }
 ?>
-<!DOCTYPE html>
-<html lang="en">
-<head>
-    <meta charset="UTF-8">
-    <meta http-equiv="X-UA-Compatible" content="IE=edge">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Document</title>
-</head>
-<body>
-    
-</body>
-</html>
 <?php include "bootstrap.php"; ?>
 <nav class="navbar navbar-expand-lg bg-light">
     <div class="container-fluid">
@@ -40,7 +28,7 @@ if ($_SERVER["REQUEST_METHOD"] === "POST" && isset($_POST["logout"])) {
                 <?php } ?>
                 <?php if (isset($_SESSION["username"]) && $_SESSION["admin"]) { ?>
                     <li class="nav-item">
-                        <a class="nav-link" href="admin_userverwaltung.php">User-Verwaltung</a>
+                        <a class="nav-link" href="admin_dashboard.php">Admin-Dashboard</a>
                     </li>
                 <?php } ?>
                 <?php if (isset($_SESSION["username"]) && !$_SESSION["admin"]) { ?>
@@ -53,22 +41,13 @@ if ($_SERVER["REQUEST_METHOD"] === "POST" && isset($_POST["logout"])) {
                         <a class="nav-link" href="meine_reservierungen.php">Meine Reservierungen</a>
                     </li>
                 <?php } ?>
-                <?php if (isset($_SESSION["username"]) && $_SESSION["admin"]) { ?>
-                    <li class="nav-item">
-                        <a class="nav-link" href="admin_reservierungsverwaltung.php">Reservierungs-Verwaltung</a>
-                    </li>
-                <?php } ?>
                 <?php if (!isset($_SESSION["username"])) { ?>
                     <li class="nav-item">
                         <a class="nav-link" href="registrierung.php">Registrierung</a>
                     </li>
                 <?php } ?>
                 <li class="nav-item">
-                    <?php if (isset($_SESSION["username"]) && $_SESSION["admin"]) { ?>
-                        <a class="nav-link" href="blog.php">Blog-Verwaltung</a>
-                    <?php } else { ?>
-                        <a class="nav-link" href="blog.php">Blog</a>
-                    <?php } ?>
+                    <a class="nav-link" href="blog.php">Blog</a>
                 </li>
                 <li class="nav-item">
                     <a class="nav-link" href="hilfe.php">Hilfe</a>
