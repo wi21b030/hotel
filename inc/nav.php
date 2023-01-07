@@ -6,7 +6,18 @@ if ($_SERVER["REQUEST_METHOD"] === "POST" && isset($_POST["logout"])) {
     header("Location: login.php");
 }
 ?>
-
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta http-equiv="X-UA-Compatible" content="IE=edge">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Document</title>
+</head>
+<body>
+    
+</body>
+</html>
 <?php include "bootstrap.php"; ?>
 <nav class="navbar navbar-expand-lg bg-light">
     <div class="container-fluid">
@@ -23,7 +34,7 @@ if ($_SERVER["REQUEST_METHOD"] === "POST" && isset($_POST["logout"])) {
                 <?php } elseif (isset($_SESSION["username"])) { ?>
                     <li class="navbar-item">
                         <a class="nav-link" href="mein_profil.php">
-                            <img src="<?php echo $_SESSION["profilepic"] . "?" . time() ?>" width="30" height="30" class="d-inline-block align-top rounded-circle" alt="nav_profilbild"> <?php echo $_SESSION["username"]; ?>
+                            <img src="<?php echo $_SESSION["profilepic"] . "?" . time() ?>" class="d-inline-block align-top rounded-circle profilepic-size" alt="nav_profilbild"> <?php echo $_SESSION["username"]; ?>
                         </a>
                     </li>
                 <?php } ?>

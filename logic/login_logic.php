@@ -7,10 +7,12 @@ $errors["nosuchuser"] = false;
 $logged = false;
 
 if ($_SERVER["REQUEST_METHOD"] === "POST") {
-    if (!empty($_POST["username"]) 
+    if (
+        !empty($_POST["username"])
         && !empty($_POST["password"])
         && strlen(trim($_POST["username"])) != 0
-        && strlen(trim($_POST["password"])) != 0) {
+        && strlen(trim($_POST["password"])) != 0
+    ) {
         require_once('config/dbaccess.php');
         $db_obj = new mysqli($host, $user, $password, $database);
         if ($db_obj->connect_error) {

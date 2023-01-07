@@ -17,6 +17,7 @@ function thumbnailmade($pic, $path)
 {
     $made = false;
     list($width, $height) = getimagesize($pic);
+    // calculate ratio to make adjusment of image smoother
     $ratio = $width / $height;
     if ($ratio > 1) {
         $nwidth = 300;

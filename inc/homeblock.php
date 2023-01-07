@@ -1,25 +1,27 @@
 <!DOCTYPE html>
 <html lang="en">
+
 <head>
-    <meta charset="UTF-8">
-    <meta http-equiv="X-UA-Compatible" content="IE=edge">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Home-Block</title>
+  <meta charset="UTF-8">
+  <meta http-equiv="X-UA-Compatible" content="IE=edge">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Home-Block</title>
 </head>
+
 <body>
-<div class="container-fluid">
+  <div class="container-fluid">
     <!-- News block -->
     <div>
       <!-- Featured image -->
       <div class="bg-image hover-overlay shadow-1-strong ripple rounded-5 mb-4" data-mdb-ripple-color="light">
         <img src="uploads/bilder/c_felix-gaensicke-149.1400x700.jpg" class="img-fluid" alt="hotel1" />
         <a style="text-decoration: none" href="#!">
-          <div class="mask" style="background-color: rgba(251, 251, 251, 0.15);"></div>
+          <div class="mask test"></div>
         </a>
       </div>
 
       <!-- Article title and description -->
-      <a style="text-decoration: none" href="" class="text-dark">
+      <a style="text-decoration: none" href="" class="text-dark ">
         <h5>Über das Hotel</h5>
 
         <p>
@@ -66,4 +68,5 @@
     <!-- News block -->
   </div>
 </body>
+
 </html>
