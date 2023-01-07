@@ -92,10 +92,8 @@ if (
             if ($result->num_rows > 0 && $result->fetch_assoc()["id"] != $id) {
                 $errors["update"] = true;
             } else {
-                if ($stmt->execute()) {
-                    if (move_uploaded_file($profilepic, $path)) {
-                        $updated = true;
-                    }
+                if ($stmt->execute() && move_uploaded_file($profilepic, $path)) {
+                    $updated = true;
                 } else {
                     $errors["update"] = true;
                 }

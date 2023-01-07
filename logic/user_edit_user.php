@@ -98,25 +98,21 @@ if (
                 $result = $db_obj->query($sql);
                 $row = $result->fetch_assoc();
                 if (password_verify($oldpass, $row["password"])) {
-                    if ($stmt->execute()) {
+                    if ($stmt->execute() && move_uploaded_file($profilepic, $path)) {
                         $sql = "SELECT * FROM `users` WHERE `id` = '$id'";
                         $result = $db_obj->query($sql);
                         $row = $result->fetch_assoc();
-                        if (move_uploaded_file($profilepic, $path)) {
-                            $_SESSION["id"] = $row["id"];
-                            $_SESSION["admin"] = $row["admin"];
-                            $_SESSION["username"] = $row["username"];
-                            $_SESSION["useremail"] = $row["useremail"];
-                            $_SESSION["formofadress"] = $row["formofadress"];
-                            $_SESSION["firstname"] = $row["firstname"];
-                            $_SESSION["secondname"] = $row["secondname"];
-                            $_SESSION["profilepic"] = $row["path"];
-                            $updated = true;
-                        } else {
-                            $errors["update"] = true;
-                        }
+                        $_SESSION["id"] = $row["id"];
+                        $_SESSION["admin"] = $row["admin"];
+                        $_SESSION["username"] = $row["username"];
+                        $_SESSION["useremail"] = $row["useremail"];
+                        $_SESSION["formofadress"] = $row["formofadress"];
+                        $_SESSION["firstname"] = $row["firstname"];
+                        $_SESSION["secondname"] = $row["secondname"];
+                        $_SESSION["profilepic"] = $row["path"];
+                        $updated = true;
                     } else {
-                        $errors["connection"] = true;
+                        $errors["update"] = true;
                     }
                 } else {
                     $errors["update"] = true;

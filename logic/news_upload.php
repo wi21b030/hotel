@@ -109,14 +109,10 @@ if (
             if ($result->num_rows > 0) {
                 $errors["exists"] = true;
             } else {
-                if ($stmt->execute()) {
-                    if (thumbnailmade($pic, $path)) { // created own function for checking if thumbnail made
-                        $uploaded = true;
-                    } else {
-                        $errors["upload"] = true;
-                    }
+                if ($stmt->execute() && thumbnailmade($pic, $path)) {
+                    $uploaded = true;
                 } else {
-                    $errors["connection"] = true;
+                    $errors["upload"] = true;
                 }
             }
             $stmt->close();
