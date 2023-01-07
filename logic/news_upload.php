@@ -89,8 +89,6 @@ if (
             $db_obj = new mysqli($host, $user, $password, $database);
             if ($db_obj->connect_error) {
                 $errors["connection"] = true;
-                $db_obj->close();
-                exit();
             }
             $title = $_POST["title"];
             $uploadtime = time();
