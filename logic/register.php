@@ -24,41 +24,61 @@ if (!file_exists($uploadDir)) {
     mkdir($uploadDir);
 }
 
-if ($_SERVER["REQUEST_METHOD"] === "POST" && isset($_POST["register"])) {
-    if (empty($_POST["firstname"]) || strlen(trim($_POST["firstname"])) == 0) {
+
+if (
+    $_SERVER["REQUEST_METHOD"] === "POST"
+    && isset($_POST["register"])
+) {
+    if (empty($_POST["firstname"]) || !isset($_POST["firstname"]) || strlen(trim($_POST["firstname"])) == 0) {
         $errors["firstname"] = true;
-    } elseif (empty($_POST["secondname"]) || strlen(trim($_POST["secondname"])) == 0) {
+    }
+    if (empty($_POST["secondname"]) || !isset($_POST["secondname"]) || strlen(trim($_POST["secondname"])) == 0) {
         $errors["secondname"] = true;
-    } elseif (empty($_POST["useremail"]) || strlen(trim($_POST["useremail"])) == 0) {
+    }
+    if (empty($_POST["useremail"]) || !isset($_POST["useremail"]) || strlen(trim($_POST["useremail"])) == 0) {
         $errors["useremail"] = true;
-    } elseif (!empty($_POST["useremail"]) || strlen(trim($_POST["useremail"])) == 0) {
+    }
+    if (!empty($_POST["useremail"])) {
         $check = test_input($_POST["useremail"]);
         if (!filter_var($check, FILTER_VALIDATE_EMAIL)) {
             $errors["useremail"] = true;
         }
-    } elseif (empty($_POST["username"]) || strlen(trim($_POST["username"])) == 0) {
+    }
+    if (empty($_POST["username"]) || !isset($_POST["username"])  || strlen(trim($_POST["username"])) == 0) {
         $errors["username"] = true;
-    } elseif (empty($_POST["password"]) || strlen(trim($_POST["password"])) == 0) {
+    }
+    if (empty($_POST["password"]) || !isset($_POST["password"])  || strlen(trim($_POST["password"])) == 0) {
         $errors["password"] = true;
-    } elseif (empty($_POST["password2"]) || strlen(trim($_POST["password2"])) == 0) {
-        $errors["password2"] = true;
-    } elseif ($_POST["password"] !== $_POST["password2"]) {
+    }
+    if (empty($_POST["password2"]) || !isset($_POST["password2"])  || strlen(trim($_POST["password2"])) == 0) {
+        $errors["passwordold"] = true;
+    }
+    if ($_POST["password"] != $_POST["password2"]) {
         $errors["password"] = true;
         $errors["password2"] = true;
-    } elseif (isset($_FILES["file"]) && !empty($_FILES["file"])) {
+    }
+    if (!isset($_POST["file"])) {
+        $errors["file"] = true;
+    }
+    if (
+        !$errors["firstname"]
+        && !$errors["secondname"]
+        && !$errors["useremail"]
+        && !$errors["username"]
+        && !$errors["password"]
+        && !$errors["password2"]
+    ) {
         $extension = pathinfo($_FILES["file"]["name"], PATHINFO_EXTENSION);
         if ($extension == 'jpg' || $extension == 'jpeg' || $extension == 'png' || $extension == 'gif') {
             require_once('config/dbaccess.php');
             $db_obj = new mysqli($host, $user, $password, $database);
             if ($db_obj->connect_error) {
                 $errors["insert"] = true;
-                $db_obj->close();
-                exit();
             }
             $uname = htmlspecialchars($_POST["username"], ENT_QUOTES);
             $pass = htmlspecialchars(password_hash($_POST["password"], PASSWORD_DEFAULT), ENT_QUOTES);
             $mail = htmlspecialchars($_POST["useremail"], ENT_QUOTES);
-            $fod = $_POST["formofadress"];
+            $fod = htmlspecialchars($_POST["formofadress"], ENT_QUOTES);
             $fname = htmlspecialchars($_POST["firstname"], ENT_QUOTES);
             $sname = htmlspecialchars($_POST["secondname"], ENT_QUOTES);
             $profilepic = $_FILES["file"]["tmp_name"];
@@ -68,11 +88,11 @@ if ($_SERVER["REQUEST_METHOD"] === "POST" && isset($_POST["register"])) {
             $stmt = $db_obj->prepare($sql);
             $stmt->bind_param("sssssss", $uname, $pass, $mail, $fod, $fname, $sname, $path);
 
-            $sql = "SELECT * FROM `users` WHERE `username` = ?";
-            $select = $db_obj->prepare($sql);
-            $select->bind_param("s", $uname);
-            $select->execute();
-            $result = $select->get_result();
+            $sql = "SELECT * FROM `users` WHERE `username`=?";
+            $check = $db_obj->prepare($sql);
+            $check->bind_param("s", $uname);
+            $check->execute();
+            $result = $check->get_result();
             if ($result->num_rows > 0) {
                 $errors["exists"] = true;
             } else {
@@ -99,14 +119,11 @@ if ($_SERVER["REQUEST_METHOD"] === "POST" && isset($_POST["register"])) {
             }
             $stmt->close();
             $db_obj->close();
-        } else {
-            $errors["file"] = true;
         }
-    } else {
-        $errors["file"] = true;
+    } else{
+        $errors["insert"] = true;
     }
 }
-
 ?>
 
 <!DOCTYPE html>

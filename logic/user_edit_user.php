@@ -26,36 +26,49 @@ function test_input($data)
 
 if (
     $_SERVER["REQUEST_METHOD"] === "POST"
-    && isset($_POST["updaten"])
+    && isset($_POST["update"])
 ) {
     if (empty($_POST["firstname"]) || !isset($_POST["firstname"]) || strlen(trim($_POST["firstname"])) == 0) {
         $errors["firstname"] = true;
-    } else if (empty($_POST["secondname"]) || !isset($_POST["secondname"]) || strlen(trim($_POST["secondname"])) == 0) {
+    }
+    if (empty($_POST["secondname"]) || !isset($_POST["secondname"]) || strlen(trim($_POST["secondname"])) == 0) {
         $errors["secondname"] = true;
-    } elseif (empty($_POST["useremail"]) || !isset($_POST["useremail"]) || strlen(trim($_POST["useremail"])) == 0) {
+    }
+    if (empty($_POST["useremail"]) || !isset($_POST["useremail"]) || strlen(trim($_POST["useremail"])) == 0) {
         $errors["useremail"] = true;
-    } elseif (!empty($_POST["useremail"])) {
+    }
+    if (!empty($_POST["useremail"])) {
         $check = test_input($_POST["useremail"]);
         if (!filter_var($check, FILTER_VALIDATE_EMAIL)) {
             $errors["useremail"] = true;
         }
-    } elseif (empty($_POST["username"]) || !isset($_POST["username"])  || strlen(trim($_POST["username"])) == 0) {
+    }
+    if (empty($_POST["username"]) || !isset($_POST["username"])  || strlen(trim($_POST["username"])) == 0) {
         $errors["username"] = true;
-    } elseif (empty($_POST["password"]) || !isset($_POST["password"])  || strlen(trim($_POST["password"])) == 0) {
+    }
+    if (empty($_POST["password"]) || !isset($_POST["password"])  || strlen(trim($_POST["password"])) == 0) {
         $errors["password"] = true;
-    } elseif (empty($_POST["passwordold"]) || !isset($_POST["passwordold"])  || strlen(trim($_POST["passwordold"])) == 0) {
+    }
+    if (empty($_POST["passwordold"]) || !isset($_POST["passwordold"])  || strlen(trim($_POST["passwordold"])) == 0) {
         $errors["passwordold"] = true;
-    } elseif (empty($_POST["file"]) || !isset($_POST["file"])) {
+    }
+    if (!isset($_POST["file"])) {
         $errors["file"] = true;
-    } elseif (isset($_FILES["file"]) && !empty($_FILES["file"])) {
+    }
+    if (
+        !$errors["firstname"]
+        && !$errors["secondname"]
+        && !$errors["useremail"]
+        && !$errors["username"]
+        && !$errors["password"]
+        && !$errors["passwordold"]
+    ) {
         $extension = pathinfo($_FILES["file"]["name"], PATHINFO_EXTENSION);
         if ($extension == 'jpg' || $extension == 'jpeg' || $extension == 'png' || $extension == 'gif') {
             require_once('config/dbaccess.php');
             $db_obj = new mysqli($host, $user, $password, $database);
             if ($db_obj->connect_error) {
                 $errors["connection"] = true;
-                $db_obj->close();
-                exit();
             }
             $id = $_SESSION["id"];
             $_POST["password"] = htmlspecialchars(password_hash($_POST["password"], PASSWORD_DEFAULT), ENT_QUOTES);
@@ -74,16 +87,21 @@ if (
             $stmt->bind_param("sssssss", $uname, $pass, $mail, $fod, $fname, $sname, $path);
 
             $sql = "SELECT * FROM `users` WHERE `username` = ?";
-            $select = $db_obj->prepare($sql);
-            $select->bind_param("s", $uname);
-            $select->execute();
-            $result = $select->get_result();
-            $row = $result->fetch_assoc();
-            if ($result->num_rows > 0 && $row["id"] != $id) {
+            $check = $db_obj->prepare($sql);
+            $check->bind_param("s", $uname);
+            $check->execute();
+            $result = $check->get_result();
+            if ($result->num_rows > 0 && $result->fetch_assoc()["id"] != $id) {
                 $errors["update"] = true;
             } else {
+                $sql = "SELECT * FROM `users` WHERE `id` = '$id'";
+                $result = $db_obj->query($sql);
+                $row = $result->fetch_assoc();
                 if (password_verify($oldpass, $row["password"])) {
                     if ($stmt->execute()) {
+                        $sql = "SELECT * FROM `users` WHERE `id` = '$id'";
+                        $result = $db_obj->query($sql);
+                        $row = $result->fetch_assoc();
                         if (move_uploaded_file($profilepic, $path)) {
                             $_SESSION["id"] = $row["id"];
                             $_SESSION["admin"] = $row["admin"];
@@ -106,7 +124,11 @@ if (
             }
             $stmt->close();
             $db_obj->close();
+        } else {
+            $errors["update"] = true;
         }
+    } else {
+        $errors["update"] = true;
     }
 }
 ?>
@@ -185,7 +207,7 @@ if (
                     </div>
                     <div class="mb-3">
                         <input type="hidden" name="id" value="<?php echo $_SESSION["id"] ?>">
-                        <input type="hidden" name="updaten">
+                        <input type="hidden" name="update">
                         <button class="btn btn-primary">Aktualisieren</button>
                     </div>
                 </form>

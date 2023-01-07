@@ -20,7 +20,6 @@ if (
         $db_obj = new mysqli($host, $user, $password, $database);
         if ($db_obj->connect_error) {
             $errors["connection"] = true;
-            exit();
         }
         $breakfast = $_POST["breakfast"];
         $parking = $_POST["parking"];
@@ -96,7 +95,6 @@ if (
                 $db_obj = new mysqli($host, $user, $password, $database);
                 if ($db_obj->connect_error) {
                     $errors["connection"] = true;
-                    exit();
                 }
                 $user_id = $_SESSION["id"];
                 $sql = "SELECT * FROM `reservation` WHERE `user_id` = '$user_id'";
@@ -120,7 +118,8 @@ if (
                                                     } ?>;" class="btn btn-primary mt-3">Bearbeiten</button>
                         </div>
                     </form>
-                <?php } ?>
+                <?php $db_obj->close();
+                } ?>
                 <?php
                 // form to change own reservations
                 if (
@@ -133,7 +132,6 @@ if (
                     $db_obj = new mysqli($host, $user, $password, $database);
                     if ($db_obj->connect_error) {
                         $errors["connection"] = true;
-                        exit();
                     }
                     $sql = "SELECT * FROM `reservation` WHERE `id` = '$id'";
                     $result = $db_obj->query($sql);

@@ -89,7 +89,6 @@ if (
         $db_obj = new mysqli($host, $user, $password, $database);
         if ($db_obj->connect_error) {
             $errors["connection"] = true;
-            exit();
         }
         $status = $_POST["status"];
         // inner join to get all filtered reservations, we used an inner join so we can display the reservations with the corresponding customer for easier editing for the admin
@@ -129,7 +128,6 @@ if (
         $db_obj = new mysqli($host, $user, $password, $database);
         if ($db_obj->connect_error) {
             $errors["connection"] = true;
-            exit();
         }
         $sql = "SELECT * FROM `reservation` WHERE `id` = '$id'";
         $result = $db_obj->query($sql);

@@ -48,8 +48,6 @@ if (
     $db_obj = new mysqli($host, $user, $password, $database);
     if ($db_obj->connect_error) {
         $errors["delete"] = true;
-        $db_obj->close();
-        exit();
     }
 
     $id = $_POST["id"];
@@ -59,15 +57,10 @@ if (
 
     $sql = "SELECT * FROM `news` WHERE `id` = '$id'";
     $result = $db_obj->query($sql);
-    if ($result->num_rows > 0) {
+    if ($result->num_rows == 1) {
         $row = $result->fetch_assoc();
-        $status = unlink($row["path"]);
-        if ($status) {
-            if ($stmt->execute()) {
-                $deleted = true;
-            } else {
-                $errors["delete"] = true;
-            }
+        if (unlink($row["path"]) && $stmt->execute()) {
+            $deleted = true;
         } else {
             $errors["delete"] = true;
         }
@@ -109,8 +102,11 @@ if (
             $stmt = $db_obj->prepare($sql);
             $stmt->bind_param("siss", $title, $uploadtime, $text, $path);
 
-            $sql = "SELECT * FROM `news` WHERE `title` = '$title'";
-            $result = $db_obj->query($sql);
+            $sql = "SELECT * FROM `news` WHERE `title`=?";
+            $check = $db_obj->prepare($sql);
+            $check->bind_param("s", $title);
+            $check->execute();
+            $result = $check->get_result();
             if ($result->num_rows > 0) {
                 $errors["exists"] = true;
             } else {
@@ -228,11 +224,12 @@ if (
             $result = $db_obj->query($sql); ?>
             <?php if ($result->num_rows > 0) : ?>
                 <?php while ($row = $result->fetch_assoc()) : ?>
-                    <!-- href="https://www.1000things.at/suche/ <?php //echo $row["title"] ?>" -->
+                    <!-- href="https://www.1000things.at/suche/ <?php //echo $row["title"] 
+                                                                ?>" -->
                     <a style="text-decoration: none" href="" class="text-dark">
                         <div class="row mb-4 border-bottom pb-2">
                             <div class="col-3">
-                                <img src="<?php echo $row["path"]."?".time() ?>" class="img-fluid shadow-1-strong rounded" alt="<?php $row["title"] ?>" />
+                                <img src="<?php echo $row["path"] . "?" . time() ?>" class="img-fluid shadow-1-strong rounded" alt="<?php $row["title"] ?>" />
                             </div>
                             <div class="col-9">
                                 <p class="mb-2"><strong><?php echo $row["title"] ?></strong></p>

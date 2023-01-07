@@ -15,8 +15,6 @@ if ($_SERVER["REQUEST_METHOD"] === "POST") {
         $db_obj = new mysqli($host, $user, $password, $database);
         if ($db_obj->connect_error) {
             $errors["connection"] = true;
-            $db_obj->close();
-            exit();
         }
         $uname = $_POST["username"];
         $pass = $_POST["password"];
