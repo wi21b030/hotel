@@ -9,7 +9,6 @@
 </head>
 
 <body>
-    <?php include "bootstrap.php"; ?>
     <div class="row text-center">
         <!-- Team item-->
         <div class="col-xl-6 col-sm-6 mb-5">

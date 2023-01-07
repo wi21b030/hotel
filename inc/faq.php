@@ -9,7 +9,6 @@
 </head>
 
 <body>
-    <?php include "bootstrap.php"; ?>
     <div class="accordion" id="accordionExample">
         <?php if (!isset($_SESSION["username"])) { ?>
             <div class="accordion-item">

@@ -15,9 +15,6 @@
       <!-- Featured image -->
       <div class="bg-image hover-overlay shadow-1-strong ripple rounded-5 mb-4" data-mdb-ripple-color="light">
         <img src="uploads/bilder/c_felix-gaensicke-149.1400x700.jpg" class="img-fluid" alt="hotel1" />
-        <a style="text-decoration: none" href="#!">
-          <div class="mask test"></div>
-        </a>
       </div>
 
       <!-- Article title and description -->
