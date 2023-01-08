@@ -6,6 +6,54 @@ $errors["connection"] = false;
 $confirmed = false;
 $noroom = false;
 
+if ($_SERVER["REQUEST_METHOD"] === "POST" && isset($_POST['book'])) {
+    require_once('config/dbaccess.php');
+    $db_obj = new mysqli($host, $user, $password, $database);
+    if ($db_obj->connect_error) {
+        $errors["connection"] = true;
+    }
+    $checkin = $_POST["checkin"];
+    $checkout = $_POST["checkout"];
+    if ($checkin >= $checkout) {
+        $errors["checkin"] = true;
+        $errors["checkout"] = true;
+    }
+    $type = $_POST["type"];
+    $sql = "SELECT *
+        FROM `rooms`
+        WHERE `room_number` NOT IN (
+        SELECT DISTINCT `room`
+        FROM `reservation`
+        WHERE `checkin` <= '$checkin' AND `checkout` >= '$checkout') AND `type`='$type' LIMIT 1 ";
+    $result = $db_obj->query($sql);
+    if ($result->num_rows == 0) {
+        $noroom = true;
+    } else {
+        $row = $result->fetch_assoc();
+        $datenow = date('Y-m-d H:i:s', time());
+        $breakfast = $_POST["breakfast"];
+        $parking = $_POST["parking"];
+        $pet = $_POST["pet"];
+        $iduser = $_SESSION["id"];
+        $room_no = $row["room_number"];
+        $price = $row["rate"];
+        if ($breakfast == "Ja") {
+            $price += 10;
+        }
+        if ($parking == "Ja") {
+            $price += 3;
+        }
+        if ($pet != "Kein") {
+            $price += 5;
+        }
+        $date1 = new DateTime($checkin);
+        $date2 = new DateTime($checkout);
+        $interval = $date1->diff($date2);
+        $nights = ($interval->days);
+        $total = $price * $nights;
+    }
+}
+
 if (
     $_SERVER["REQUEST_METHOD"] === "POST"
     && isset($_POST['confirm'])
@@ -75,6 +123,12 @@ if (
                     <div class="alert alert-danger text-center" role="alert">
                         Reservierung konnte nicht gebucht werden! Versuchen Sie es später.
                     </div>
+                <?php } elseif ($noroom) {
+                    header("Refresh: 2, url=reservierung.php");
+                ?>
+                    <div class="alert alert-danger text-center" role="alert">
+                        Es gibt leider kein Zimmer zu Ihren gewünschten Daten!
+                    </div>
                 <?php } elseif ($confirmed) {
                     $confirmed = false;
                     header("Refresh: 2, url=reservierung.php");
@@ -92,13 +146,11 @@ if (
                 <form method="POST">
                     <div class="col-sm-6 offset-sm-3 text-center">
                         <label for="checkin" class="form-label">Check-In</label>
-                        <input type="date" name="checkin" class="form-control <?php if ($errors['checkin'])
-                                                                                    echo 'is invalid'; ?>" required>
+                        <input type="date" name="checkin" class="form-control" required>
                     </div>
                     <div class="col-sm-6 offset-sm-3 text-center">
                         <label for="checkout" class="form-label">Check-Out</label>
-                        <input type="date" name="checkout" class="form-control <?php if ($errors['checkin'])
-                                                                                    echo 'is invalid'; ?>" required>
+                        <input type="date" name="checkout" class="form-control" required>
                     </div>
                     <div class="col-sm-6 offset-sm-3 text-center">
                         <label for="type" class="form-label">Zimmer-Art</label>
@@ -132,129 +184,73 @@ if (
                         </select>
                     </div>
                     <div class="col-sm-10 offset-sm-1 text-center">
-                        <button name="buchen" class="btn btn-primary mt-3">Buchen</button>
-                        <input type="hidden" name="book">
+                        <button name="book" class="btn btn-primary mt-3">Buchen</button>
                     </div>
                 </form>
             <?php } ?>
-            <?php if (isset($_POST['book'])) {
-                require_once('config/dbaccess.php');
-                $db_obj = new mysqli($host, $user, $password, $database);
-                if ($db_obj->connect_error) {
-                    $errors["connection"] = true;
-                }
-                $checkin = $_POST["checkin"];
-                $checkout = $_POST["checkout"];
-                if ($checkin >= $checkout) {
-                    $errors["checkin"] = true;
-                    $errors["checkout"] = true;
-                } else {
-                    $type = $_POST["type"];
-                    $sql = " SELECT *
-                    FROM `rooms`
-                    WHERE `room_number` NOT IN (
-                    SELECT DISTINCT `room`
-                    FROM `reservation`
-                    WHERE `checkin` <= '$checkin' AND `checkout` >= '$checkout') AND `type`='$type' LIMIT 1 ";
-                    $result = $db_obj->query($sql);
-                    if ($result->num_rows == 0) {
-                        $noroom = true; ?>
-                        <div class="col-sm-10 offset-sm-1 text-center">
-                        <div class="alert alert-danger text-center" role="alert">
-                            Es gibt leider kein Zimmer zu Ihren gewählten Daten!
+            
+            <?php if (!$noroom && isset($_POST["book"])) { ?>
+                <form method="POST">
+                    <div class="col-sm-6 offset-sm-3 text-center">
+                        <div class="mb-3">
+                            <label for="checkin" class="form-label">Check-In</label>
+                            <input type="date" value="<?php echo $checkin ?>" class="form-control " name="checkin" id="checkin" disabled>
+                            <input type="hidden" value="<?php echo $checkin ?>" name="checkin">
                         </div>
+
+                        <div class="mb-3">
+                            <label for="checkout" class="form-label">Check-Out</label>
+                            <input type="date" value="<?php echo $checkout ?>" class="form-control " name="checkout" id="checkout" disabled>
+                            <input type="hidden" value="<?php echo $checkout ?>" name="checkout">
                         </div>
-                    <?php
-                        $noroom = false;
-                        header("Refresh: 2, url=reservierung.php");
-                    } else {
-                        $row = $result->fetch_assoc();
-                        $datenow = date('Y-m-d H:i:s', time());
-                        $breakfast = $_POST["breakfast"];
-                        $parking = $_POST["parking"];
-                        $pet = $_POST["pet"];
-                        $iduser = $_SESSION["id"];
-                        $room_no = $row["room_number"];
-                        $price = $row["rate"];
-                        if ($breakfast) {
-                            $price += 10;
-                        }
-                        if ($parking) {
-                            $price += 3;
-                        }
-                        if ($pet != "Kein") {
-                            $price += 5;
-                        }
-                        $date1 = new DateTime($checkin);
-                        $date2 = new DateTime($checkout);
-                        $interval = $date1->diff($date2);
-                        $nights = ($interval->days);
-                        $total = $price * $nights;
-                    ?>
-                        <form method="POST">
-                            <div class="col-sm-6 offset-sm-3 text-center">
-                                <div class="mb-3">
-                                    <label for="checkin" class="form-label">Check-In</label>
-                                    <input type="date" value="<?php echo $checkin ?>" class="form-control " name="checkin" id="checkin" disabled>
-                                    <input type="hidden" value="<?php echo $checkin ?>" name="checkin">
-                                </div>
 
-                                <div class="mb-3">
-                                    <label for="checkout" class="form-label">Check-Out</label>
-                                    <input type="date" value="<?php echo $checkout ?>" class="form-control " name="checkout" id="checkout" disabled>
-                                    <input type="hidden" value="<?php echo $checkout ?>" name="checkout">
-                                </div>
+                        <div class="mb-3">
+                            <label for="roomtype" class="form-label">Zimmer-Art</label>
+                            <input type="text" value="<?php echo $type ?>-Zimmer" class="form-control " name="type" id="checkin" disabled>
+                            <input type="hidden" value="<?php echo $type ?>" name="type">
+                        </div>
+                        <div class="mb-3">
+                            <label for="roomnumber" class="form-label">Zimmer-Nummer</label>
+                            <input type="text" value="<?php echo $room_no ?>" class="form-control " name="roomnumber" id="checkin" disabled>
+                            <input type="hidden" value="<?php echo $room_no ?>" name="roomnumber">
+                        </div>
+                        <div class="mb-3">
+                            <label for="breakfast" class="form-label">Frühstuck</label>
+                            <input type="text" value="<?php echo $breakfast ?>" class="form-control " name="breakfast" id="checkin" disabled>
+                            <input type="hidden" value="<?php echo $breakfast ?>" name="breakfast">
+                        </div>
+                        <div class="mb-3">
+                            <label for="parkin" class="form-label">Parkplatz</label>
+                            <input type="text" value="<?php echo $parking ?>" class="form-control " name="parking" id="checkin" disabled>
+                            <input type="hidden" value="<?php echo $parking ?>" name="parking">
+                        </div>
 
-                                <div class="mb-3">
-                                    <label for="roomtype" class="form-label">Zimmer-Art</label>
-                                    <input type="text" value="<?php echo $type ?>-Zimmer" class="form-control " name="type" id="checkin" disabled>
-                                    <input type="hidden" value="<?php echo $type ?>" name="type">
-                                </div>
-                                <div class="mb-3">
-                                    <label for="roomnumber" class="form-label">Zimmer-Nummer</label>
-                                    <input type="text" value="<?php echo $room_no ?>" class="form-control " name="roomnumber" id="checkin" disabled>
-                                    <input type="hidden" value="<?php echo $room_no ?>" name="roomnumber">
-                                </div>
-                                <div class="mb-3">
-                                    <label for="breakfast" class="form-label">Frühstuck</label>
-                                    <input type="text" value="<?php echo $breakfast ?>" class="form-control " name="breakfast" id="checkin" disabled>
-                                    <input type="hidden" value="<?php echo $breakfast ?>" name="breakfast">
-                                </div>
-                                <div class="mb-3">
-                                    <label for="parkin" class="form-label">Parkplatz</label>
-                                    <input type="text" value="<?php echo $parking ?>" class="form-control " name="parking" id="checkin" disabled>
-                                    <input type="hidden" value="<?php echo $parking ?>" name="parking">
-                                </div>
-
-                                <div class="mb-3">
-                                    <label for="pet" class="form-label">Haustier</label>
-                                    <input type="text" value="<?php echo $pet ?>" class="form-control " name="pet" id="checkin" disabled>
-                                    <input type="hidden" value="<?php echo $pet ?>" name="pet">
-                                </div>
-                                <div class="mb-3">
-                                    <label for="nights" class="form-label">Nächte</label>
-                                    <input type="text" value="<?php echo $nights ?>" class="form-control " name="nights" id="checkin" disabled>
-                                    <input type="hidden" value="<?php echo $nights ?>" name="nights">
-                                </div>
-                                <div class="mb-3">
-                                    <label for="price" class="form-label">Preis p.N.</label>
-                                    <input type="text" value="<?php echo $price ?>€" class="form-control " name="price" id="checkin" disabled>
-                                    <input type="hidden" value="<?php echo $rpice ?>" name="price">
-                                </div>
-                                <div class="mb-3">
-                                    <label for="total" class="form-label">Preis insg.</label>
-                                    <input type="text" value="<?php echo $total ?>€" class="form-control " name="total" id="checkin" disabled>
-                                    <input type="hidden" value="<?php echo $total ?>" name="total">
-                                </div>
-                                <div class="mb-6">
-                                    <button type="submit" name="confirm" class="btn btn-success mt-3">Bestätigen</button>
-                                    <button type="submit" name="cancel" class="btn btn-danger mt-3">Abbrechen</button>
-                                </div>
-                        </form>
-            <?php }
-                }
-            }
-            ?>
+                        <div class="mb-3">
+                            <label for="pet" class="form-label">Haustier</label>
+                            <input type="text" value="<?php echo $pet ?>" class="form-control " name="pet" id="checkin" disabled>
+                            <input type="hidden" value="<?php echo $pet ?>" name="pet">
+                        </div>
+                        <div class="mb-3">
+                            <label for="nights" class="form-label">Nächte</label>
+                            <input type="text" value="<?php echo $nights ?>" class="form-control " name="nights" id="checkin" disabled>
+                            <input type="hidden" value="<?php echo $nights ?>" name="nights">
+                        </div>
+                        <div class="mb-3">
+                            <label for="price" class="form-label">Preis p.N.</label>
+                            <input type="text" value="<?php echo $price ?>€" class="form-control " name="price" id="checkin" disabled>
+                            <input type="hidden" value="<?php echo $rpice ?>" name="price">
+                        </div>
+                        <div class="mb-3">
+                            <label for="total" class="form-label">Preis insg.</label>
+                            <input type="text" value="<?php echo $total ?>€" class="form-control " name="total" id="checkin" disabled>
+                            <input type="hidden" value="<?php echo $total ?>" name="total">
+                        </div>
+                        <div class="mb-6">
+                            <button type="submit" name="confirm" class="btn btn-success mt-3">Bestätigen</button>
+                            <button type="submit" name="cancel" class="btn btn-danger mt-3">Abbrechen</button>
+                        </div>
+                </form>
+            <?php } ?>
         </div>
     </div>
 </body>
