@@ -7,48 +7,21 @@ $updated = false;
 
 if (
     $_SERVER["REQUEST_METHOD"] === "POST"
-    && isset($_POST['checkin'], $_POST['checkout'])
-    && isset($_POST["updaten"])
+    && isset($_POST["storno"])
 ) {
-    $checkin = $_POST["checkin"];
-    $checkout = $_POST["checkout"];
-    if ($checkin >= $checkout) {
-        $errors["checkin"] = true;
-        $errors["checkout"] = true;
-    } else {
-        require_once('config/dbaccess.php');
-        $db_obj = new mysqli($host, $user, $password, $database);
-        if ($db_obj->connect_error) {
-            $errors["connection"] = true;
-        }
-        $breakfast = $_POST["breakfast"];
-        $parking = $_POST["parking"];
-        $pet = $_POST["pet"];
-        $id = $_POST["id"];
-        $uname = $_SESSION["username"];
-        $user_id = $_SESSION["id"];
-        $price = 50;
-        if ($breakfast) {
-            $price += 10;
-        }
-        if ($parking) {
-            $price += 3;
-        }
-        if ($pet) {
-            $price += 5;
-        }
-
-        $sql = "UPDATE `reservation` SET `checkin`=?, `checkout`=?, `breakfast`=?, `parking`=?, `pet`=?, `users_username`=?, `time`=?, `user_id`=? WHERE `id` = $id";
-        $stmt = $db_obj->prepare($sql);
-        $stmt->bind_param("ssiiissi", $checkin, $checkout, $breakfast, $parking, $pet, $uname, $datenow, $user_id);
-        if ($stmt->execute()) {
-            $updated = true;
-        } else {
-            $errors["connection"] = true;
-        }
-        $stmt->close();
-        $db_obj->close();
+    require_once('config/dbaccess.php');
+    $db_obj = new mysqli($host, $user, $password, $database);
+    if ($db_obj->connect_error) {
+        $errors["connection"] = true;
     }
+    $id = $_POST["id"];
+    $sql = "UPDATE `reservation` SET `status`='Storniert' WHERE `id` = $id";
+    if ($db_obj->query($sql)) {
+        $updated = true;
+    } else {
+        $errors["connection"] = true;
+    }
+    $db_obj->close();
 }
 ?>
 
@@ -120,66 +93,84 @@ if (
                     </form>
                 <?php $db_obj->close();
                 } ?>
-                <?php
-                // form to change own reservations
-                if (
-                    $_SERVER["REQUEST_METHOD"] === "POST"
-                    && isset($_POST["edit"])
-                    && $_POST["edit"] === "edit"
-                ) {
-                    $id = $_POST["id"];
-                    require_once('config/dbaccess.php');
-                    $db_obj = new mysqli($host, $user, $password, $database);
-                    if ($db_obj->connect_error) {
-                        $errors["connection"] = true;
-                    }
-                    $sql = "SELECT * FROM `reservation` WHERE `id` = '$id'";
-                    $result = $db_obj->query($sql);
-                    $row = $result->fetch_assoc(); ?>
-                    <form method="POST">
+            </div>
+            <?php
+            // form to change own reservations
+            if (
+                $_SERVER["REQUEST_METHOD"] === "POST"
+                && isset($_POST["edit"])
+                && $_POST["edit"] === "edit"
+            ) {
+                $id = $_POST["id"];
+                require_once('config/dbaccess.php');
+                $db_obj = new mysqli($host, $user, $password, $database);
+                if ($db_obj->connect_error) {
+                    $errors["connection"] = true;
+                }
+                $sql = "SELECT * FROM `reservation` INNER JOIN `rooms`ON reservation.room=rooms.room_number WHERE reservation.id = '$id'";
+                $result = $db_obj->query($sql);
+                $row = $result->fetch_assoc(); ?>
+                <form method="POST">
+                    <div class="col-sm-6 offset-sm-3 text-center">
                         <div class="mb-3">
                             <label for="checkin" class="form-label">Check-In</label>
-                            <input type="date" value="<?php echo $row["checkin"] ?>" class="form-control " name="checkin" id="checkin" required>
+                            <input type="date" value="<?php echo $row["checkin"] ?>" class="form-control " name="checkin" id="checkin" disabled>
                         </div>
+
                         <div class="mb-3">
                             <label for="checkout" class="form-label">Check-Out</label>
-                            <input type="date" value="<?php echo $row["checkout"] ?>" class="form-control " name="checkout" id="checkout" required>
+                            <input type="date" value="<?php echo $row["checkout"] ?>" class="form-control " name="checkout" id="checkout" disabled>
+                        </div>
+
+                        <div class="mb-3">
+                            <label for="roomtype" class="form-label">Zimmer-Art</label>
+                            <input type="text" value="<?php echo $row["type"] ?>-Zimmer" class="form-control " name="type" id="checkin" disabled>
                         </div>
                         <div class="mb-3">
-                            <label for="breakfast" class="form-label">Frühstück</label>
-                            <select class="form-select" name="breakfast" aria-label="Default select example" required>
-                                <option value="1" <?php if ($row['breakfast'] == 1) { ?> selected <?php } ?>>Ja</option>
-                                <option value="0" <?php if ($row['breakfast'] == 0) { ?> selected <?php } ?>>Nein</option>
-
-                            </select>
+                            <label for="roomnumber" class="form-label">Zimmer-Nummer</label>
+                            <input type="text" value="<?php echo $row["room_number"] ?>" class="form-control " name="roomnumber" id="checkin" disabled>
                         </div>
                         <div class="mb-3">
-                            <label for="parking" class="form-label">Parkplatz</label>
-                            <select class="form-select" name="parking" aria-label="Default select example" required>
-                                <option value="1" <?php if ($row['parking'] == 1) { ?> selected <?php } ?>>Ja</option>
-                                <option value="0" <?php if ($row['parking'] == 0) { ?> selected <?php } ?>>Nein</option>
-
-                            </select>
+                            <label for="breakfast" class="form-label">Frühstuck</label>
+                            <input type="text" value="<?php echo $row["breakfast"] ?>" class="form-control " name="breakfast" id="checkin" disabled>
                         </div>
+                        <div class="mb-3">
+                            <label for="parkin" class="form-label">Parkplatz</label>
+                            <input type="text" value="<?php echo $row["parking"] ?>" class="form-control " name="parking" id="checkin" disabled>
+                        </div>
+
                         <div class="mb-3">
                             <label for="pet" class="form-label">Haustier</label>
-                            <select class="form-select" name="pet" aria-label="Default select example" required>
-                                <option value="1" <?php if ($row['pet'] == 1) { ?> selected <?php } ?>>Ja</option>
-                                <option value="0" <?php if ($row['pet'] == 0) { ?> selected <?php } ?>>Nein</option>
-
+                            <input type="text" value="<?php echo $row["pet"] ?>" class="form-control " name="pet" id="checkin" disabled>
+                        </div>
+                        <div class="mb-3">
+                            <label for="nights" class="form-label">Nächte</label>
+                            <input type="text" value="<?php echo $row["nights"] ?>" class="form-control " name="nights" id="checkin" disabled>
+                        </div>
+                        <div class="mb-3">
+                            <label for="price" class="form-label">Preis p.N.</label>
+                            <input type="text" value="<?php echo $row["total"] / $row["nights"] ?>€" class="form-control " name="price" id="checkin" disabled>
+                        </div>
+                        <div class="mb-3">
+                            <label for="total" class="form-label">Preis insg.</label>
+                            <input type="text" value="<?php echo $row["total"] ?>€" class="form-control " name="total" id="checkin" disabled>
+                        </div>
+                        <div class="mb-3">
+                            <label for="status" class="form-label">Status</label>
+                            <select class="form-select" name="status" aria-label="Default select example" disabled>
+                                <option value="Neu" <?php if ($row['status'] == "Neu") { ?> selected <?php } ?>>Neu</option>
+                                <option value="Bestätigt" <?php if ($row['status'] == "Bestätigt") { ?> selected <?php } ?>>Bestätigt</option>
+                                <option value="Storniert" <?php if ($row['status'] == "Storniert") { ?> selected <?php } ?>>Storniert</option>
                             </select>
                         </div>
-                        <div class="mb-3">
-                            <input type="hidden" value="<?php echo $row["id"] ?>" class="form-control " name="id" id="id">
+                        <div class="mb-6">
+                            <input type="hidden" name="id" value="<?php echo $row["id"] ?>">
+                            <button type="submit" name="storno" class="btn btn-danger mt-3">Stornieren</button>
                         </div>
-                        <div class="mb-3">
-                            <input type="hidden" name="updaten" value="updaten">
-                            <button class="btn btn-primary">Updaten</button>
-                        </div>
-                    </form>
-                    <?php $db_obj->close(); ?>
-                <?php } ?>
-            </div>
+                    </div>
+                </form>
+                <?php $db_obj->close(); ?>
+            <?php } ?>
         </div>
     </div>
 </body>

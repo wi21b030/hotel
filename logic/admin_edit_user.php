@@ -295,7 +295,7 @@ if (
         if ($db_obj->connect_error) {
             $errors["connection"] = true;
         }
-        $sql = "SELECT * FROM `reservation` WHERE `id` = '$id'";
+        $sql = "SELECT * FROM `reservation` INNER JOIN `rooms`ON reservation.room=rooms.room_number WHERE reservation.id = '$id'";
         $result = $db_obj->query($sql);
         $row = $result->fetch_assoc(); ?>
         <div class="container-fluid">
@@ -313,40 +313,44 @@ if (
                         </div>
 
                         <div class="mb-3">
-                            <label for="breakfast" class="form-label">Frühstück</label>
-                            <select class="form-select" name="breakfast" aria-label="Default select example" disabled>
-                                <option value="1" <?php if ($row['breakfast'] == 1) { ?> selected <?php } ?>>Ja</option>
-                                <option value="0" <?php if ($row['breakfast'] == 0) { ?> selected <?php } ?>>Nein</option>
-                            </select>
+                            <label for="roomtype" class="form-label">Zimmer-Art</label>
+                            <input type="text" value="<?php echo $row["type"] ?>-Zimmer" class="form-control " name="type" id="checkin" disabled>
                         </div>
-
                         <div class="mb-3">
-                            <label for="parking" class="form-label">Parkplatz</label>
-                            <select class="form-select" name="parking" aria-label="Default select example" disabled>
-                                <option value="1" <?php if ($row['parking'] == 1) { ?> selected <?php } ?>>Ja</option>
-                                <option value="0" <?php if ($row['parking'] == 0) { ?> selected <?php } ?>>Nein</option>
-
-                            </select>
+                            <label for="roomnumber" class="form-label">Zimmer-Nummer</label>
+                            <input type="text" value="<?php echo $row["room_number"] ?>" class="form-control " name="roomnumber" id="checkin" disabled>
+                        </div>
+                        <div class="mb-3">
+                            <label for="breakfast" class="form-label">Frühstuck</label>
+                            <input type="text" value="<?php echo $row["breakfast"] ?>" class="form-control " name="breakfast" id="checkin" disabled>
+                        </div>
+                        <div class="mb-3">
+                            <label for="parkin" class="form-label">Parkplatz</label>
+                            <input type="text" value="<?php echo $row["parking"] ?>" class="form-control " name="parking" id="checkin" disabled>
                         </div>
 
                         <div class="mb-3">
                             <label for="pet" class="form-label">Haustier</label>
-                            <select class="form-select" name="pet" aria-label="Default select example" disabled>
-                                <option value="1" <?php if ($row['pet'] == 1) { ?> selected <?php } ?>>Ja</option>
-                                <option value="0" <?php if ($row['pet'] == 0) { ?> selected <?php } ?>>Nein</option>
-                            </select>
+                            <input type="text" value="<?php echo $row["pet"] ?>" class="form-control " name="pet" id="checkin" disabled>
                         </div>
                         <div class="mb-3">
-                            <!-- Preis einnfügen sobald verfügbar -->
-                            <label for="price" class="form-label">Preis</label>
-                            <input type="text" class="form-control " name="price" id="checkin" placeholder="1234€" disabled>
+                            <label for="nights" class="form-label">Nächte</label>
+                            <input type="text" value="<?php echo $row["nights"] ?>" class="form-control " name="nights" id="checkin" disabled>
+                        </div>
+                        <div class="mb-3">
+                            <label for="price" class="form-label">Preis p.N.</label>
+                            <input type="text" value="<?php echo $row["total"] / $row["nights"] ?>€" class="form-control " name="price" id="checkin" disabled>
+                        </div>
+                        <div class="mb-3">
+                            <label for="total" class="form-label">Preis insg.</label>
+                            <input type="text" value="<?php echo $row["total"] ?>€" class="form-control " name="total" id="checkin" disabled>
                         </div>
                         <div class="mb-3">
                             <label for="status" class="form-label">Status</label>
                             <select class="form-select" name="status" aria-label="Default select example" disabled>
-                                <option value="0" <?php if ($row['status'] == 0) { ?> selected <?php } ?>>Neu</option>
-                                <option value="1" <?php if ($row['status'] == 1) { ?> selected <?php } ?>>Bestätigt</option>
-                                <option value="2" <?php if ($row['status'] == 2) { ?> selected <?php } ?>>Storniert</option>
+                                <option value="Neu" <?php if ($row['status'] == "Neu") { ?> selected <?php } ?>>Neu</option>
+                                <option value="Bestätigt" <?php if ($row['status'] == "Bestätigt") { ?> selected <?php } ?>>Bestätigt</option>
+                                <option value="Storniert" <?php if ($row['status'] == "Storniert") { ?> selected <?php } ?>>Storniert</option>
                             </select>
                         </div>
                     </div>

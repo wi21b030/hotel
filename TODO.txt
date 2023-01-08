@@ -9,13 +9,6 @@ Still To Do:
 
 CSS
 - 4b) Ergänzen mit eigenen Style-Angaben
-
-Zimmer reservieren
-- 9aiii BONUS) Reservierungen haben einen Status „neu“, „bestätigt“, oder „storniert“
-- 16c) Für die Reservierung der einzelnen Zimmer ist auch dessen zeitliche Verfügbarkeit zu berücksichtigen!
-       Dafür müssen wir eine Tabelle rooms erstellen wobei room_id dann bei reservations gesetzt wird
-       + Bevor man also reserviert -> Seite mit Zimmern anzeigen -> Zimmer wählen -> Reservierung -> Check ob Verfügbar -> Wenn ja dann kann Bestätigt oder Abgebrochen werden/Wenn Nein dann weitergeleitet auf "reservierung.php"
-       Übrigens wird gerade time(), jedes Mal gespeichert wenn man eine Reservierung ändert, aber es soll nur die ursprüngliche Zeit gespeichert werden.
        
 Accessibility und Usabilty 
 - 18a) Achten Sie bei der Umsetzung auf die Mindestanforderung hinsichtlich Web-Accessibility

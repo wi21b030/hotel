@@ -3,7 +3,7 @@
 -- https://www.phpmyadmin.net/
 --
 -- Host: 127.0.0.1
--- Erstellungszeit: 07. Jan 2023 um 22:36
+-- Erstellungszeit: 08. Jan 2023 um 16:39
 -- Server-Version: 10.4.27-MariaDB
 -- PHP-Version: 8.1.12
 
@@ -52,26 +52,58 @@ INSERT INTO `news` (`id`, `title`, `uploadtime`, `text`, `path`) VALUES
 --
 
 CREATE TABLE `reservation` (
-  `id` int(11) NOT NULL,
+  `id` int(10) NOT NULL,
   `checkin` date NOT NULL,
   `checkout` date NOT NULL,
-  `breakfast` tinyint(1) NOT NULL,
-  `parking` tinyint(1) NOT NULL,
-  `pet` tinyint(1) NOT NULL,
-  `users_username` varchar(80) NOT NULL,
-  `time` timestamp(6) NOT NULL DEFAULT current_timestamp(6) ON UPDATE current_timestamp(6),
-  `user_id` int(11) NOT NULL,
-  `status` int(1) NOT NULL DEFAULT 0
+  `breakfast` varchar(100) NOT NULL,
+  `parking` varchar(100) NOT NULL,
+  `pet` varchar(100) NOT NULL,
+  `time` int(20) NOT NULL,
+  `user_id` int(10) NOT NULL,
+  `status` varchar(50) NOT NULL DEFAULT 'Neu',
+  `total` int(10) NOT NULL,
+  `nights` int(4) NOT NULL,
+  `room` int(4) NOT NULL
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8 COLLATE=utf8_general_ci;
 
 --
 -- Daten für Tabelle `reservation`
 --
 
-INSERT INTO `reservation` (`id`, `checkin`, `checkout`, `breakfast`, `parking`, `pet`, `users_username`, `time`, `user_id`, `status`) VALUES
-(1, '2022-12-01', '2022-12-03', 1, 1, 1, 'hadi', '2023-01-06 19:20:20.599275', 34, 1),
-(2, '2022-12-01', '2022-12-29', 1, 1, 1, 'hadi', '2022-12-29 20:26:36.000000', 34, 0),
-(4, '2023-01-04', '2023-01-11', 0, 0, 0, 'kevin', '2023-01-07 14:36:35.794632', 37, 2);
+INSERT INTO `reservation` (`id`, `checkin`, `checkout`, `breakfast`, `parking`, `pet`, `time`, `user_id`, `status`, `total`, `nights`, `room`) VALUES
+(131, '2023-01-01', '2023-01-02', 'Nein', 'Nein', 'Kein', 1673190115, 34, 'Storniert', 63, 1, 11),
+(132, '2023-01-01', '2023-01-02', 'Nein', 'Nein', 'Kein', 1673190150, 34, 'Bestätigt', 63, 1, 12),
+(133, '2023-01-01', '2023-01-02', 'Nein', 'Nein', 'Kein', 1673190163, 34, 'Storniert', 63, 1, 13),
+(134, '2023-01-01', '2023-01-02', 'Nein', 'Nein', 'Kein', 1673190174, 34, 'Neu', 63, 1, 14),
+(136, '2023-01-01', '2023-01-02', 'Nein', 'Ja', 'Katze', 1673190628, 34, 'Neu', 68, 1, 15);
+
+-- --------------------------------------------------------
+
+--
+-- Tabellenstruktur für Tabelle `rooms`
+--
+
+CREATE TABLE `rooms` (
+  `room_number` int(3) NOT NULL,
+  `type` varchar(10) NOT NULL,
+  `rate` int(4) NOT NULL
+) ENGINE=InnoDB DEFAULT CHARSET=utf8 COLLATE=utf8_general_ci;
+
+--
+-- Daten für Tabelle `rooms`
+--
+
+INSERT INTO `rooms` (`room_number`, `type`, `rate`) VALUES
+(11, 'Single', 50),
+(12, 'Single', 50),
+(13, 'Single', 50),
+(14, 'Single', 50),
+(15, 'Single', 50),
+(16, 'Double', 80),
+(17, 'Double', 80),
+(18, 'Double', 80),
+(19, 'Double', 80),
+(20, 'Double', 80);
 
 -- --------------------------------------------------------
 
@@ -119,6 +151,12 @@ ALTER TABLE `reservation`
   ADD PRIMARY KEY (`id`);
 
 --
+-- Indizes für die Tabelle `rooms`
+--
+ALTER TABLE `rooms`
+  ADD PRIMARY KEY (`room_number`);
+
+--
 -- Indizes für die Tabelle `users`
 --
 ALTER TABLE `users`
@@ -139,7 +177,7 @@ ALTER TABLE `news`
 -- AUTO_INCREMENT für Tabelle `reservation`
 --
 ALTER TABLE `reservation`
-  MODIFY `id` int(11) NOT NULL AUTO_INCREMENT, AUTO_INCREMENT=5;
+  MODIFY `id` int(10) NOT NULL AUTO_INCREMENT, AUTO_INCREMENT=137;
 
 --
 -- AUTO_INCREMENT für Tabelle `users`
