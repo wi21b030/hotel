@@ -88,7 +88,7 @@ if (
 
 if (
     $_SERVER["REQUEST_METHOD"] === "POST"
-    && isset($_POST['abbrechen'])
+    && isset($_POST['cancel'])
 ) {
     header("Location: reservierung.php");
 }
