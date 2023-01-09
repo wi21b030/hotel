@@ -7,9 +7,9 @@ if ($_SERVER["REQUEST_METHOD"] === "POST" && isset($_POST["logout"])) {
 }
 ?>
 <?php include "bootstrap.php"; ?>
-<nav class="navbar navbar-expand-lg bg-light">
+<nav class="navbar navbar-expand-lg bg-dark">
     <div class="container-fluid">
-        <a class="navbar-brand" href="index.php">The Royal Espire Hotel</a>
+        <a class="navbar-brand" href="index.php" style="color:white;">The Royal Espire Hotel</a>
         <button class="navbar-toggler" type="button" data-bs-toggle="collapse" data-bs-target="#navbarSupportedContent" aria-controls="navbarSupportedContent" aria-expanded="false" aria-label="Toggle navigation">
             <span class="navbar-toggler-icon"></span>
         </button>
@@ -21,46 +21,46 @@ if ($_SERVER["REQUEST_METHOD"] === "POST" && isset($_POST["logout"])) {
                     </li>
                 <?php } elseif (isset($_SESSION["username"])) { ?>
                     <li class="navbar-item">
-                        <a class="nav-link" href="mein_profil.php">
+                        <a class="nav-link" href="mein_profil.php" style="color:white;">
                             <img src="<?php echo $_SESSION["profilepic"] . "?" . time() ?>" class="d-inline-block align-top rounded-circle profilepic-size" alt="nav_profilbild"> <?php echo $_SESSION["username"]; ?>
                         </a>
                     </li>
                 <?php } ?>
                 <?php if (isset($_SESSION["username"]) && $_SESSION["admin"]) { ?>
                     <li class="nav-item">
-                        <a class="nav-link" href="admin_dashboard.php">Admin-Dashboard</a>
+                        <a class="nav-link" href="admin_dashboard.php" style="color:white;">Admin-Dashboard</a>
                     </li>
                 <?php } ?>
                 <?php if (isset($_SESSION["username"]) && !$_SESSION["admin"]) { ?>
                     <li class="nav-item">
-                        <a class="nav-link" href="reservierung.php">Reservierung</a>
+                        <a class="nav-link" href="reservierung.php" style="color:white;">Reservierung</a>
                     </li>
                 <?php } ?>
                 <?php if (isset($_SESSION["username"]) && !$_SESSION["admin"]) { ?>
                     <li class="nav-item">
-                        <a class="nav-link" href="meine_reservierungen.php">Meine Reservierungen</a>
+                        <a class="nav-link" href="meine_reservierungen.php" style="color:white;">Meine Reservierungen</a>
                     </li>
                 <?php } ?>
                 <?php if (!isset($_SESSION["username"])) { ?>
                     <li class="nav-item">
-                        <a class="nav-link" href="registrierung.php">Registrierung</a>
+                        <a class="nav-link" href="registrierung.php" style="color:white;">Registrierung</a>
                     </li>
                 <?php } ?>
                 <?php if (!isset($_SESSION["admin"]) || (isset($_SESSION["admin"]) && !$_SESSION["admin"])) { ?>
                     <li class="nav-item">
-                        <a class="nav-link" href="blog.php">Blog</a>
+                        <a class="nav-link" href="blog.php" style="color:white;">Blog</a>
                     </li>
                 <?php } ?>
                 <li class="nav-item">
-                    <a class="nav-link" href="hilfe.php">Hilfe</a>
+                    <a class="nav-link" href="hilfe.php" style="color:white;">Hilfe</a>
                 </li>
                 <li class="nav-item">
-                    <a class="nav-link" href="impressum.php">Impressum</a>
+                    <a class="nav-link" href="impressum.php" style="color:white;">Impressum</a>
                 </li>
             </ul>
             <?php if (isset($_SESSION["username"])) { ?>
                 <form class="d-flex" method="POST">
-                    <button class="btn btn-outline-danger" name="logout" type="submit">Logout</button>
+                    <button class="btn btn-danger" name="logout" type="submit">Logout</button>
                 </form>
             <?php } ?>
         </div>

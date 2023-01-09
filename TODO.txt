@@ -3,10 +3,5 @@ Still To Do:
 --- GENERAL ---
 
 - README.txt-File fertigstellen
-- Code kommentieren
-
---- Bausteine ---       
-Accessibility und Usabilty 
-- 18a) Achten Sie bei der Umsetzung auf die Mindestanforderung hinsichtlich Web-Accessibility
-- 18b) Testen Sie diese Features ggf. mit entsprechenden Browser-Erweiterungen oder Online-Tools
-- 18c) Achten Sie auf ein gutes Gesamterlebnis beim Konsumieren Ihrer Website und eine schlüssige Navigation
+- Code kommentieren  
+- Nav-Item-Style in CSS übertragen  
