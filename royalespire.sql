@@ -3,7 +3,7 @@
 -- https://www.phpmyadmin.net/
 --
 -- Host: 127.0.0.1
--- Erstellungszeit: 09. Jan 2023 um 01:44
+-- Erstellungszeit: 09. Jan 2023 um 19:53
 -- Server-Version: 10.4.27-MariaDB
 -- PHP-Version: 8.1.12
 
@@ -43,7 +43,8 @@ CREATE TABLE `news` (
 INSERT INTO `news` (`id`, `title`, `uploadtime`, `text`, `path`, `keyword`) VALUES
 (58, 'Erster Beitrag', 1673224399, 'Unser Team!', 'uploads/news/pic/Erster Beitrag.jpg', 'Team'),
 (59, 'Zweiter Beitrag', 1673224871, 'Die besten Sehenswürdigkeiten Wien', 'uploads/news/pic/Zweiter Beitrag.jpg', 'Sightseeing Wien'),
-(60, 'Dritter Post', 1673225005, 'Wien bietet eine Vielzahl an ästhetischen Bars!', 'uploads/news/pic/Dritter Post.jpg', 'Bars Wien');
+(60, 'Dritter Post', 1673225005, 'Wien bietet eine Vielzahl an ästhetischen Bars!', 'uploads/news/pic/Dritter Post.jpg', 'Bars Wien'),
+(61, 'Vierter Post', 1673289829, 'Hier sind gute Restaurants!', 'uploads/news/pic/Vierter Post.jpg', 'Restaurant Wien');
 
 -- --------------------------------------------------------
 
@@ -65,6 +66,17 @@ CREATE TABLE `reservation` (
   `nights` int(4) NOT NULL,
   `room` int(4) NOT NULL
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8 COLLATE=utf8_general_ci;
+
+--
+-- Daten für Tabelle `reservation`
+--
+
+INSERT INTO `reservation` (`id`, `checkin`, `checkout`, `breakfast`, `parking`, `pet`, `time`, `user_id`, `status`, `total`, `nights`, `room`) VALUES
+(155, '2023-01-01', '2023-01-02', 'Nein', 'Nein', 'Kein', 1673289599, 34, 'Neu', 50, 1, 11),
+(156, '2023-01-01', '2023-01-02', 'Nein', 'Nein', 'Kein', 1673289608, 34, 'Neu', 50, 1, 12),
+(157, '2023-01-01', '2023-01-02', 'Nein', 'Nein', 'Kein', 1673289616, 34, 'Neu', 50, 1, 13),
+(158, '2023-01-01', '2023-01-02', 'Nein', 'Nein', 'Kein', 1673289628, 34, 'Neu', 50, 1, 14),
+(159, '2023-01-01', '2023-01-02', 'Nein', 'Nein', 'Kein', 1673289638, 34, 'Neu', 50, 1, 15);
 
 -- --------------------------------------------------------
 
@@ -160,13 +172,13 @@ ALTER TABLE `users`
 -- AUTO_INCREMENT für Tabelle `news`
 --
 ALTER TABLE `news`
-  MODIFY `id` int(11) NOT NULL AUTO_INCREMENT, AUTO_INCREMENT=61;
+  MODIFY `id` int(11) NOT NULL AUTO_INCREMENT, AUTO_INCREMENT=62;
 
 --
 -- AUTO_INCREMENT für Tabelle `reservation`
 --
 ALTER TABLE `reservation`
-  MODIFY `id` int(10) NOT NULL AUTO_INCREMENT, AUTO_INCREMENT=155;
+  MODIFY `id` int(10) NOT NULL AUTO_INCREMENT, AUTO_INCREMENT=160;
 
 --
 -- AUTO_INCREMENT für Tabelle `users`
