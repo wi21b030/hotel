@@ -46,9 +46,11 @@ if ($_SERVER["REQUEST_METHOD"] === "POST" && isset($_POST["logout"])) {
                         <a class="nav-link" href="registrierung.php">Registrierung</a>
                     </li>
                 <?php } ?>
-                <li class="nav-item">
-                    <a class="nav-link" href="blog.php">Blog</a>
-                </li>
+                <?php if (!isset($_SESSION["admin"]) || (isset($_SESSION["admin"]) && !$_SESSION["admin"])) { ?>
+                    <li class="nav-item">
+                        <a class="nav-link" href="blog.php">Blog</a>
+                    </li>
+                <?php } ?>
                 <li class="nav-item">
                     <a class="nav-link" href="hilfe.php">Hilfe</a>
                 </li>

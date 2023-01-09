@@ -3,7 +3,7 @@
 -- https://www.phpmyadmin.net/
 --
 -- Host: 127.0.0.1
--- Erstellungszeit: 08. Jan 2023 um 16:39
+-- Erstellungszeit: 09. Jan 2023 um 01:44
 -- Server-Version: 10.4.27-MariaDB
 -- PHP-Version: 8.1.12
 
@@ -32,18 +32,18 @@ CREATE TABLE `news` (
   `title` varchar(260) NOT NULL,
   `uploadtime` int(50) NOT NULL,
   `text` text NOT NULL,
-  `path` varchar(260) NOT NULL
+  `path` varchar(260) NOT NULL,
+  `keyword` varchar(100) NOT NULL
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8 COLLATE=utf8_general_ci;
 
 --
 -- Daten für Tabelle `news`
 --
 
-INSERT INTO `news` (`id`, `title`, `uploadtime`, `text`, `path`) VALUES
-(52, 'Die besten Restaurants', 1672869281, 'Unsere Geheimtipps!', 'uploads/news/pic/Die besten Restaurants.jpg'),
-(53, 'Die besten Bars von Wien', 1672870126, 'Hier die Top Bars!', 'uploads/news/pic/Die besten Bars von Wien.jpg'),
-(55, 'Die besten Sightseeing-Orte', 1672948683, 'Die Top 10!', 'uploads/news/pic/Die besten Sightseeing-Orte.jpg'),
-(56, 'Vierter Beitrag', 1673020496, 'Text', 'uploads/news/pic/Vierter Beitrag.jpg');
+INSERT INTO `news` (`id`, `title`, `uploadtime`, `text`, `path`, `keyword`) VALUES
+(58, 'Erster Beitrag', 1673224399, 'Unser Team!', 'uploads/news/pic/Erster Beitrag.jpg', 'Team'),
+(59, 'Zweiter Beitrag', 1673224871, 'Die besten Sehenswürdigkeiten Wien', 'uploads/news/pic/Zweiter Beitrag.jpg', 'Sightseeing Wien'),
+(60, 'Dritter Post', 1673225005, 'Wien bietet eine Vielzahl an ästhetischen Bars!', 'uploads/news/pic/Dritter Post.jpg', 'Bars Wien');
 
 -- --------------------------------------------------------
 
@@ -65,17 +65,6 @@ CREATE TABLE `reservation` (
   `nights` int(4) NOT NULL,
   `room` int(4) NOT NULL
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8 COLLATE=utf8_general_ci;
-
---
--- Daten für Tabelle `reservation`
---
-
-INSERT INTO `reservation` (`id`, `checkin`, `checkout`, `breakfast`, `parking`, `pet`, `time`, `user_id`, `status`, `total`, `nights`, `room`) VALUES
-(131, '2023-01-01', '2023-01-02', 'Nein', 'Nein', 'Kein', 1673190115, 34, 'Storniert', 63, 1, 11),
-(132, '2023-01-01', '2023-01-02', 'Nein', 'Nein', 'Kein', 1673190150, 34, 'Bestätigt', 63, 1, 12),
-(133, '2023-01-01', '2023-01-02', 'Nein', 'Nein', 'Kein', 1673190163, 34, 'Storniert', 63, 1, 13),
-(134, '2023-01-01', '2023-01-02', 'Nein', 'Nein', 'Kein', 1673190174, 34, 'Neu', 63, 1, 14),
-(136, '2023-01-01', '2023-01-02', 'Nein', 'Ja', 'Katze', 1673190628, 34, 'Neu', 68, 1, 15);
 
 -- --------------------------------------------------------
 
@@ -130,7 +119,7 @@ CREATE TABLE `users` (
 
 INSERT INTO `users` (`id`, `admin`, `active`, `username`, `password`, `useremail`, `formofadress`, `firstname`, `secondname`, `path`) VALUES
 (23, 1, 1, 'admin', '$2y$10$Pgf7Rd4eqE1l3A8sdQAE2.USLzQFsj36/4GuBakz6dALR1WYxKPvO', 'wi21b030@technikum-wien.at', '1', 'Safwan', 'Zullash', 'uploads/profilepics/admin.jpg'),
-(34, 0, 1, 'hadi', '$2y$10$NsOXUkrkZSVXhjCTtz2sUOSCAWRzm5TWIZC3usTDPDNUjwmL2lI3q', 'hadi@gmail.com', '1', 'Hadi', 'Heydari', 'uploads/profilepics/hadi.jpg'),
+(34, 0, 1, 'hadi', '$2y$10$GDEPE51C/4LzEbAoZVH8QuOSWWfSJIHPaIPgV4/PpTgzzER7ixQ0i', 'hadi@gmail.com', '1', 'Hadi', 'Heydari', 'uploads/profilepics/hadi.jpg'),
 (37, 0, 1, 'kevin', '$2y$10$QxoriboPg0kq8V9FbMWTUOAtt9E70UrRJpk1UBsU.MXnuTdiCVN4.', 'kevin@xhunga.at', '2', 'Kevin', 'Xhunga', 'uploads/profilepics/kevin.jpg');
 
 --
@@ -171,13 +160,13 @@ ALTER TABLE `users`
 -- AUTO_INCREMENT für Tabelle `news`
 --
 ALTER TABLE `news`
-  MODIFY `id` int(11) NOT NULL AUTO_INCREMENT, AUTO_INCREMENT=57;
+  MODIFY `id` int(11) NOT NULL AUTO_INCREMENT, AUTO_INCREMENT=61;
 
 --
 -- AUTO_INCREMENT für Tabelle `reservation`
 --
 ALTER TABLE `reservation`
-  MODIFY `id` int(10) NOT NULL AUTO_INCREMENT, AUTO_INCREMENT=137;
+  MODIFY `id` int(10) NOT NULL AUTO_INCREMENT, AUTO_INCREMENT=155;
 
 --
 -- AUTO_INCREMENT für Tabelle `users`

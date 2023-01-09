@@ -19,12 +19,13 @@ if ($_SERVER["REQUEST_METHOD"] === "POST" && isset($_POST['book'])) {
         $errors["checkout"] = true;
     }
     $type = $_POST["type"];
-    $sql = "SELECT *
-        FROM `rooms`
+    // changed sql-query cause it was still possible to book rooms 
+    //where i.e check-in date or check.out was outside of socpe of already booked rooms
+    $sql = "SELECT * FROM `rooms`
         WHERE `room_number` NOT IN (
         SELECT DISTINCT `room`
         FROM `reservation`
-        WHERE `checkin` <= '$checkin' AND `checkout` >= '$checkout') AND `type`='$type' LIMIT 1 ";
+        WHERE ($checkin NOT BETWEEN `checkin` AND `checkout`) AND ($checkout NOT BETWEEN `checkin` AND `checkout`) AND `status`<>'Storniert') AND `type`='$type' LIMIT 1 ";
     $result = $db_obj->query($sql);
     if ($result->num_rows == 0) {
         $noroom = true;
@@ -188,7 +189,7 @@ if (
                     </div>
                 </form>
             <?php } ?>
-            
+
             <?php if (!$noroom && isset($_POST["book"])) { ?>
                 <form method="POST">
                     <div class="col-sm-6 offset-sm-3 text-center">

@@ -4,7 +4,6 @@ Still To Do:
 
 - README.txt-File fertigstellen
 - Code kommentieren
-- Error-Handling on Reservation-Page faulty
 
 --- Bausteine ---
 

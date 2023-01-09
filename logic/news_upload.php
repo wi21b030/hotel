@@ -83,6 +83,7 @@ if (
         && !empty($_POST["text"])
         && isset($_FILES["file"])
         && !empty($_FILES["file"])
+        && !empty($_POST["keyword"])
     ) {
         $extension = pathinfo($_FILES["file"]["name"], PATHINFO_EXTENSION);
         if ($extension == 'jpg' || $extension == 'jpeg' || $extension == 'png' || $extension == 'gif') {
@@ -96,10 +97,11 @@ if (
             $text = $_POST["text"];
             $pic = $_FILES["file"]["tmp_name"];
             $path = $uploadDirPic . $title . ".jpg";
+            $keyword = $_POST["keyword"];
 
-            $sql = "INSERT INTO `news` (`title`, `uploadtime`, `text`, `path`) VALUES (?,?,?,?)";
+            $sql = "INSERT INTO `news` (`title`, `uploadtime`, `text`, `path`, `keyword`) VALUES (?,?,?,?,?)";
             $stmt = $db_obj->prepare($sql);
-            $stmt->bind_param("siss", $title, $uploadtime, $text, $path);
+            $stmt->bind_param("sisss", $title, $uploadtime, $text, $path, $keyword);
 
             $sql = "SELECT * FROM `news` WHERE `title`=?";
             $check = $db_obj->prepare($sql);
@@ -191,6 +193,10 @@ if (
                                 <input type="text" name="title" class="form-control <?php if ($errors["exists"]) echo 'is-invalid'; ?>" id="exampleInputEmail1" required>
                             </div>
                             <div class="mb-2">
+                                <label for="exampleInputEmail1" class="form-label">Keywords</label>
+                                <input type="text" name="keyword" class="form-control <?php if ($errors["exists"]) echo 'is-invalid'; ?>" id="exampleInputEmail1" required>
+                            </div>
+                            <div class="mb-2">
                                 <label for="exampleFormControlTextarea1">Dazugehöriger Text</label>
                                 <textarea class="form-control <?php if ($errors["exists"]) echo 'is-invalid'; ?>" name="text" id="exampleFormControlTextarea1" rows="3"></textarea>
                             </div>
@@ -208,7 +214,7 @@ if (
             <?php endif ?>
         </div>
         <!-- output of news blog posts -->
-        <?php if (file_exists($uploadDirPic)) : ?>
+        <?php if (file_exists($uploadDirPic)) { ?>
             <?php
             require_once('config/dbaccess.php');
             $db_obj = new mysqli($host, $user, $password, $database);
@@ -217,11 +223,9 @@ if (
             }
             $sql = "SELECT * FROM `news` ORDER BY `uploadtime` DESC";
             $result = $db_obj->query($sql); ?>
-            <?php if ($result->num_rows > 0) : ?>
-                <?php while ($row = $result->fetch_assoc()) : ?>
-                    <!-- href="https://www.1000things.at/suche/ <?php //echo $row["title"] 
-                                                                ?>" -->
-                    <a style="text-decoration: none" href="" class="text-dark">
+            <?php if ($result->num_rows > 0) { ?>
+                <?php while ($row = $result->fetch_assoc()) { ?>
+                    <a style="text-decoration: none" href="https://www.1000things.at/suche/<?php echo $row["keyword"] ?>" class="text-dark">
                         <div class="row mt-2 border-bottom pb-2">
                             <div class="col-3">
                                 <img src="<?php echo $row["path"] . "?" . time() ?>" class="img-fluid shadow-1-strong rounded" alt="<?php $row["title"] ?>" />
@@ -247,10 +251,17 @@ if (
                             </div>
                         </div>
                     </a>
-                <?php endwhile ?>
-            <?php endif ?>
-            <?php $db_obj->close(); ?>
-        <?php endif ?>
+                <?php } ?>
+            <?php } elseif (!isset($_SESSION["admin"]) || (isset($_SESSION["admin"]) && !$_SESSION["admin"])) { ?>
+                <div class="col-sm-6 offset-sm-3 text-center">
+                    <div class="alert alert-primary text-center" role="alert">
+                        Es gibt momentan keine Beiträge!
+                    </div>
+                </div>
+            <?php
+            }
+            $db_obj->close(); ?>
+        <?php } ?>
     </div>
 </body>
 

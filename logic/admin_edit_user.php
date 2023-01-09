@@ -181,7 +181,14 @@ if (
                     </div>
                 </form>
             </div>
-    <?php }
+        <?php } else { ?>
+            <div class="col-sm-6 offset-sm-3 text-center">
+                <div class="alert alert-primary text-center" role="alert">
+                    Es gibt momentan keine registrierte User!
+                </div>
+            </div>
+    <?php header("Refresh: 2, url=admin_dashboard.php");
+        }
         $db_obj->close();
     } ?>
     <?php
@@ -260,29 +267,34 @@ if (
             <?php
             $sql = "SELECT * FROM `reservation` WHERE `user_id`='$id' ORDER BY `checkin`, `checkout`";
             $result = $db_obj->query($sql); ?>
-            <div class="container-fluid">
-                <form method="POST">
-                    <div class="row">
-                        <div class="col-sm-6 offset-sm-3 text-center">
-                            <label for="username" class="form-label">Reservierungen</label>
-                            <select name="id" class="form-select" aria-label="Default select example" required>
-                                <?php while ($row = $result->fetch_assoc()) : ?>
-                                    <option value="<?php echo $row["id"] ?>"><?php echo $row['checkin'] . " bis " . $row["checkout"]; ?></option>
-                                <?php endwhile ?>
-                            </select>
+            <?php if ($result->num_rows > 0) { ?>
+                <div class="container-fluid">
+                    <form method="POST">
+                        <div class="row">
+                            <div class="col-sm-6 offset-sm-3 text-center">
+                                <label for="username" class="form-label">Reservierungen</label>
+                                <select name="id" class="form-select" aria-label="Default select example" required>
+                                    <?php while ($row = $result->fetch_assoc()) : ?>
+                                        <option value="<?php echo $row["id"] ?>"><?php echo $row['checkin'] . " bis " . $row["checkout"]; ?></option>
+                                    <?php endwhile ?>
+                                </select>
+                            </div>
+                            <div class="col-sm-10 offset-sm-1 text-center">
+                                <input type="hidden" name="view">
+                                <button class="btn btn-primary mt-3">Details einsehen</button>
+                            </div>
                         </div>
-                        <div class="col-sm-10 offset-sm-1 text-center">
-                            <input type="hidden" name="view">
-                            <button class="btn btn-primary mt-3">Details einsehen</button>
-                        </div>
-                    </div>
-                </form>
-            </div>
-        <?php
+                    </form>
+                </div>
+            <?php } else { ?>
+                <div class="col-sm-6 offset-sm-3 text-center">
+                    Dieser User hat keine Reservierungen!
+                </div>
+    <?php
+            }
         }
         $db_obj->close();
-        ?>
-    <?php } ?>
+    } ?>
     <?php
     // form for updating reservation
     if (

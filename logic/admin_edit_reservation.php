@@ -4,6 +4,7 @@ $errors["connection"] = false;
 $errors["update"] = false;
 $updated = false;
 
+
 // if admin clicks on update, reservation status will be changed with this code
 if (
     $_SERVER["REQUEST_METHOD"] === "POST"
@@ -112,8 +113,15 @@ if (
                     </div>
                 </form>
             </div>
-        <?php } ?>
-    <?php $db_obj->close();
+        <?php } else { ?>
+            <div class="col-sm-6 offset-sm-3 text-center">
+                <div class="alert alert-primary text-center" role="alert">
+                    Es gibt momentan keine Reservierungen mit dem ausgewählten Filter!
+                </div>
+            </div>
+    <?php header("Refresh: 2, url=admin_reservierungsverwaltung.php");
+        }
+        $db_obj->close();
     } ?>
     <?php
     // form for updating chosen reservation
@@ -180,17 +188,19 @@ if (
                         </div>
                         <div class="mb-3">
                             <label for="status" class="form-label">Status</label>
-                            <select class="form-select" name="status" aria-label="Default select example">
+                            <select class="form-select" name="status" aria-label="Default select example" <?php if ($row['status'] == "Storniert") { ?>disabled<?php } ?>>
                                 <option value="Neu" <?php if ($row['status'] == "Neu") { ?> selected <?php } ?>>Neu</option>
                                 <option value="Bestätigt" <?php if ($row['status'] == "Bestätigt") { ?> selected <?php } ?>>Bestätigt</option>
                                 <option value="Storniert" <?php if ($row['status'] == "Storniert") { ?> selected <?php } ?>>Storniert</option>
                             </select>
                         </div>
-                        <div class="mb-6">
-                            <input type="hidden" value="<?php echo $row["id"] ?>" class="form-control " name="id" id="id">
-                            <input type="hidden" name="update">
-                            <button class="btn btn-primary">Aktualisieren</button>
-                        </div>
+                        <?php if ($row['status'] != "Storniert") { ?>
+                            <div class="mb-6">
+                                <input type="hidden" value="<?php echo $row["id"] ?>" class="form-control " name="id" id="id">
+                                <input type="hidden" name="update">
+                                <button class="btn btn-primary">Aktualisieren</button>
+                            </div>
+                        <?php } ?>
                     </div>
                 </div>
             </form>

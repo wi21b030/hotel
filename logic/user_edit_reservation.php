@@ -88,11 +88,18 @@ if (
                             <input type="hidden" name="edit" value="edit">
                             <button style="display:<?php if (isset($_POST["edit"]) && $_POST["edit"] === "edit") {
                                                         echo "none";
-                                                    } ?>;" class="btn btn-primary mt-3">Bearbeiten</button>
+                                                    } ?>;" class="btn btn-primary mt-3">Details ansehen</button>
                         </div>
                     </form>
-                <?php $db_obj->close();
-                } ?>
+                <?php
+                } else { ?>
+                    <div class="alert alert-primary text-center" role="alert">
+                        Sie haben momentan keine Reservierungen!
+                    </div>
+                <?php
+                    header("Refresh: 2, url=reservierung.php");
+                }
+                $db_obj->close(); ?>
             </div>
             <?php
             // form to change own reservations
@@ -163,10 +170,12 @@ if (
                                 <option value="Storniert" <?php if ($row['status'] == "Storniert") { ?> selected <?php } ?>>Storniert</option>
                             </select>
                         </div>
-                        <div class="mb-6">
-                            <input type="hidden" name="id" value="<?php echo $row["id"] ?>">
-                            <button type="submit" name="storno" class="btn btn-danger mt-3">Stornieren</button>
-                        </div>
+                        <?php if ($row['status'] != "Storniert") { ?>
+                            <div class="mb-6">
+                                <input type="hidden" name="id" value="<?php echo $row["id"] ?>">
+                                <button type="submit" name="storno" class="btn btn-danger mt-3">Stornieren</button>
+                            </div>
+                        <?php } ?>
                     </div>
                 </form>
                 <?php $db_obj->close(); ?>
