@@ -189,8 +189,8 @@ if (
                             <input type="password" class="form-control <?php if ($errors['password']) echo 'is-invalid'; ?>" name="password" id="password" minlength="8" required>
                         </div>
                         <div class="mb-3">
-                            <label for="password" class="form-label">Passwort erneut eingeben</label>
-                            <input type="password" class="form-control <?php if ($errors['password2']) echo 'is-invalid'; ?>" name="password2" id="password" minlength="8" required>
+                            <label for="password2" class="form-label">Passwort erneut eingeben</label>
+                            <input type="password2" class="form-control <?php if ($errors['password2']) echo 'is-invalid'; ?>" name="password2" id="password2" minlength="8" required>
                         </div>
                         <div class="mb-3">
                             <label for="formFile" class="form-label">Profilbild</label>
