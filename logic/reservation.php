@@ -147,11 +147,11 @@ if (
                 <form method="POST">
                     <div class="col-sm-6 offset-sm-3 text-center">
                         <label for="checkin" class="form-label">Check-In</label>
-                        <input type="date" name="checkin" class="form-control" required>
+                        <input type="date" name="checkin" class="form-control" aria-label="Check-In" required>
                     </div>
                     <div class="col-sm-6 offset-sm-3 text-center">
                         <label for="checkout" class="form-label">Check-Out</label>
-                        <input type="date" name="checkout" class="form-control" required>
+                        <input type="date" name="checkout" class="form-control" aria-label="Check-Out" required>
                     </div>
                     <div class="col-sm-6 offset-sm-3 text-center">
                         <label for="type" class="form-label">Zimmer-Art</label>
@@ -196,54 +196,56 @@ if (
                         <div class="mb-3">
                             <label for="checkin" class="form-label">Check-In</label>
                             <input type="date" value="<?php echo $checkin ?>" class="form-control " name="checkin" id="checkin" disabled>
+                            <label for="checkin" class="form-label"></label>
                             <input type="hidden" value="<?php echo $checkin ?>" name="checkin">
                         </div>
 
                         <div class="mb-3">
                             <label for="checkout" class="form-label">Check-Out</label>
                             <input type="date" value="<?php echo $checkout ?>" class="form-control " name="checkout" id="checkout" disabled>
+                            <label for="checkout" class="form-label"></label>
                             <input type="hidden" value="<?php echo $checkout ?>" name="checkout">
                         </div>
 
                         <div class="mb-3">
                             <label for="roomtype" class="form-label">Zimmer-Art</label>
-                            <input type="text" value="<?php echo $type ?>-Zimmer" class="form-control " name="type" id="checkin" disabled>
+                            <input type="text" value="<?php echo $type ?>-Zimmer" class="form-control " name="type" id="roomtype" disabled>
                             <input type="hidden" value="<?php echo $type ?>" name="type">
                         </div>
                         <div class="mb-3">
                             <label for="roomnumber" class="form-label">Zimmer-Nummer</label>
-                            <input type="text" value="<?php echo $room_no ?>" class="form-control " name="roomnumber" id="checkin" disabled>
+                            <input type="text" value="<?php echo $room_no ?>" class="form-control " name="roomnumber" id="roomnumber" disabled>
                             <input type="hidden" value="<?php echo $room_no ?>" name="roomnumber">
                         </div>
                         <div class="mb-3">
                             <label for="breakfast" class="form-label">Frühstuck</label>
-                            <input type="text" value="<?php echo $breakfast ?>" class="form-control " name="breakfast" id="checkin" disabled>
+                            <input type="text" value="<?php echo $breakfast ?>" class="form-control " name="breakfast" id="breakfast" disabled>
                             <input type="hidden" value="<?php echo $breakfast ?>" name="breakfast">
                         </div>
                         <div class="mb-3">
                             <label for="parkin" class="form-label">Parkplatz</label>
-                            <input type="text" value="<?php echo $parking ?>" class="form-control " name="parking" id="checkin" disabled>
+                            <input type="text" value="<?php echo $parking ?>" class="form-control " name="parking" id="parkin" disabled>
                             <input type="hidden" value="<?php echo $parking ?>" name="parking">
                         </div>
 
                         <div class="mb-3">
                             <label for="pet" class="form-label">Haustier</label>
-                            <input type="text" value="<?php echo $pet ?>" class="form-control " name="pet" id="checkin" disabled>
+                            <input type="text" value="<?php echo $pet ?>" class="form-control " name="pet" id="pet" disabled>
                             <input type="hidden" value="<?php echo $pet ?>" name="pet">
                         </div>
                         <div class="mb-3">
                             <label for="nights" class="form-label">Nächte</label>
-                            <input type="text" value="<?php echo $nights ?>" class="form-control " name="nights" id="checkin" disabled>
+                            <input type="text" value="<?php echo $nights ?>" class="form-control " name="nights" id="nights" disabled>
                             <input type="hidden" value="<?php echo $nights ?>" name="nights">
                         </div>
                         <div class="mb-3">
                             <label for="price" class="form-label">Preis p.N.</label>
-                            <input type="text" value="<?php echo $price ?>€" class="form-control " name="price" id="checkin" disabled>
+                            <input type="text" value="<?php echo $price ?>€" class="form-control " name="price" id="price" disabled>
                             <input type="hidden" value="<?php echo $rpice ?>" name="price">
                         </div>
                         <div class="mb-3">
                             <label for="total" class="form-label">Preis insg.</label>
-                            <input type="text" value="<?php echo $total ?>€" class="form-control " name="total" id="checkin" disabled>
+                            <input type="text" value="<?php echo $total ?>€" class="form-control " name="total" id="total" disabled>
                             <input type="hidden" value="<?php echo $total ?>" name="total">
                         </div>
                         <div class="mb-6">

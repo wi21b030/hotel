@@ -131,36 +131,36 @@ if (
 
                         <div class="mb-3">
                             <label for="roomtype" class="form-label">Zimmer-Art</label>
-                            <input type="text" value="<?php echo $row["type"] ?>-Zimmer" class="form-control " name="type" id="checkin" disabled>
+                            <input type="text" value="<?php echo $row["type"] ?>-Zimmer" class="form-control " name="type" id="type" aria-label="Zimmer-Art" disabled>
                         </div>
                         <div class="mb-3">
                             <label for="roomnumber" class="form-label">Zimmer-Nummer</label>
-                            <input type="text" value="<?php echo $row["room_number"] ?>" class="form-control " name="roomnumber" id="checkin" disabled>
+                            <input type="text" value="<?php echo $row["room_number"] ?>" class="form-control " name="roomnumber" id="roomnumber" disabled>
                         </div>
                         <div class="mb-3">
                             <label for="breakfast" class="form-label">Frühstuck</label>
-                            <input type="text" value="<?php echo $row["breakfast"] ?>" class="form-control " name="breakfast" id="checkin" disabled>
+                            <input type="text" value="<?php echo $row["breakfast"] ?>" class="form-control " name="breakfast" id="breakfast" disabled>
                         </div>
                         <div class="mb-3">
                             <label for="parkin" class="form-label">Parkplatz</label>
-                            <input type="text" value="<?php echo $row["parking"] ?>" class="form-control " name="parking" id="checkin" disabled>
+                            <input type="text" value="<?php echo $row["parking"] ?>" class="form-control " name="parking" id="parking" aria-label="parking" disabled>
                         </div>
 
                         <div class="mb-3">
                             <label for="pet" class="form-label">Haustier</label>
-                            <input type="text" value="<?php echo $row["pet"] ?>" class="form-control " name="pet" id="checkin" disabled>
+                            <input type="text" value="<?php echo $row["pet"] ?>" class="form-control " name="pet" id="pet" disabled>
                         </div>
                         <div class="mb-3">
                             <label for="nights" class="form-label">Nächte</label>
-                            <input type="text" value="<?php echo $row["nights"] ?>" class="form-control " name="nights" id="checkin" disabled>
+                            <input type="text" value="<?php echo $row["nights"] ?>" class="form-control " name="nights" id="nights" disabled>
                         </div>
                         <div class="mb-3">
                             <label for="price" class="form-label">Preis p.N.</label>
-                            <input type="text" value="<?php echo $row["total"] / $row["nights"] ?>€" class="form-control " name="price" id="checkin" disabled>
+                            <input type="text" value="<?php echo $row["total"] / $row["nights"] ?>€" class="form-control " name="price" id="price" disabled>
                         </div>
                         <div class="mb-3">
                             <label for="total" class="form-label">Preis insg.</label>
-                            <input type="text" value="<?php echo $row["total"] ?>€" class="form-control " name="total" id="checkin" disabled>
+                            <input type="text" value="<?php echo $row["total"] ?>€" class="form-control " name="total" id="total" disabled>
                         </div>
                         <div class="mb-3">
                             <label for="status" class="form-label">Status</label>
