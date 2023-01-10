@@ -6,12 +6,13 @@ $errors["connection"] = false;
 $errors["nosuchuser"] = false;
 $logged = false;
 
-if ($_SERVER["REQUEST_METHOD"] === "POST") {
+// if user clicks on login-button we execute this code
+if ($_SERVER["REQUEST_METHOD"] === "POST" && isset($_POST["login"])) {
     if (
+        // errror handling to check if input not empty and if password fulfills required length
         !empty($_POST["username"])
         && !empty($_POST["password"])
         && strlen(trim($_POST["username"])) != 0
-        && strlen(trim($_POST["password"])) != 0
         && strlen(trim($_POST["password"])) >= 8
     ) {
         require_once('config/dbaccess.php');
@@ -22,16 +23,22 @@ if ($_SERVER["REQUEST_METHOD"] === "POST") {
         $uname = $_POST["username"];
         $pass = $_POST["password"];
 
+        // prepared select-query to ensure protections against SQL-Injections
+        // we put the AND-constraint to make sure the user is an active one
         $sql = "SELECT * FROM `users` WHERE `username` = ? AND `active` = TRUE";
         $stmt = $db_obj->prepare($sql);
         $stmt->bind_param("s", $uname);
         if ($stmt->execute()) {
+            // if query is executed we fetch the result
             $result = $stmt->get_result();
             if ($result->num_rows == 0) {
                 $errors["nosuchuser"] = true;
             } else {
+                // and fetch the row of the result
                 $row = $result->fetch_assoc();
+                // we verify if given password matches the hashed password in the database
                 if (password_verify($pass, $row["password"])) {
+                    // if password matches then we set the session with the users information from the database
                     $_SESSION["id"] = $row["id"];
                     $_SESSION["admin"] = $row["admin"];
                     $_SESSION["username"] = $row["username"];
@@ -86,17 +93,17 @@ if ($_SERVER["REQUEST_METHOD"] === "POST") {
                 <div class="col-sm-6 offset-sm-3 text-center">
                     <?php if ($errors["nosuchuser"]) {
                         $errors["nosuchuser"] = false;
-                        header("Refresh: 2, url=login.php");
+                        header("Refresh: 3, url=login.php");
                     ?>
                         <div class="alert alert-danger text-center" role="alert">
-                            Login nicht möglich, dieser User existiert nicht oder ist inaktiv!
+                            Login nicht möglich, dieser User existiert nicht oder ist inaktiv, kontaktieren Sie das Support-Team!
                         </div>
                     <?php } elseif ($errors["connection"]) {
                         $errors["connection"] = false;
                         header("Refresh: 2, url=login.php");
                     ?>
                         <div class="alert alert-danger text-center" role="alert">
-                            Login nicht möglich aufgrund eines Fehlers mit der Datenbank!
+                            Login nicht möglich, versuchen Sie es später nocheinmal!
                         </div>
                     <?php } ?>
                 </div>
@@ -113,7 +120,7 @@ if ($_SERVER["REQUEST_METHOD"] === "POST") {
                         Noch nicht registriert? Klicken Sie <a href="registrierung.php">hier!</a>
                     </div>
                     <div class="col-sm-10 offset-sm-1 text-center">
-                        <button type="submit" class="btn btn-primary mt-3">Login</button>
+                        <button type="submit" name="login" class="btn btn-primary mt-3">Login</button>
                     </div>
                 </form>
             </div>

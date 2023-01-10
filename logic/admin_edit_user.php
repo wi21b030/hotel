@@ -28,6 +28,7 @@ if (
     $_SERVER["REQUEST_METHOD"] === "POST"
     && isset($_POST["update"])
 ) {
+    // error handling for invalid input
     if (empty($_POST["firstname"]) || !isset($_POST["firstname"]) || strlen(trim($_POST["firstname"])) == 0) {
         $errors["firstname"] = true;
     }
@@ -52,6 +53,7 @@ if (
     if (!isset($_POST["file"])) {
         $errors["file"] = true;
     }
+    // if none of the errors above are true, then we update the user
     if (
         !$errors["firstname"]
         && !$errors["secondname"]
@@ -59,6 +61,7 @@ if (
         && !$errors["username"]
         && !$errors["password"]
     ) {
+        // get the extension of the pathinfo to check if truly an image has been selected
         $extension = pathinfo($_FILES["file"]["name"], PATHINFO_EXTENSION);
         if ($extension == 'jpg' || $extension == 'jpeg' || $extension == 'png' || $extension == 'gif') {
             require_once('config/dbaccess.php');
@@ -68,7 +71,7 @@ if (
             }
             $id = $_POST["id"];
             $active = $_POST["active"];
-            // here we make sure we are protected from JavaScript Injections
+            // here we make sure we are protected from JavaScript-Injections
             $_POST["password"] = htmlspecialchars(password_hash($_POST["password"], PASSWORD_DEFAULT), ENT_QUOTES);
             $uname = htmlspecialchars($_POST["username"], ENT_QUOTES);
             $pass = htmlspecialchars($_POST["password"], ENT_QUOTES);
@@ -79,19 +82,22 @@ if (
             $profilepic = $_FILES["file"]["tmp_name"];
             $path = $uploadDir . $uname . ".jpg";
 
-            // prepared update statement
+            // prepared update statement to make sure we are protected against SQL-Injections
             $sql = "UPDATE `users` SET `active`=?, `username`=?, `password`=?, `useremail`=?, `formofadress`=?, `firstname`=?, `secondname`=?, `path`=? WHERE `id`=?";
             $stmt = $db_obj->prepare($sql);
             $stmt->bind_param("isssssssi", $active, $uname, $pass, $mail, $fod, $fname, $sname, $path, $id);
 
+            // check if username is already given
             $sql = "SELECT * FROM `users` WHERE `username`=?";
             $check = $db_obj->prepare($sql);
             $check->bind_param("s", $uname);
             $check->execute();
             $result = $check->get_result();
+            // if the username is given but not of the chosen user, then error otherwise we can change the username or keep the same one the user already had
             if ($result->num_rows > 0 && $result->fetch_assoc()["id"] != $id) {
                 $errors["update"] = true;
             } else {
+                // only if the query and the move of the file are executed then a success message is shown
                 if ($stmt->execute() && move_uploaded_file($profilepic, $path)) {
                     $updated = true;
                 } else {
@@ -123,12 +129,11 @@ if (
         <div class="row">
             <div class="col-sm-6 offset-sm-3 text-center">
                 <?php if ($errors["connection"]) {
-                    // we always set the booleans back to false so that it is not always true if the connection did#
-                    // not work, otherwise the website will keep refreshing endlessly
+                    // we always set the booleans back to false so that it does not always stay true
                     $errors["connection"] = false;
                     header("Refresh: 2, url=admin_userverwaltung.php"); ?>
                     <div class="alert alert-success text-center" role="alert">
-                        Fehler bei der Datenbankverbindung!
+                        Fehler, bitte versuchen Sie es später wieder!
                     </div>
 
                 <?php } ?>
@@ -161,6 +166,7 @@ if (
         }
         $sql = "SELECT * FROM `users` WHERE `admin` = FALSE ORDER BY `username`";
         $result = $db_obj->query($sql);
+        // only show form if there are registered users
         if ($result->num_rows > 0) { ?>
             <div class="container-fluid">
                 <form method="POST">
@@ -181,7 +187,9 @@ if (
                     </div>
                 </form>
             </div>
-        <?php } else { ?>
+        <?php
+            // otherwise show this alert
+        } else { ?>
             <div class="col-sm-6 offset-sm-3 text-center">
                 <div class="alert alert-primary text-center" role="alert">
                     Es gibt momentan keine registrierte User!
@@ -202,11 +210,14 @@ if (
         if ($db_obj->connect_error) {
             $errors["connection"] = true;
         }
+        // query to get information of selected user
         $sql = "SELECT * FROM `users` WHERE `id` = '$id'";
         $result = $db_obj->query($sql);
         if ($result->num_rows == 0) {
             $errors["exists"] = true;
         } else {
+            // if the user exists we get the query result
+            // and output his information
             $row = $result->fetch_assoc(); ?>
             <div class="container-fluid">
                 <form enctype="multipart/form-data" method="POST">
@@ -265,9 +276,11 @@ if (
                 </form>
             </div>
             <?php
+            // query to select all reservations of chosen user, ordered by checkin-date first then checkout-date
             $sql = "SELECT * FROM `reservation` WHERE `user_id`='$id' ORDER BY `checkin`, `checkout`";
-            $result = $db_obj->query($sql); ?>
-            <?php if ($result->num_rows > 0) { ?>
+            $result = $db_obj->query($sql);
+            // if query finds reservations then we output a dropdown list where the admin can select a reservation
+            if ($result->num_rows > 0) { ?>
                 <div class="container-fluid">
                     <form method="POST">
                         <div class="row">
@@ -286,7 +299,9 @@ if (
                         </div>
                     </form>
                 </div>
-            <?php } else { ?>
+            <?php
+            // otherwise output this message
+            } else { ?>
                 <div class="col-sm-6 offset-sm-3 text-center">
                     Dieser User hat keine Reservierungen!
                 </div>
@@ -296,7 +311,7 @@ if (
         $db_obj->close();
     } ?>
     <?php
-    // form for updating reservation
+    // form for updating reservation if admin clicks on button
     if (
         $_SERVER["REQUEST_METHOD"] === "POST"
         && isset($_POST["view"])
@@ -307,6 +322,7 @@ if (
         if ($db_obj->connect_error) {
             $errors["connection"] = true;
         }
+        // inner join to output all necessary information about reservation and room of the reservation
         $sql = "SELECT * FROM `reservation` INNER JOIN `rooms`ON reservation.room=rooms.room_number WHERE reservation.id = '$id'";
         $result = $db_obj->query($sql);
         $row = $result->fetch_assoc(); ?>

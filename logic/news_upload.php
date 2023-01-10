@@ -8,6 +8,7 @@ $errors["delete"] = false;
 $uploaded = false;
 $deleted = false;
 
+// checks if upload directory for thumbnails is not made and if not then it creates the directory
 if (!file_exists($uploadDirPic)) {
     mkdir($uploadDirPic);
 }
@@ -16,8 +17,9 @@ if (!file_exists($uploadDirPic)) {
 function thumbnailmade($pic, $path)
 {
     $made = false;
+    // get the width and height of given given image
     list($width, $height) = getimagesize($pic);
-    // calculate ratio to make adjusment of image smoother
+    // calculate ratio to make adjustment of image smoother
     $ratio = $width / $height;
     if ($ratio > 1) {
         $nwidth = 300;
@@ -27,12 +29,14 @@ function thumbnailmade($pic, $path)
         $nheight = 300;
     }
     // if instead we want to use specific ratio then use commented code below
+    // but using the code above gave better results in terms of quality
     // $nwidth = $width * 0.75;
     // $nheight = $height* 0.75;
     $newimage = imagecreatetruecolor($nwidth, $nheight);
     $source = imagecreatefromjpeg($pic);
     // used function imagecopyresampled instead of imagecopyresized because the first one delivers better quality
     imagecopyresampled($newimage, $source, 0, 0, 0, 0, $nwidth, $nheight, $width, $height);
+    // if thumbnail is made in given path then return true
     if (imagejpeg($newimage, $path)) {
         $made = true;
     }
@@ -43,24 +47,25 @@ function thumbnailmade($pic, $path)
 if (
     $_SERVER["REQUEST_METHOD"] === "POST"
     && isset($_POST["delete"])
-    && $_POST["delete"] === "delete"
 ) {
     require_once('config/dbaccess.php');
     $db_obj = new mysqli($host, $user, $password, $database);
     if ($db_obj->connect_error) {
         $errors["delete"] = true;
     }
-
+    // prepared delete-query
     $id = $_POST["id"];
     $sql = "DELETE FROM `news` WHERE `id` = ?";
     $stmt = $db_obj->prepare($sql);
     $stmt->bind_param("i", $id);
 
+    // get directory of thumbnail to be deleted
     $sql = "SELECT * FROM `news` WHERE `id` = '$id'";
     $result = $db_obj->query($sql);
     if ($result->num_rows == 1) {
         $row = $result->fetch_assoc();
-        if (unlink($row["path"]) && $stmt->execute()) {
+        // if query executed and thumbnail deleted
+        if ($stmt->execute() && unlink($row["path"])) {
             $deleted = true;
         } else {
             $errors["delete"] = true;
@@ -79,12 +84,14 @@ if (
     && $_POST["uploaden"] === "uploaden"
 ) {
     if (
+        // check if input is valid
         !empty($_POST["title"])
         && !empty($_POST["text"])
         && isset($_FILES["file"])
         && !empty($_FILES["file"])
         && !empty($_POST["keyword"])
     ) {
+        // get extension of choses file to check if truly image has been selected
         $extension = pathinfo($_FILES["file"]["name"], PATHINFO_EXTENSION);
         if ($extension == 'jpg' || $extension == 'jpeg' || $extension == 'png' || $extension == 'gif') {
             require_once('config/dbaccess.php');
@@ -99,18 +106,22 @@ if (
             $path = $uploadDirPic . $title . ".jpg";
             $keyword = $_POST["keyword"];
 
+            // prepared insert-query to ensure protection against SQL-Injection
             $sql = "INSERT INTO `news` (`title`, `uploadtime`, `text`, `path`, `keyword`) VALUES (?,?,?,?,?)";
             $stmt = $db_obj->prepare($sql);
             $stmt->bind_param("sisss", $title, $uploadtime, $text, $path, $keyword);
 
+            // prepared select-query to ensure protection against SQL-Injection
             $sql = "SELECT * FROM `news` WHERE `title`=?";
             $check = $db_obj->prepare($sql);
             $check->bind_param("s", $title);
             $check->execute();
             $result = $check->get_result();
+            // check if news-blog-post with same title already exists
             if ($result->num_rows > 0) {
                 $errors["exists"] = true;
             } else {
+                // if insert executed and thumbnailmade show
                 if ($stmt->execute() && thumbnailmade($pic, $path)) {
                     $uploaded = true;
                 } else {
@@ -141,6 +152,7 @@ if (
 <body>
     <div class="container-fluid">
         <div class="row">
+            <!-- alerts for different edge cases or success -->
             <?php if (isset($_SESSION["username"]) && $_SESSION["admin"]) : ?>
                 <div class="col-sm-6 offset-sm-3 text-center">
                     <?php if ($uploaded) {
@@ -214,16 +226,16 @@ if (
             <?php endif ?>
         </div>
         <!-- output of news blog posts -->
-        <?php if (file_exists($uploadDirPic)) { ?>
-            <?php
+        <?php if (file_exists($uploadDirPic)) {
             require_once('config/dbaccess.php');
             $db_obj = new mysqli($host, $user, $password, $database);
             if ($db_obj->connect_error) {
                 $errors["connection"] = true;
             }
+            // select-query to get all news-posts ordered uploadtime descending
             $sql = "SELECT * FROM `news` ORDER BY `uploadtime` DESC";
-            $result = $db_obj->query($sql); ?>
-            <?php if ($result->num_rows > 0) { ?>
+            $result = $db_obj->query($sql);
+            if ($result->num_rows > 0) { ?>
                 <?php while ($row = $result->fetch_assoc()) { ?>
                     <a style="text-decoration: none" href="https://www.1000things.at/suche/<?php echo $row["keyword"] ?>" class="text-dark">
                         <div class="row mt-2 border-bottom pb-2">
@@ -237,12 +249,13 @@ if (
                                     echo "<br><u>" . date("d.m.Y", $row["uploadtime"]) . "</u>";
                                     ?>
                                 </p>
+                                <!-- if admin is logged in they will see the delete button -->
                                 <?php if (isset($_SESSION["username"]) && $_SESSION["admin"]) { ?>
                                     <div class="col-9">
                                         <div class="mb-2">
                                             <form method="POST">
                                                 <input type="hidden" name="id" value="<?php echo $row["id"] ?>">
-                                                <input type="hidden" name="delete" value="delete">
+                                                <input type="hidden" name="delete">
                                                 <button type="submit" class="btn btn-danger">Löschen</button>
                                             </form>
                                         </div>
@@ -251,8 +264,9 @@ if (
                             </div>
                         </div>
                     </a>
-                <?php } ?>
-            <?php } elseif (!isset($_SESSION["admin"]) || (isset($_SESSION["admin"]) && !$_SESSION["admin"])) { ?>
+                <?php }
+            // if normal user or not registered user is on the news-page and there are no posts they will see this alert
+            } elseif (!isset($_SESSION["admin"]) || (isset($_SESSION["admin"]) && !$_SESSION["admin"])) { ?>
                 <div class="col-sm-6 offset-sm-3 text-center">
                     <div class="alert alert-primary text-center" role="alert">
                         Es gibt momentan keine Beiträge!
