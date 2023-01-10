@@ -223,7 +223,7 @@ if (
                             <input type="hidden" value="<?php echo $room_no ?>" name="roomnumber">
                         </div>
                         <div class="mb-3">
-                            <label for="breakfast" class="form-label">Frühstuck</label>
+                            <label for="breakfast" class="form-label">Frühstück</label>
                             <input type="text" value="<?php echo $breakfast ?>" class="form-control " name="breakfast" id="breakfast" disabled>
                             <input type="hidden" value="<?php echo $breakfast ?>" name="breakfast">
                         </div>
