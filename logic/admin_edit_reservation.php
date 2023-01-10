@@ -15,8 +15,10 @@ if (
     if ($db_obj->connect_error) {
         $errors["connection"] = true;
     }
+    // get id and new status of reservation via POST
     $id = $_POST["id"];
     $status = $_POST["status"];
+    // update reservation with given new status
     $sql = "UPDATE `reservation` SET `status`='$status' WHERE `id`='$id'";
     if ($db_obj->query($sql)) {
         $updated = true;
@@ -36,7 +38,7 @@ if (
 </head>
 
 <body>
-    <!-- alerts for different edge cases  -->
+    <!-- alerts for different edge cases, set booleans false again so they are not always true  -->
     <div class="container-fluid">
         <div class="row">
             <div class="col-sm-6 offset-sm-3 text-center">
@@ -61,6 +63,7 @@ if (
     </div>
     <?php
     // output of a dropdown list where you can choose to filter the reservations
+    // only shown if button filter and view have not been clicked
     if (!isset($_POST["filter"]) && !isset($_POST["view"])) { ?>
         <div class="container-fluid">
             <form method="POST">
@@ -82,9 +85,9 @@ if (
         </div>
     <?php } ?>
     <?php
+    // dropdown list with all filtered reservations
+    // this list gets the filter via POST from the previous form
     if (!isset($_POST["view"]) && isset($_POST["filter"])) {
-        // dropdown list with all filtered reservations
-        // this list gets the filter via POST from the previous form
         require_once('config/dbaccess.php');
         $db_obj = new mysqli($host, $user, $password, $database);
         if ($db_obj->connect_error) {
@@ -93,8 +96,9 @@ if (
         $status = $_POST["status"];
         // inner join to get all filtered reservations, we used an inner join so we can display the reservations with the corresponding customer for easier editing for the admin
         $sql = "SELECT r.id, r.checkin, r.checkout, u.firstname, u.secondname FROM `reservation` as r INNER JOIN `users` as u ON r.user_id=u.id  WHERE r.status='$status' ORDER BY r.checkin, r.checkout, u.secondname, u.firstname";
-        $result = $db_obj->query($sql); ?>
-        <?php if ($result->num_rows > 0) { ?>
+        $result = $db_obj->query($sql);
+        // only show list of reservations if there any with given filter
+        if ($result->num_rows > 0) { ?>
             <div class="container-fluid">
                 <form method="POST">
                     <div class="row">
@@ -113,7 +117,9 @@ if (
                     </div>
                 </form>
             </div>
-        <?php } else { ?>
+        <?php
+        // otherwise show this alert
+        } else { ?>
             <div class="col-sm-6 offset-sm-3 text-center">
                 <div class="alert alert-primary text-center" role="alert">
                     Es gibt momentan keine Reservierungen mit dem ausgewählten Filter!
@@ -136,6 +142,7 @@ if (
         if ($db_obj->connect_error) {
             $errors["connection"] = true;
         }
+        // inner join to view all details about the reservation and the room
         $sql = "SELECT * FROM `reservation` INNER JOIN `rooms`ON reservation.room=rooms.room_number WHERE reservation.id = '$id'";
         $result = $db_obj->query($sql);
         $row = $result->fetch_assoc(); ?>
@@ -162,12 +169,12 @@ if (
                             <input type="text" value="<?php echo $row["room_number"] ?>" class="form-control " name="roomnumber" id="roomnumber" disabled>
                         </div>
                         <div class="mb-3">
-                            <label for="breakfast" class="form-label">Frühstuck</label>
+                            <label for="breakfast" class="form-label">Frühstück</label>
                             <input type="text" value="<?php echo $row["breakfast"] ?>" class="form-control " name="breakfast" id="breakfast" disabled>
                         </div>
                         <div class="mb-3">
                             <label for="parkin" class="form-label">Parkplatz</label>
-                            <input type="text" value="<?php echo $row["parking"] ?>" class="form-control "  aria-label="Parkplatz" name="parking" id="parking" disabled>
+                            <input type="text" value="<?php echo $row["parking"] ?>" class="form-control " aria-label="Parkplatz" name="parking" id="parking" disabled>
                         </div>
 
                         <div class="mb-3">
