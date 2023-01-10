@@ -1,12 +1,14 @@
 <?php
+// Declare variables for storing errors
 $errors = [];
 $errors["checkin"] = false;
 $errors["checkout"] = false;
 $errors["connection"] = false;
 $confirmed = false;
 $noroom = false;
-
+// check if form was submitted and book button was pressed
 if ($_SERVER["REQUEST_METHOD"] === "POST" && isset($_POST['book'])) {
+    //create db connection
     require_once('config/dbaccess.php');
     $db_obj = new mysqli($host, $user, $password, $database);
     if ($db_obj->connect_error) {
@@ -19,16 +21,17 @@ if ($_SERVER["REQUEST_METHOD"] === "POST" && isset($_POST['book'])) {
         $errors["checkout"] = true;
     }
     $type = $_POST["type"];
-    // changed sql-query cause it was still possible to book rooms 
-    //where i.e check-in date or check.out was outside of socpe of already booked rooms
+    //checking availability of rooms by checkin and checkout data
     $sql = "SELECT * FROM `rooms`
         WHERE `room_number` NOT IN (
         SELECT DISTINCT `room`
         FROM `reservation`
         WHERE ($checkin NOT BETWEEN `checkin` AND `checkout`) AND ($checkout NOT BETWEEN `checkin` AND `checkout`) AND `status`<>'Storniert') AND `type`='$type' LIMIT 1 ";
     $result = $db_obj->query($sql);
+    //if no rooms are available set $noroom true
     if ($result->num_rows == 0) {
         $noroom = true;
+    //otherwise save the data submitted by the form into variables and set the price    
     } else {
         $row = $result->fetch_assoc();
         $datenow = date('Y-m-d H:i:s', time());
@@ -54,7 +57,7 @@ if ($_SERVER["REQUEST_METHOD"] === "POST" && isset($_POST['book'])) {
         $total = $price * $nights;
     }
 }
-
+// check if form was submitted and confirm button was pressed
 if (
     $_SERVER["REQUEST_METHOD"] === "POST"
     && isset($_POST['confirm'])
@@ -74,7 +77,7 @@ if (
     $iduser = $_SESSION["id"];
     $nights =  $_POST['nights'];
     $total = $_POST["total"];
-
+    //prepared statement to insert all the reservation data
     $sql = "INSERT INTO `reservation` (`checkin`, `checkout`, `breakfast`, `parking`, `pet`, `time`, `user_id`, `total`, `nights`, `room`) VALUES (?,?,?,?,?,?,?,?,?,?)";
     $stmt = $db_obj->prepare($sql);
     $stmt->bind_param("sssssiiiii", $checkin, $checkout, $breakfast, $parking, $pet, $datenow, $iduser, $total, $nights, $room);
@@ -86,7 +89,7 @@ if (
     $stmt->close();
     $db_obj->close();
 }
-
+//if reservation gets canceled refresh to starting point
 if (
     $_SERVER["REQUEST_METHOD"] === "POST"
     && isset($_POST['cancel'])
@@ -108,6 +111,7 @@ if (
 <body>
     <div class="container-fluid">
         <div class="row">
+            <!-- header display handling -->
             <div class="col-sm-6 offset-sm-3 text-center">
                 <?php if ($errors["checkin"] || $errors["checkout"]) {
                     $errors["checkin"] = true;
@@ -144,6 +148,7 @@ if (
     <div class="container-fluid">
         <div class="row">
             <?php if (!isset($_POST["book"])) { ?>
+                <!-- form for registration data submission --> 
                 <form method="POST">
                     <div class="col-sm-6 offset-sm-3 text-center">
                         <label for="checkin" class="form-label">Check-In</label>
@@ -189,7 +194,7 @@ if (
                     </div>
                 </form>
             <?php } ?>
-
+            <!-- if book button is pressed and rooms are available show the data again for confirmation -->
             <?php if (!$noroom && isset($_POST["book"])) { ?>
                 <form method="POST">
                     <div class="col-sm-6 offset-sm-3 text-center">

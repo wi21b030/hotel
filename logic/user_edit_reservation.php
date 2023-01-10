@@ -1,10 +1,12 @@
 <?php
+// Declare variables for storing errors
 $errors = [];
 $errors["checkin"] = false;
 $errors["checkout"] = false;
 $errors["connection"] = false;
 $updated = false;
 
+// check if form was submitted and storno button was pressed
 if (
     $_SERVER["REQUEST_METHOD"] === "POST"
     && isset($_POST["storno"])
@@ -15,6 +17,7 @@ if (
         $errors["connection"] = true;
     }
     $id = $_POST["id"];
+    //prepared statement to update status to "storniert"
     $sql = "UPDATE `reservation` SET `status`='Storniert' WHERE `id` = $id";
     if ($db_obj->query($sql)) {
         $updated = true;
@@ -38,6 +41,7 @@ if (
 <body>
     <div class="container-fluid">
         <div class="row">
+            <!-- header display handling -->
             <div class="col-sm-6 offset-sm-3 text-center">
                 <?php if ($errors["checkin"] || $errors["checkout"]) {
                     $errors["checkin"] = true;
@@ -70,6 +74,7 @@ if (
                     $errors["connection"] = true;
                 }
                 $user_id = $_SESSION["id"];
+                //Prepared statement to select all the reservations wiht just checkin chekout displayed
                 $sql = "SELECT * FROM `reservation` WHERE `user_id` = '$user_id'";
                 $result = $db_obj->query($sql);
                 if ($result->num_rows > 0) { ?>
@@ -102,7 +107,6 @@ if (
                 $db_obj->close(); ?>
             </div>
             <?php
-            // form to change own reservations
             if (
                 $_SERVER["REQUEST_METHOD"] === "POST"
                 && isset($_POST["edit"])
@@ -114,9 +118,11 @@ if (
                 if ($db_obj->connect_error) {
                     $errors["connection"] = true;
                 }
+                //Inner Join with table rooms to get the whole data regarding reservations
                 $sql = "SELECT * FROM `reservation` INNER JOIN `rooms`ON reservation.room=rooms.room_number WHERE reservation.id = '$id'";
                 $result = $db_obj->query($sql);
                 $row = $result->fetch_assoc(); ?>
+                <!-- form used to display all the reservation data -->
                 <form method="POST">
                     <div class="col-sm-6 offset-sm-3 text-center">
                         <div class="mb-3">

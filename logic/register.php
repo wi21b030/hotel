@@ -12,6 +12,8 @@ $errors["exists"] = false;
 $errors["insert"] = false;
 $registered = false;
 
+
+//test_input is used to sanitize user input, by stripping whitespaces, slashes and applying htmlspecialchars on the input
 function test_input($data)
 {
     $data = trim($data);
@@ -20,11 +22,12 @@ function test_input($data)
     return $data;
 }
 
+//checking if the target folder for profile pictures exists and create it if not, this $uploadDir variable would be used later on to store user's profile picture
 if (!file_exists($uploadDir)) {
     mkdir($uploadDir);
 }
 
-
+//The script uses an if statement to check whether the request method is POST and whether the form has been submitted. If these conditions are met, the script proceeds to check for errors in the user's input
 if (
     $_SERVER["REQUEST_METHOD"] === "POST"
     && isset($_POST["register"])
@@ -60,6 +63,10 @@ if (
     if (!isset($_POST["file"])) {
         $errors["file"] = true;
     }
+    /*Next the script checks if there are any errors found before uploading the file and inserting the user's data into the database. 
+    If no errors are found, the script gets the file extension, check if it's one of the image types allowed(jpg,jpeg,png,gif) and 
+    then connects to the database with the credentails imported by require_once('config/dbaccess.php');
+    */
     if (
         !$errors["firstname"]
         && !$errors["secondname"]
@@ -83,11 +90,11 @@ if (
             $sname = htmlspecialchars($_POST["secondname"], ENT_QUOTES);
             $profilepic = $_FILES["file"]["tmp_name"];
             $path = $uploadDir . $uname . ".jpg";
-
+            //prepared statement for insertion of data
             $sql = "INSERT INTO `users` (`username`, `password`, `useremail`, `formofadress`, `firstname`, `secondname`, `path`) VALUES (?,?,?,?,?,?,?)";
             $stmt = $db_obj->prepare($sql);
             $stmt->bind_param("sssssss", $uname, $pass, $mail, $fod, $fname, $sname, $path);
-
+            //check if username is not already used
             $sql = "SELECT * FROM `users` WHERE `username`=?";
             $check = $db_obj->prepare($sql);
             $check->bind_param("s", $uname);
@@ -96,6 +103,7 @@ if (
             if ($result->num_rows > 0) {
                 $errors["exists"] = true;
             } else {
+            //if it is not used, the user data are put as Session data as well    
                 if ($stmt->execute() && move_uploaded_file($profilepic, $path)) {
                     $sql = "SELECT * FROM `users` WHERE `username` = '$uname'";
                     $result = $db_obj->query($sql);
@@ -136,6 +144,7 @@ if (
     <div class="container-fluid">
         <div class="row">
             <div class="col-sm-6 offset-sm-3 text-center">
+                <!-- header display handling -->
                 <?php if ($errors["exists"]) {
                     $errors["exists"] = false;
                     header("Refresh: 2, url=registrierung.php");
@@ -159,6 +168,7 @@ if (
                     </div>
                 <?php } ?>
                 <?php if (!isset($_SESSION["username"])) { ?>
+                    <!-- form for the input of registration data -->
                     <form enctype="multipart/form-data" method="POST">
                         <div class="mb-3">
                             <label for="formofadress" class="form-label">Anrede</label>

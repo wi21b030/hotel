@@ -1,4 +1,5 @@
 <?php
+// Declare variables for storing errors and status of the update
 $uploadDir = "uploads/profilepics/";
 $errors = [];
 $errors["firstname"] = false;
@@ -12,10 +13,11 @@ $errors["connection"] = false;
 $errors["update"] = false;
 $updated = false;
 
+// Check if the uploads/profilepics/ directory exists, and if not create it
 if (!file_exists($uploadDir)) {
     mkdir($uploadDir);
 }
-
+// function to sanitize input
 function test_input($data)
 {
     $data = trim($data);
@@ -23,7 +25,7 @@ function test_input($data)
     $data = htmlspecialchars($data);
     return $data;
 }
-
+// check if form was submitted and update button was pressed
 if (
     $_SERVER["REQUEST_METHOD"] === "POST"
     && isset($_POST["update"])
@@ -55,6 +57,7 @@ if (
     if (!isset($_POST["file"])) {
         $errors["file"] = true;
     }
+        // if no errors have occurred
     if (
         !$errors["firstname"]
         && !$errors["secondname"]
@@ -63,6 +66,7 @@ if (
         && !$errors["password"]
         && !$errors["passwordold"]
     ) {
+        // check if file is of an accepted type (jpg, jpeg, png, gif)
         $extension = pathinfo($_FILES["file"]["name"], PATHINFO_EXTENSION);
         if ($extension == 'jpg' || $extension == 'jpeg' || $extension == 'png' || $extension == 'gif') {
             require_once('config/dbaccess.php');
@@ -72,6 +76,7 @@ if (
             }
             $id = $_SESSION["id"];
             $_POST["password"] = htmlspecialchars(password_hash($_POST["password"], PASSWORD_DEFAULT), ENT_QUOTES);
+            // sanitize input
             $uname = htmlspecialchars($_POST["username"], ENT_QUOTES);
             $pass = htmlspecialchars($_POST["password"], ENT_QUOTES);
             $oldpass = htmlspecialchars($_POST["passwordold"], ENT_QUOTES);
@@ -81,16 +86,17 @@ if (
             $sname = htmlspecialchars($_POST["secondname"], ENT_QUOTES);
             $profilepic = $_FILES["file"]["tmp_name"];
             $path = $uploadDir . $uname . ".jpg";
-
+            //update the user's information in database
             $sql = "UPDATE `users` SET  `username`=?, `password`=?, `useremail`=?, `formofadress`=?, `firstname`=?, `secondname`=?, `path`=? WHERE `id`=$id";
             $stmt = $db_obj->prepare($sql);
             $stmt->bind_param("sssssss", $uname, $pass, $mail, $fod, $fname, $sname, $path);
-
+            //Check if username exists
             $sql = "SELECT * FROM `users` WHERE `username` = ?";
             $check = $db_obj->prepare($sql);
             $check->bind_param("s", $uname);
             $check->execute();
             $result = $check->get_result();
+            //if username exist, check if it is my id, if yes update my data and session
             if ($result->num_rows > 0 && $result->fetch_assoc()["id"] != $id) {
                 $errors["update"] = true;
             } else {
@@ -98,6 +104,7 @@ if (
                 $result = $db_obj->query($sql);
                 $row = $result->fetch_assoc();
                 if (password_verify($oldpass, $row["password"])) {
+                    //update the session data with the new updated data
                     if ($stmt->execute() && move_uploaded_file($profilepic, $path)) {
                         $sql = "SELECT * FROM `users` WHERE `id` = '$id'";
                         $result = $db_obj->query($sql);
@@ -160,6 +167,7 @@ if (
                         User wurde geupdated!
                     </div>
                 <?php } ?>
+                <!-- form for getting updated data -->
                 <form enctype="multipart/form-data" method="POST">
                     <label for="profilepic" class="form-label">Profilbild</label>
                     <div class="mb-3">
