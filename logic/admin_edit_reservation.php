@@ -169,7 +169,7 @@ if (
                             <input type="text" value="<?php echo $row["room_number"] ?>" class="form-control " name="roomnumber" id="roomnumber" disabled>
                         </div>
                         <div class="mb-3">
-                            <label for="breakfast" class="form-label">Frühstuck</label>
+                            <label for="breakfast" class="form-label">Frühstück</label>
                             <input type="text" value="<?php echo $row["breakfast"] ?>" class="form-control " name="breakfast" id="breakfast" disabled>
                         </div>
                         <div class="mb-3">
