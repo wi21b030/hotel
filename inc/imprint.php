@@ -12,9 +12,9 @@
     <div class="container py-5">
         <div class="row mb-4">
             <div class="col-lg-5">
-                <h1 class="">Impressum</h1>
+                <h1>Impressum</h1>
 
-                <h3 class="">Für den Inhalt verantwortlich</h3>
+                <h3>Für den Inhalt verantwortlich</h3>
                 </header>
                 <p><strong>The Royal Espire Hotel</strong><br>
                     Espire Gesellschaft m.b.H. &amp; Co KG

@@ -1,25 +1,24 @@
 <!DOCTYPE html>
 <html lang="en">
+
 <head>
-    <meta charset="UTF-8">
-    <meta http-equiv="X-UA-Compatible" content="IE=edge">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Home-Block</title>
+  <meta charset="UTF-8">
+  <meta http-equiv="X-UA-Compatible" content="IE=edge">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Home-Block</title>
 </head>
+
 <body>
-<div class="container-fluid">
+  <div class="container-fluid">
     <!-- News block -->
     <div>
       <!-- Featured image -->
       <div class="bg-image hover-overlay shadow-1-strong ripple rounded-5 mb-4" data-mdb-ripple-color="light">
         <img src="uploads/bilder/c_felix-gaensicke-149.1400x700.jpg" class="img-fluid" alt="hotel1" />
-        <a style="text-decoration: none" href="#!">
-          <div class="mask" style="background-color: rgba(251, 251, 251, 0.15);"></div>
-        </a>
       </div>
 
       <!-- Article title and description -->
-      <a style="text-decoration: none" href="" class="text-dark">
+      <a style="text-decoration: none" href="" class="text-dark ">
         <h5>Über das Hotel</h5>
 
         <p>
@@ -33,7 +32,7 @@
 
       <!-- News -->
       <a style="text-decoration: none" href="" class="text-dark">
-        <div class="row mb-4 border-bottom pb-2">
+        <div class="row mt-2 border-bottom pb-2">
           <div class="col-3">
             <img src="uploads/bilder/lounge-globus-4990.jpg" class="img-fluid shadow-1-strong rounded" alt="lounge" />
           </div>
@@ -49,7 +48,7 @@
 
       <!-- News -->
       <a style="text-decoration: none" href="" class="text-dark">
-        <div class="row mb-4 border-bottom pb-2">
+        <div class="row mt-2 border-bottom pb-2">
           <div class="col-3">
             <img src="uploads/bilder/henri_wien_fruehstueck_3_por4582.1400x700.jpg" class="img-fluid shadow-1-strong rounded" alt="essen" />
           </div>
@@ -66,4 +65,5 @@
     <!-- News block -->
   </div>
 </body>
+
 </html>
