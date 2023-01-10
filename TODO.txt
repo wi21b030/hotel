@@ -1,7 +1,0 @@
-Still To Do:
-
---- GENERAL ---
-
-- README.txt-File fertigstellen
-- Code kommentieren  
-- Nav-Item-Style in CSS übertragen  

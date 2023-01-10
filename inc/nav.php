@@ -17,7 +17,7 @@ if ($_SERVER["REQUEST_METHOD"] === "POST" && isset($_POST["logout"])) {
             <ul class="navbar-nav me-auto mb-2 mb-lg-0">
                 <?php if (!isset($_SESSION["username"])) { ?>
                     <li class="nav-item">
-                        <a class="nav-link" href="login.php">Login</a>
+                        <a class="nav-link" href="login.php" style="color:white;">Login</a>
                     </li>
                 <?php } elseif (isset($_SESSION["username"])) { ?>
                     <li class="navbar-item">
