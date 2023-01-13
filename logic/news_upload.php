@@ -1,5 +1,5 @@
 <?php
-$uploadDirPic = "uploads/news/pic/";
+$uploadDirPic = "uploads/news/";
 $errors = [];
 $errors["exists"] = false;
 $errors["upload"] = false;
@@ -14,12 +14,13 @@ if (!file_exists($uploadDirPic)) {
 }
 
 // resample image here, only works if extension 'gd' installed -> returns true if resampled
-function thumbnailmade($pic, $path)
+function thumbnailmade($pic, $path, $extension)
 {
     $made = false;
     // get the width and height of given given image
     list($width, $height) = getimagesize($pic);
     // calculate ratio to make adjustment of image smoother
+    // we create thumbnails of a maximum width or height of 300px
     $ratio = $width / $height;
     if ($ratio > 1) {
         $nwidth = 300;
@@ -28,17 +29,25 @@ function thumbnailmade($pic, $path)
         $nwidth = 300 * $ratio;
         $nheight = 300;
     }
-    // if instead we want to use specific ratio then use commented code below
-    // but using the code above gave better results in terms of quality
-    // $nwidth = $width * 0.75;
-    // $nheight = $height* 0.75;
     $newimage = imagecreatetruecolor($nwidth, $nheight);
-    $source = imagecreatefromjpeg($pic);
+    // depending on if picture is png or jpg/jpeg we use different methods here
+    if ($extension == "png") {
+        $source = imagecreatefrompng($pic);
+    } elseif ($extension == "jpg" || $extension == "jpeg") {
+        $source = imagecreatefromjpeg($pic);
+    }
     // used function imagecopyresampled instead of imagecopyresized because the first one delivers better quality
     imagecopyresampled($newimage, $source, 0, 0, 0, 0, $nwidth, $nheight, $width, $height);
+    // depending on if picture is png or jpg/jpeg we use different methods here
     // if thumbnail is made in given path then return true
-    if (imagejpeg($newimage, $path)) {
-        $made = true;
+    if ($extension == "png") {
+        if (imagepng($newimage, $path)) {
+            $made = true;
+        }
+    } elseif ($extension == "jpg" || $extension == "jpeg") {
+        if (imagejpeg($newimage, $path)) {
+            $made = true;
+        }
     }
     return $made;
 }
@@ -59,17 +68,9 @@ if (
     $stmt = $db_obj->prepare($sql);
     $stmt->bind_param("i", $id);
 
-    // get directory of thumbnail to be deleted
-    $sql = "SELECT * FROM `news` WHERE `id` = '$id'";
-    $result = $db_obj->query($sql);
-    if ($result->num_rows == 1) {
-        $row = $result->fetch_assoc();
-        // if query executed and thumbnail deleted
-        if ($stmt->execute() && unlink($row["path"])) {
-            $deleted = true;
-        } else {
-            $errors["delete"] = true;
-        }
+    $path = $_POST["path"];
+    if ($stmt->execute() && unlink($path)) {
+        $deleted = true;
     } else {
         $errors["delete"] = true;
     }
@@ -93,7 +94,7 @@ if (
     ) {
         // get extension of choses file to check if truly image has been selected
         $extension = pathinfo($_FILES["file"]["name"], PATHINFO_EXTENSION);
-        if ($extension == 'jpg' || $extension == 'jpeg' || $extension == 'png' || $extension == 'gif') {
+        if ($extension == 'jpg' || $extension == 'jpeg' || $extension == 'png') {
             require_once('config/dbaccess.php');
             $db_obj = new mysqli($host, $user, $password, $database);
             if ($db_obj->connect_error) {
@@ -115,18 +116,21 @@ if (
             $sql = "SELECT * FROM `news` WHERE `title`=?";
             $check = $db_obj->prepare($sql);
             $check->bind_param("s", $title);
-            $check->execute();
-            $result = $check->get_result();
-            // check if news-blog-post with same title already exists
-            if ($result->num_rows > 0) {
-                $errors["exists"] = true;
-            } else {
-                // if insert executed and thumbnailmade show
-                if ($stmt->execute() && thumbnailmade($pic, $path)) {
-                    $uploaded = true;
+            if ($check->execute()) {
+                $result = $check->get_result();
+                // check if news-blog-post with same title already exists
+                if ($result->num_rows > 0) {
+                    $errors["exists"] = true;
                 } else {
-                    $errors["upload"] = true;
+                    // if insert executed and thumbnailmade show
+                    if ($stmt->execute() && thumbnailmade($pic, $path, $extension)) {
+                        $uploaded = true;
+                    } else {
+                        $errors["upload"] = true;
+                    }
                 }
+            } else {
+                $errors["upload"] = true;
             }
             $stmt->close();
             $db_obj->close();
@@ -235,44 +239,55 @@ if (
             // select-query to get all news-posts ordered uploadtime descending
             $sql = "SELECT * FROM `news` ORDER BY `uploadtime` DESC";
             $result = $db_obj->query($sql);
-            if ($result->num_rows > 0) { ?>
-                <?php while ($row = $result->fetch_assoc()) { ?>
-                    <a style="text-decoration: none" href="https://www.1000things.at/suche/<?php echo $row["keyword"] ?>" class="text-dark">
-                        <div class="row mt-2 border-bottom pb-2">
-                            <div class="col-3">
-                                <img src="<?php echo $row["path"] . "?" . time() ?>" class="img-fluid shadow-1-strong rounded" alt="<?php $row["title"] ?>" />
-                            </div>
-                            <div class="col-9">
-                                <p class="mb-2"><strong><?php echo $row["title"] ?></strong></p>
-                                <p>
-                                    <?php echo $row["text"];
-                                    echo "<br><u>" . date("d.m.Y", $row["uploadtime"]) . "</u>";
-                                    ?>
-                                </p>
-                                <!-- if admin is logged in they will see the delete button -->
-                                <?php if (isset($_SESSION["username"]) && $_SESSION["admin"]) { ?>
-                                    <div class="col-9">
-                                        <div class="mb-2">
-                                            <form method="POST">
-                                                <input type="hidden" name="id" value="<?php echo $row["id"] ?>">
-                                                <input type="hidden" name="delete">
-                                                <button type="submit" class="btn btn-danger">Löschen</button>
-                                            </form>
+            if ($result) {
+                if ($result->num_rows > 0) { ?>
+                    <?php while ($row = $result->fetch_assoc()) { ?>
+                        <a style="text-decoration: none" href="https://www.1000things.at/suche/<?php echo $row["keyword"] ?>" class="text-dark">
+                            <div class="row mt-2 border-bottom pb-2">
+                                <div class="col-3">
+                                    <img src="<?php echo $row["path"] . "?" . time() ?>" class="img-fluid shadow-1-strong rounded" alt="<?php $row["title"] ?>" />
+                                </div>
+                                <div class="col-9">
+                                    <p class="mb-2"><strong><?php echo $row["title"] ?></strong></p>
+                                    <p>
+                                        <?php echo $row["text"];
+                                        echo "<br><u>" . date("d.m.Y", $row["uploadtime"]) . "</u>";
+                                        ?>
+                                    </p>
+                                    <!-- if admin is logged in they will see the delete button -->
+                                    <?php if (isset($_SESSION["username"]) && $_SESSION["admin"]) { ?>
+                                        <div class="col-9">
+                                            <div class="mb-2">
+                                                <form method="POST">
+                                                    <input type="hidden" name="id" value="<?php echo $row["id"] ?>">
+                                                    <input type="hidden" name="path" value="<?php echo $row["path"] ?>">
+                                                    <input type="hidden" name="delete">
+                                                    <button type="submit" class="btn btn-danger">Löschen</button>
+                                                </form>
+                                            </div>
                                         </div>
-                                    </div>
-                                <?php } ?>
+                                    <?php } ?>
+                                </div>
                             </div>
+                        </a>
+                    <?php }
+                    // if normal user or not registered user is on the news-page and there are no posts they will see this alert
+                } elseif (!isset($_SESSION["admin"]) || (isset($_SESSION["admin"]) && !$_SESSION["admin"])) { ?>
+                    <div class="col-sm-6 offset-sm-3 text-center">
+                        <div class="alert alert-primary text-center" role="alert">
+                            Es gibt momentan keine Beiträge!
                         </div>
-                    </a>
-                <?php }
-            // if normal user or not registered user is on the news-page and there are no posts they will see this alert
-            } elseif (!isset($_SESSION["admin"]) || (isset($_SESSION["admin"]) && !$_SESSION["admin"])) { ?>
+                    </div>
+                <?php
+                }
+            } else {
+                ?>
                 <div class="col-sm-6 offset-sm-3 text-center">
-                    <div class="alert alert-primary text-center" role="alert">
-                        Es gibt momentan keine Beiträge!
+                    <div class="alert alert-danger text-center" role="alert">
+                        Fehler bei der Abfrage!
                     </div>
                 </div>
-            <?php
+            <?php header("Refresh: 2, url=index.php");
             }
             $db_obj->close(); ?>
         <?php } ?>

@@ -16,46 +16,55 @@ if ($_SERVER["REQUEST_METHOD"] === "POST" && isset($_POST['book'])) {
     }
     $checkin = $_POST["checkin"];
     $checkout = $_POST["checkout"];
-    if ($checkin >= $checkout) {
+    if ($checkin >= $checkout || strtotime($checkin) < time() || strtotime($checkout) <= time()) {
         $errors["checkin"] = true;
         $errors["checkout"] = true;
     }
     $type = $_POST["type"];
-    //checking availability of rooms by checkin and checkout data
-    $sql = "SELECT * FROM `rooms`
-        WHERE `room_number` NOT IN (
-        SELECT DISTINCT `room`
-        FROM `reservation`
-        WHERE ($checkin NOT BETWEEN `checkin` AND `checkout`) AND ($checkout NOT BETWEEN `checkin` AND `checkout`) AND `status`<>'Storniert') AND `type`='$type' LIMIT 1 ";
-    $result = $db_obj->query($sql);
-    //if no rooms are available set $noroom true
-    if ($result->num_rows == 0) {
-        $noroom = true;
-    //otherwise save the data submitted by the form into variables and set the price    
+    //checking availability of rooms with checkin and checkout data
+    $sql = "SELECT distinct rooms.room_number, rooms.rate 
+    FROM rooms
+    INNER JOIN reservation 
+    ON rooms.room_number = reservation.room
+    WHERE (? NOT BETWEEN `checkin` AND `checkout`) 
+        AND (? NOT BETWEEN `checkin` AND `checkout`)
+            AND `status`<>'Storniert'
+                AND `type`=? LIMIT 1";
+    $stmt = $db_obj->prepare($sql);
+    $stmt->bind_param("sss", $checkin, $checkout, $type);
+    if ($stmt->execute()) {
+        $result = $stmt->get_result();
+        if ($result->num_rows == 1) {
+            // save the data submitted by the form into variables and set the price
+            $row = $result->fetch_assoc();
+            $breakfast = $_POST["breakfast"];
+            $parking = $_POST["parking"];
+            $pet = $_POST["pet"];
+            $iduser = $_SESSION["id"];
+            $room_no = $row["room_number"];
+            $price = $row["rate"];
+            if ($breakfast == "Ja") {
+                $price += 10;
+            }
+            if ($parking == "Ja") {
+                $price += 3;
+            }
+            if ($pet != "Kein") {
+                $price += 5;
+            }
+            $date1 = new DateTime($checkin);
+            $date2 = new DateTime($checkout);
+            $interval = $date1->diff($date2);
+            $nights = ($interval->days);
+            $total = $price * $nights;    
+        } else {
+            $noroom = true;
+        }
     } else {
-        $row = $result->fetch_assoc();
-        $datenow = date('Y-m-d H:i:s', time());
-        $breakfast = $_POST["breakfast"];
-        $parking = $_POST["parking"];
-        $pet = $_POST["pet"];
-        $iduser = $_SESSION["id"];
-        $room_no = $row["room_number"];
-        $price = $row["rate"];
-        if ($breakfast == "Ja") {
-            $price += 10;
-        }
-        if ($parking == "Ja") {
-            $price += 3;
-        }
-        if ($pet != "Kein") {
-            $price += 5;
-        }
-        $date1 = new DateTime($checkin);
-        $date2 = new DateTime($checkout);
-        $interval = $date1->diff($date2);
-        $nights = ($interval->days);
-        $total = $price * $nights;
+        $errors["connection"] = true;
     }
+    $stmt->close();
+    $db_obj->close();
 }
 // check if form was submitted and confirm button was pressed
 if (
@@ -148,7 +157,7 @@ if (
     <div class="container-fluid">
         <div class="row">
             <?php if (!isset($_POST["book"])) { ?>
-                <!-- form for registration data submission --> 
+                <!-- form for registration data submission -->
                 <form method="POST">
                     <div class="col-sm-6 offset-sm-3 text-center">
                         <label for="checkin" class="form-label">Check-In</label>
@@ -195,62 +204,60 @@ if (
                 </form>
             <?php } ?>
             <!-- if book button is pressed and rooms are available show the data again for confirmation -->
-            <?php if (!$noroom && isset($_POST["book"])) { ?>
+            <?php if (!$noroom && !$errors["checkin"] && !$errors["checkout"] && isset($_POST["book"])) { ?>
                 <form method="POST">
                     <div class="col-sm-6 offset-sm-3 text-center">
                         <div class="mb-3">
                             <label for="checkin" class="form-label">Check-In</label>
-                            <input type="date" value="<?php echo $checkin ?>" class="form-control " name="checkin" id="checkin" disabled>
-                            <label for="checkin" class="form-label"></label>
+                            <input type="date" value="<?php echo $checkin ?>" class="form-control " id="checkin" disabled>
                             <input type="hidden" value="<?php echo $checkin ?>" name="checkin">
                         </div>
 
                         <div class="mb-3">
                             <label for="checkout" class="form-label">Check-Out</label>
-                            <input type="date" value="<?php echo $checkout ?>" class="form-control " name="checkout" id="checkout" disabled>
-                            <label for="checkout" class="form-label"></label>
+                            <input type="date" value="<?php echo $checkout ?>" class="form-control " id="checkout" disabled>
                             <input type="hidden" value="<?php echo $checkout ?>" name="checkout">
                         </div>
 
                         <div class="mb-3">
                             <label for="roomtype" class="form-label">Zimmer-Art</label>
-                            <input type="text" value="<?php echo $type ?>-Zimmer" class="form-control " name="type" id="roomtype" disabled>
+                            <input type="text" value="<?php echo $type ?>-Zimmer" class="form-control " id="roomtype" disabled>
                             <input type="hidden" value="<?php echo $type ?>" name="type">
                         </div>
                         <div class="mb-3">
                             <label for="roomnumber" class="form-label">Zimmer-Nummer</label>
-                            <input type="text" value="<?php echo $room_no ?>" class="form-control " name="roomnumber" id="roomnumber" disabled>
+                            <input type="text" value="<?php echo $room_no ?>" class="form-control " id="roomnumber" disabled>
                             <input type="hidden" value="<?php echo $room_no ?>" name="roomnumber">
                         </div>
                         <div class="mb-3">
                             <label for="breakfast" class="form-label">Frühstück</label>
-                            <input type="text" value="<?php echo $breakfast ?>" class="form-control " name="breakfast" id="breakfast" disabled>
+                            <input type="text" value="<?php echo $breakfast ?>" class="form-control " id="breakfast" disabled>
                             <input type="hidden" value="<?php echo $breakfast ?>" name="breakfast">
                         </div>
                         <div class="mb-3">
                             <label for="parkin" class="form-label">Parkplatz</label>
-                            <input type="text" value="<?php echo $parking ?>" class="form-control " name="parking" id="parkin" disabled>
+                            <input type="text" value="<?php echo $parking ?>" class="form-control " id="parkin" disabled>
                             <input type="hidden" value="<?php echo $parking ?>" name="parking">
                         </div>
 
                         <div class="mb-3">
                             <label for="pet" class="form-label">Haustier</label>
-                            <input type="text" value="<?php echo $pet ?>" class="form-control " name="pet" id="pet" disabled>
+                            <input type="text" value="<?php echo $pet ?>" class="form-control " id="pet" disabled>
                             <input type="hidden" value="<?php echo $pet ?>" name="pet">
                         </div>
                         <div class="mb-3">
                             <label for="nights" class="form-label">Nächte</label>
-                            <input type="text" value="<?php echo $nights ?>" class="form-control " name="nights" id="nights" disabled>
+                            <input type="text" value="<?php echo $nights ?>" class="form-control " id="nights" disabled>
                             <input type="hidden" value="<?php echo $nights ?>" name="nights">
                         </div>
                         <div class="mb-3">
                             <label for="price" class="form-label">Preis p.N.</label>
-                            <input type="text" value="<?php echo $price ?>€" class="form-control " name="price" id="price" disabled>
+                            <input type="text" value="<?php echo $price ?>€" class="form-control " id="price" disabled>
                             <input type="hidden" value="<?php echo $rpice ?>" name="price">
                         </div>
                         <div class="mb-3">
                             <label for="total" class="form-label">Preis insg.</label>
-                            <input type="text" value="<?php echo $total ?>€" class="form-control " name="total" id="total" disabled>
+                            <input type="text" value="<?php echo $total ?>€" class="form-control " id="total" disabled>
                             <input type="hidden" value="<?php echo $total ?>" name="total">
                         </div>
                         <div class="mb-6">

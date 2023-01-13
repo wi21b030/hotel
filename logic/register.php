@@ -50,7 +50,7 @@ if (
     if (empty($_POST["username"]) || !isset($_POST["username"])  || strlen(trim($_POST["username"])) == 0) {
         $errors["username"] = true;
     }
-    if (empty($_POST["password"]) || !isset($_POST["password"])  || strlen(trim($_POST["password"])) == 0 || strlen(trim($_POST["password"])) < 8 ){
+    if (empty($_POST["password"]) || !isset($_POST["password"])  || strlen(trim($_POST["password"])) == 0 || strlen(trim($_POST["password"])) < 8) {
         $errors["password"] = true;
     }
     if (empty($_POST["password2"]) || !isset($_POST["password2"])  || strlen(trim($_POST["password2"])) == 0 || strlen(trim($_POST["password2"])) < 8) {
@@ -90,10 +90,12 @@ if (
             $sname = htmlspecialchars($_POST["secondname"], ENT_QUOTES);
             $profilepic = $_FILES["file"]["tmp_name"];
             $path = $uploadDir . $uname . ".jpg";
+
             //prepared statement for insertion of data
             $sql = "INSERT INTO `users` (`username`, `password`, `useremail`, `formofadress`, `firstname`, `secondname`, `path`) VALUES (?,?,?,?,?,?,?)";
             $stmt = $db_obj->prepare($sql);
             $stmt->bind_param("sssssss", $uname, $pass, $mail, $fod, $fname, $sname, $path);
+
             //check if username is not already used
             $sql = "SELECT * FROM `users` WHERE `username`=?";
             $check = $db_obj->prepare($sql);
@@ -103,20 +105,24 @@ if (
             if ($result->num_rows > 0) {
                 $errors["exists"] = true;
             } else {
-            //if it is not used, the user data are put as Session data as well    
+                //if it is not used, the user data are put as Session data as well    
                 if ($stmt->execute() && move_uploaded_file($profilepic, $path)) {
                     $sql = "SELECT * FROM `users` WHERE `username` = '$uname'";
                     $result = $db_obj->query($sql);
-                    $row = $result->fetch_assoc();
-                    $_SESSION["id"] = $row["id"];
-                    $_SESSION["admin"] = $row["admin"];
-                    $_SESSION["username"] = $row["username"];
-                    $_SESSION["useremail"] = $row["useremail"];
-                    $_SESSION["formofadress"] = $row["formofadress"];
-                    $_SESSION["firstname"] = $row["firstname"];
-                    $_SESSION["secondname"] = $row["secondname"];
-                    $_SESSION["profilepic"] = $row["path"];
-                    $registered = true;
+                    if ($result) {
+                        $row = $result->fetch_assoc();
+                        $_SESSION["id"] = $row["id"];
+                        $_SESSION["admin"] = $row["admin"];
+                        $_SESSION["username"] = $row["username"];
+                        $_SESSION["useremail"] = $row["useremail"];
+                        $_SESSION["formofadress"] = $row["formofadress"];
+                        $_SESSION["firstname"] = $row["firstname"];
+                        $_SESSION["secondname"] = $row["secondname"];
+                        $_SESSION["profilepic"] = $row["path"];
+                        $registered = true;
+                    } else {
+                        $errors["insert"] = true;
+                    }
                 } else {
                     $errors["insert"] = true;
                 }

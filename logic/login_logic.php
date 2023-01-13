@@ -23,7 +23,7 @@ if ($_SERVER["REQUEST_METHOD"] === "POST" && isset($_POST["login"])) {
         $uname = $_POST["username"];
         $pass = $_POST["password"];
 
-        // prepared select-query to ensure protections against SQL-Injections
+        // prepared select-query to ensure protection against SQL-Injections
         // we put the AND-constraint to make sure the user is an active one
         $sql = "SELECT * FROM `users` WHERE `username` = ? AND `active` = TRUE";
         $stmt = $db_obj->prepare($sql);
@@ -55,6 +55,7 @@ if ($_SERVER["REQUEST_METHOD"] === "POST" && isset($_POST["login"])) {
         } else {
             $errors["connection"] = true;
         }
+        $stmt->close();
         $db_obj->close();
     } else {
         $errors["username"] = true;

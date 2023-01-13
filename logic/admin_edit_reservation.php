@@ -19,10 +19,15 @@ if (
     $id = $_POST["id"];
     $status = $_POST["status"];
     // update reservation with given new status
-    $sql = "UPDATE `reservation` SET `status`='$status' WHERE `id`='$id'";
-    if ($db_obj->query($sql)) {
+    $sql = "UPDATE `reservation` SET `status`=? WHERE `id`=?";
+    $stmt = $db_obj->prepare($sql);
+    $stmt->bind_param("si", $status, $id);
+    if ($stmt->execute()) {
         $updated = true;
+    } else {
+        $errors["connection"] = true;
     }
+    $stmt->close();
     $db_obj->close();
 }
 
@@ -48,7 +53,7 @@ if (
                     header("Refresh: 2, url=admin_reservierungsverwaltung.php");
                 ?>
                     <div class="alert alert-danger text-center" role="alert">
-                        Reservierung konnte nicht geändert werden!
+                        Reservierung konnte nicht geändert werden! Versuchen Sie es später noch einmal.
                     </div>
                 <?php } elseif ($updated) {
                     $updated = false;
@@ -95,38 +100,45 @@ if (
         }
         $status = $_POST["status"];
         // inner join to get all filtered reservations, we used an inner join so we can display the reservations with the corresponding customer for easier editing for the admin
-        $sql = "SELECT r.id, r.checkin, r.checkout, u.firstname, u.secondname FROM `reservation` as r INNER JOIN `users` as u ON r.user_id=u.id  WHERE r.status='$status' ORDER BY r.checkin, r.checkout, u.secondname, u.firstname";
-        $result = $db_obj->query($sql);
-        // only show list of reservations if there any with given filter
-        if ($result->num_rows > 0) { ?>
-            <div class="container-fluid">
-                <form method="POST">
-                    <div class="row">
-                        <div class="col-sm-6 offset-sm-3 text-center">
-                            <label for="username" class="form-label">Reservierungen</label>
-                            <select name="id" class="form-select" aria-label="Default select example" required>
-                                <?php while ($row = $result->fetch_assoc()) : ?>
-                                    <option value="<?php echo $row["id"] ?>"><?php echo $row['secondname'] . " " . $row["firstname"] . ": " . $row['checkin'] . " bis " . $row["checkout"]; ?></option>
-                                <?php endwhile ?>
-                            </select>
+        $sql = "SELECT r.id, r.checkin, r.checkout, u.firstname, u.secondname FROM `reservation` as r INNER JOIN `users` as u ON r.user_id=u.id  WHERE r.status=? ORDER BY r.checkin, r.checkout, u.secondname, u.firstname";
+        $stmt = $db_obj->prepare($sql);
+        $stmt->bind_param("s", $status);
+        if ($stmt->execute()) {
+            $result = $stmt->get_result();
+            // only show list of reservations if there any with given filter
+            if ($result->num_rows > 0) { ?>
+                <div class="container-fluid">
+                    <form method="POST">
+                        <div class="row">
+                            <div class="col-sm-6 offset-sm-3 text-center">
+                                <label for="username" class="form-label">Reservierungen</label>
+                                <select name="id" class="form-select" aria-label="Default select example" required>
+                                    <?php while ($row = $result->fetch_assoc()) { ?>
+                                        <option value="<?php echo $row["id"] ?>"><?php echo $row['secondname'] . " " . $row["firstname"] . ": " . $row['checkin'] . " bis " . $row["checkout"]; ?></option>
+                                    <?php } ?>
+                                </select>
+                            </div>
+                            <div class="col-sm-10 offset-sm-1 text-center">
+                                <input type="hidden" name="view">
+                                <button class="btn btn-primary mt-3">Bearbeiten</button>
+                            </div>
                         </div>
-                        <div class="col-sm-10 offset-sm-1 text-center">
-                            <input type="hidden" name="view">
-                            <button class="btn btn-primary mt-3">Bearbeiten</button>
-                        </div>
-                    </div>
-                </form>
-            </div>
-        <?php
-        // otherwise show this alert
-        } else { ?>
-            <div class="col-sm-6 offset-sm-3 text-center">
-                <div class="alert alert-primary text-center" role="alert">
-                    Es gibt momentan keine Reservierungen mit dem ausgewählten Filter!
+                    </form>
                 </div>
-            </div>
+            <?php
+                // otherwise show this alert
+            } else { ?>
+                <div class="col-sm-6 offset-sm-3 text-center">
+                    <div class="alert alert-primary text-center" role="alert">
+                        Es gibt momentan keine Reservierungen mit dem ausgewählten Filter!
+                    </div>
+                </div>
     <?php header("Refresh: 2, url=admin_reservierungsverwaltung.php");
+            }
+        } else {
+            $errors["connection"] = true;
         }
+        $stmt->close();
         $db_obj->close();
     } ?>
     <?php
@@ -143,76 +155,98 @@ if (
             $errors["connection"] = true;
         }
         // inner join to view all details about the reservation and the room
-        $sql = "SELECT * FROM `reservation` INNER JOIN `rooms`ON reservation.room=rooms.room_number WHERE reservation.id = '$id'";
-        $result = $db_obj->query($sql);
-        $row = $result->fetch_assoc(); ?>
-        <div class="container-fluid">
-            <form method="POST">
-                <div class="row">
-                    <div class="col-sm-6 offset-sm-3 text-center">
-                        <div class="mb-3">
-                            <label for="checkin" class="form-label">Check-In</label>
-                            <input type="date" value="<?php echo $row["checkin"] ?>" class="form-control " name="checkin" aria-label="Check-In" id="checkin-input" disabled>
-                        </div>
+        $sql = "SELECT * FROM `reservation` INNER JOIN `rooms`ON reservation.room=rooms.room_number WHERE reservation.id=?";
+        $stmt = $db_obj->prepare($sql);
+        $stmt->bind_param("i", $id);
+        if ($stmt->execute()) {
+            $result = $stmt->get_result();
+            if ($result->num_rows == 1) {
+                $row = $result->fetch_assoc(); ?>
+                <div class="container-fluid">
+                    <form method="POST">
+                        <div class="row">
+                            <div class="col-sm-6 offset-sm-3 text-center">
+                                <div class="mb-3">
+                                    <label for="checkin" class="form-label">Check-In</label>
+                                    <input type="date" value="<?php echo $row["checkin"] ?>" class="form-control " name="checkin" aria-label="Check-In" id="checkin-input" disabled>
+                                </div>
 
-                        <div class="mb-3">
-                            <label for="checkout" class="form-label">Check-Out</label>
-                            <input type="date" value="<?php echo $row["checkout"] ?>" class="form-control " name="checkout" id="checkout" disabled>
-                        </div>
+                                <div class="mb-3">
+                                    <label for="checkout" class="form-label">Check-Out</label>
+                                    <input type="date" value="<?php echo $row["checkout"] ?>" class="form-control " name="checkout" id="checkout" disabled>
+                                </div>
 
-                        <div class="mb-3">
-                            <label for="roomtype" class="form-label">Zimmer-Art</label>
-                            <input type="text" value="<?php echo $row["type"] ?>-Zimmer" class="form-control " name="type" id="roomtype" disabled>
-                        </div>
-                        <div class="mb-3">
-                            <label for="roomnumber" class="form-label">Zimmer-Nummer</label>
-                            <input type="text" value="<?php echo $row["room_number"] ?>" class="form-control " name="roomnumber" id="roomnumber" disabled>
-                        </div>
-                        <div class="mb-3">
-                            <label for="breakfast" class="form-label">Frühstück</label>
-                            <input type="text" value="<?php echo $row["breakfast"] ?>" class="form-control " name="breakfast" id="breakfast" disabled>
-                        </div>
-                        <div class="mb-3">
-                            <label for="parkin" class="form-label">Parkplatz</label>
-                            <input type="text" value="<?php echo $row["parking"] ?>" class="form-control " aria-label="Parkplatz" name="parking" id="parking" disabled>
-                        </div>
+                                <div class="mb-3">
+                                    <label for="roomtype" class="form-label">Zimmer-Art</label>
+                                    <input type="text" value="<?php echo $row["type"] ?>-Zimmer" class="form-control " name="type" id="roomtype" disabled>
+                                </div>
+                                <div class="mb-3">
+                                    <label for="roomnumber" class="form-label">Zimmer-Nummer</label>
+                                    <input type="text" value="<?php echo $row["room_number"] ?>" class="form-control " name="roomnumber" id="roomnumber" disabled>
+                                </div>
+                                <div class="mb-3">
+                                    <label for="breakfast" class="form-label">Frühstück</label>
+                                    <input type="text" value="<?php echo $row["breakfast"] ?>" class="form-control " name="breakfast" id="breakfast" disabled>
+                                </div>
+                                <div class="mb-3">
+                                    <label for="parkin" class="form-label">Parkplatz</label>
+                                    <input type="text" value="<?php echo $row["parking"] ?>" class="form-control " aria-label="Parkplatz" name="parking" id="parking" disabled>
+                                </div>
 
-                        <div class="mb-3">
-                            <label for="pet" class="form-label">Haustier</label>
-                            <input type="text" value="<?php echo $row["pet"] ?>" class="form-control " name="pet" id="pet" disabled>
-                        </div>
-                        <div class="mb-3">
-                            <label for="nights" class="form-label">Nächte</label>
-                            <input type="text" value="<?php echo $row["nights"] ?>" class="form-control " name="nights" id="nights" disabled>
-                        </div>
-                        <div class="mb-3">
-                            <label for="price" class="form-label">Preis p.N.</label>
-                            <input type="text" value="<?php echo $row["total"] / $row["nights"] ?>€" class="form-control " name="price" id="price" disabled>
-                        </div>
-                        <div class="mb-3">
-                            <label for="total" class="form-label">Preis insg.</label>
-                            <input type="text" value="<?php echo $row["total"] ?>€" class="form-control " name="total" id="total" disabled>
-                        </div>
-                        <div class="mb-3">
-                            <label for="status" class="form-label">Status</label>
-                            <select class="form-select" name="status" aria-label="Default select example" <?php if ($row['status'] == "Storniert") { ?>disabled<?php } ?>>
-                                <option value="Neu" <?php if ($row['status'] == "Neu") { ?> selected <?php } ?>>Neu</option>
-                                <option value="Bestätigt" <?php if ($row['status'] == "Bestätigt") { ?> selected <?php } ?>>Bestätigt</option>
-                                <option value="Storniert" <?php if ($row['status'] == "Storniert") { ?> selected <?php } ?>>Storniert</option>
-                            </select>
-                        </div>
-                        <?php if ($row['status'] != "Storniert") { ?>
-                            <div class="mb-6">
-                                <input type="hidden" value="<?php echo $row["id"] ?>" class="form-control " name="id" id="id">
-                                <input type="hidden" name="update">
-                                <button class="btn btn-primary">Aktualisieren</button>
+                                <div class="mb-3">
+                                    <label for="pet" class="form-label">Haustier</label>
+                                    <input type="text" value="<?php echo $row["pet"] ?>" class="form-control " name="pet" id="pet" disabled>
+                                </div>
+                                <div class="mb-3">
+                                    <label for="nights" class="form-label">Nächte</label>
+                                    <input type="text" value="<?php echo $row["nights"] ?>" class="form-control " name="nights" id="nights" disabled>
+                                </div>
+                                <div class="mb-3">
+                                    <label for="price" class="form-label">Preis p.N.</label>
+                                    <input type="text" value="<?php echo $row["total"] / $row["nights"] ?>€" class="form-control " name="price" id="price" disabled>
+                                </div>
+                                <div class="mb-3">
+                                    <label for="total" class="form-label">Preis insg.</label>
+                                    <input type="text" value="<?php echo $row["total"] ?>€" class="form-control " name="total" id="total" disabled>
+                                </div>
+                                <div class="mb-3">
+                                    <label for="status" class="form-label">Status</label>
+                                    <select class="form-select" name="status" aria-label="Default select example" <?php if ($row['status'] == "Storniert") { ?>disabled<?php } ?>>
+                                        <option value="Neu" <?php if ($row['status'] == "Neu") { ?> selected <?php } ?>>Neu</option>
+                                        <option value="Bestätigt" <?php if ($row['status'] == "Bestätigt") { ?> selected <?php } ?>>Bestätigt</option>
+                                        <option value="Storniert" <?php if ($row['status'] == "Storniert") { ?> selected <?php } ?>>Storniert</option>
+                                    </select>
+                                </div>
+                                <?php if ($row['status'] != "Storniert") { ?>
+                                    <div class="mb-6">
+                                        <input type="hidden" value="<?php echo $row["id"] ?>" class="form-control " name="id" id="id">
+                                        <input type="hidden" name="update">
+                                        <button class="btn btn-primary">Aktualisieren</button>
+                                    </div>
+                                <?php } ?>
                             </div>
-                        <?php } ?>
+                        </div>
+                    </form>
+                </div>
+            <?php  } else { ?>
+                <div class="col-sm-6 offset-sm-3 text-center">
+                    <div class="alert alert-danger text-center" role="alert">
+                        Fehler bei der Abfrage!
                     </div>
                 </div>
-            </form>
-        </div>
-    <?php $db_obj->close();
+            <?php header("Refresh: 2, url=admin_reservierungsverwaltung.php");
+            }
+        } else { ?>
+            <div class="col-sm-6 offset-sm-3 text-center">
+                <div class="alert alert-danger text-center" role="alert">
+                    Fehler bei der Abfrage!
+                </div>
+            </div>
+        <?php header("Refresh: 2, url=admin_reservierungsverwaltung.php");
+        } ?>
+    <?php
+        $stmt->close();
+        $db_obj->close();
     }
     ?>
 </body>
