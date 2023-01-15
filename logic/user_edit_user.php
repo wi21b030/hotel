@@ -57,7 +57,7 @@ if (
     if (!isset($_POST["file"])) {
         $errors["file"] = true;
     }
-        // if no errors have occurred
+    // if no errors have occurred
     if (
         !$errors["firstname"]
         && !$errors["secondname"]
@@ -90,41 +90,59 @@ if (
             $sql = "UPDATE `users` SET  `username`=?, `password`=?, `useremail`=?, `formofadress`=?, `firstname`=?, `secondname`=?, `path`=? WHERE `id`=$id";
             $stmt = $db_obj->prepare($sql);
             $stmt->bind_param("sssssss", $uname, $pass, $mail, $fod, $fname, $sname, $path);
+
             //Check if username exists
             $sql = "SELECT * FROM `users` WHERE `username` = ?";
             $check = $db_obj->prepare($sql);
             $check->bind_param("s", $uname);
-            $check->execute();
-            $result = $check->get_result();
-            //if username exist, check if it is my id, if yes update my data and session
-            if ($result->num_rows > 0 && $result->fetch_assoc()["id"] != $id) {
-                $errors["update"] = true;
-            } else {
-                $sql = "SELECT * FROM `users` WHERE `id` = '$id'";
-                $result = $db_obj->query($sql);
-                $row = $result->fetch_assoc();
-                if (password_verify($oldpass, $row["password"])) {
-                    //update the session data with the new updated data
-                    if ($stmt->execute() && move_uploaded_file($profilepic, $path)) {
-                        $sql = "SELECT * FROM `users` WHERE `id` = '$id'";
-                        $result = $db_obj->query($sql);
-                        $row = $result->fetch_assoc();
-                        $_SESSION["id"] = $row["id"];
-                        $_SESSION["admin"] = $row["admin"];
-                        $_SESSION["username"] = $row["username"];
-                        $_SESSION["useremail"] = $row["useremail"];
-                        $_SESSION["formofadress"] = $row["formofadress"];
-                        $_SESSION["firstname"] = $row["firstname"];
-                        $_SESSION["secondname"] = $row["secondname"];
-                        $_SESSION["profilepic"] = $row["path"];
-                        $updated = true;
+
+            if ($check->execute()) {
+                $result = $check->get_result();
+                //if username exist, check if it is my id, if yes update my data and session
+                if ($result->num_rows > 0 && $result->fetch_assoc()["id"] != $id) {
+                    $errors["update"] = true;
+                } else {
+                    $sql = "SELECT `password` FROM `users` WHERE `id`=?";
+                    $get_password = $db_obj->prepare($sql);
+                    $get_password->bind_param("i", $id);
+                    if ($get_password->execute()) {
+                        $result = $get_password->get_result();
+                        $real_password = $result->fetch_assoc()["password"];
+                        if (password_verify($oldpass, $real_password)) {
+                            //update the session data with the new updated data
+                            if ($stmt->execute() && move_uploaded_file($profilepic, $path)) {
+                                $sql = "SELECT * FROM `users` WHERE `id`=?";
+                                $get_newdata = $db_obj->prepare($sql);
+                                $get_newdata->bind_param("i", $id);
+                                if ($get_newdata->execute()) {
+                                    $result = $get_newdata->get_result();
+                                    $row = $result->fetch_assoc();
+                                    $_SESSION["id"] = $row["id"];
+                                    $_SESSION["admin"] = $row["admin"];
+                                    $_SESSION["username"] = $row["username"];
+                                    $_SESSION["useremail"] = $row["useremail"];
+                                    $_SESSION["formofadress"] = $row["formofadress"];
+                                    $_SESSION["firstname"] = $row["firstname"];
+                                    $_SESSION["secondname"] = $row["secondname"];
+                                    $_SESSION["profilepic"] = $row["path"];
+                                    $updated = true;
+                                } else {
+                                    $errors["update"] = true;
+                                }
+                                $get_newdata->close();
+                            } else {
+                                $errors["update"] = true;
+                            }
+                        } else {
+                            $errors["update"] = true;
+                        }
                     } else {
                         $errors["update"] = true;
                     }
-                } else {
-                    $errors["update"] = true;
+                    $get_password->close();
                 }
             }
+            $check->close();
             $stmt->close();
             $db_obj->close();
         } else {

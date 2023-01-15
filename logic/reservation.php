@@ -11,7 +11,6 @@ $noroom = false;
 if (
     $_SERVER["REQUEST_METHOD"] === "POST"
     && isset($_POST['book'])
-    && !$noroom
 ) {
     //create db connection
     require_once('config/dbaccess.php');
@@ -26,15 +25,15 @@ if (
         $errors["checkout"] = true;
     }
     $type = $_POST["type"];
-    //checking availability of rooms with checkin and checkout data
-    $sql = "SELECT distinct rooms.room_number, rooms.rate 
+    //checking availability of rooms with checkin, checkout and type
+    $sql = "SELECT *
             FROM rooms
-            INNER JOIN reservation 
-            ON rooms.room_number = reservation.room
-            WHERE (? NOT BETWEEN `checkin` AND `checkout`) 
-                AND (? NOT BETWEEN `checkin` AND `checkout`)
-                    AND `status`<>'Storniert'
-                        AND `type`=? LIMIT 1";
+            WHERE room_number NOT IN (
+            SELECT DISTINCT room
+            FROM reservation
+            WHERE (? <= `checkin` AND ? >= `checkout`) AND `status`<>'Storniert') 
+            AND `type`=? 
+            LIMIT 1";
     $stmt = $db_obj->prepare($sql);
     $stmt->bind_param("sss", $checkin, $checkout, $type);
     if ($stmt->execute()) {
@@ -208,8 +207,8 @@ if (
                     </div>
                 </form>
             <?php } ?>
-            <!-- if book button is pressed and rooms are available show the data again for confirmation -->
-            <?php if (!$noroom && !$errors["checkin"] && !$errors["checkout"] && isset($_POST["book"])) { ?>
+            <!-- if book button is pressed and rooms are available show preview of booking for confirmation -->
+            <?php if (!$noroom && !in_array(true, $errors) && isset($_POST["book"])) { ?>
                 <form method="POST">
                     <div class="col-sm-6 offset-sm-3 text-center">
                         <div class="mb-3">
