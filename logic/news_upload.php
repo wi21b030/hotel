@@ -30,21 +30,19 @@ function thumbnailmade($pic, $path, $extension)
         $nheight = 300;
     }
     $newimage = imagecreatetruecolor($nwidth, $nheight);
-    // depending on if picture is png or jpg/jpeg we use different methods here
+    /* depending on if picture is png or jpg/jpeg we use different methods here
+    used function imagecopyresampled instead of imagecopyresized because the first one delivers better quality
+    depending on if picture is png or jpg/jpeg we use different methods here
+    if thumbnail is made in given path then return true */
     if ($extension == "png") {
         $source = imagecreatefrompng($pic);
-    } elseif ($extension == "jpg" || $extension == "jpeg") {
-        $source = imagecreatefromjpeg($pic);
-    }
-    // used function imagecopyresampled instead of imagecopyresized because the first one delivers better quality
-    imagecopyresampled($newimage, $source, 0, 0, 0, 0, $nwidth, $nheight, $width, $height);
-    // depending on if picture is png or jpg/jpeg we use different methods here
-    // if thumbnail is made in given path then return true
-    if ($extension == "png") {
+        imagecopyresampled($newimage, $source, 0, 0, 0, 0, $nwidth, $nheight, $width, $height);
         if (imagepng($newimage, $path)) {
             $made = true;
         }
-    } elseif ($extension == "jpg" || $extension == "jpeg") {
+    } else {
+        $source = imagecreatefromjpeg($pic);
+        imagecopyresampled($newimage, $source, 0, 0, 0, 0, $nwidth, $nheight, $width, $height);
         if (imagejpeg($newimage, $path)) {
             $made = true;
         }
@@ -81,8 +79,7 @@ if (
 // insert of new blog post
 if (
     $_SERVER["REQUEST_METHOD"] === "POST"
-    && isset($_POST["uploaden"])
-    && $_POST["uploaden"] === "uploaden"
+    && isset($_POST["upload"])
 ) {
     if (
         // check if input is valid
@@ -100,12 +97,12 @@ if (
             if ($db_obj->connect_error) {
                 $errors["connection"] = true;
             }
-            $title = $_POST["title"];
+            $title = htmlspecialchars($_POST["title"], ENT_QUOTES);
             $uploadtime = time();
-            $text = $_POST["text"];
+            $text = htmlspecialchars($_POST["text"], ENT_QUOTES);
             $pic = $_FILES["file"]["tmp_name"];
             $path = $uploadDirPic . $title . ".jpg";
-            $keyword = $_POST["keyword"];
+            $keyword = htmlspecialchars($_POST["keyword"], ENT_QUOTES);
 
             // prepared insert-query to ensure protection against SQL-Injection
             $sql = "INSERT INTO `news` (`title`, `uploadtime`, `text`, `path`, `keyword`) VALUES (?,?,?,?,?)";
@@ -221,7 +218,7 @@ if (
                                 <input class="form-control <?php if ($errors["exists"]) echo 'is-invalid'; ?>" name="file" type="file" aria-label="Thumbnail" id="formFile" accept="image/*" required>
                             </div>
                             <div class="mb-2">
-                                <input type="hidden" name="uploaden" value="uploaden">
+                                <input type="hidden" name="upload">
                                 <button type="submit" class="btn btn-primary">Upload</button>
                             </div>
                         </div>
@@ -241,50 +238,60 @@ if (
             $result = $db_obj->query($sql);
             if ($result) {
                 if ($result->num_rows > 0) { ?>
-                    <?php while ($row = $result->fetch_assoc()) { ?>
-                        <a style="text-decoration: none" href="https://www.1000things.at/suche/<?php echo $row["keyword"] ?>" class="text-dark">
-                            <div class="row mt-2 border-bottom pb-2">
-                                <div class="col-3">
-                                    <img src="<?php echo $row["path"] . "?" . time() ?>" class="img-fluid shadow-1-strong rounded" alt="<?php $row["title"] ?>" />
-                                </div>
-                                <div class="col-9">
-                                    <p class="mb-2"><strong><?php echo $row["title"] ?></strong></p>
-                                    <p>
-                                        <?php echo $row["text"];
-                                        echo "<br><u>" . date("d.m.Y", $row["uploadtime"]) . "</u>";
-                                        ?>
-                                    </p>
-                                    <!-- if admin is logged in they will see the delete button -->
-                                    <?php if (isset($_SESSION["username"]) && $_SESSION["admin"]) { ?>
-                                        <div class="col-9">
-                                            <div class="mb-2">
-                                                <form method="POST">
-                                                    <input type="hidden" name="id" value="<?php echo $row["id"] ?>">
-                                                    <input type="hidden" name="path" value="<?php echo $row["path"] ?>">
-                                                    <input type="hidden" name="delete">
-                                                    <button type="submit" class="btn btn-danger">Löschen</button>
-                                                </form>
+                    <div class="container-fluid">
+                        <?php while ($row = $result->fetch_assoc()) { ?>
+                            <a style="text-decoration: none" href="https://www.1000things.at/suche/<?php echo $row["keyword"] ?>" class="text-dark">
+                                <div class="row mt-2 border-bottom pb-2">
+                                    <div class="col-3">
+                                        <img src="<?php echo $row["path"] . "?" . time() ?>" class="img-fluid shadow-1-strong rounded" alt="<?php $row["title"] ?>" />
+                                    </div>
+                                    <div class="col-9">
+                                        <p class="mb-2"><strong><?php echo $row["title"] ?></strong></p>
+                                        <p>
+                                            <?php echo $row["text"];
+                                            echo "<br><u>" . date("d.m.Y", $row["uploadtime"]) . "</u>";
+                                            ?>
+                                        </p>
+                                        <!-- if admin is logged in they will see the delete button -->
+                                        <?php if (isset($_SESSION["username"]) && $_SESSION["admin"]) { ?>
+                                            <div class="col-9">
+                                                <div class="mb-2">
+                                                    <form method="POST">
+                                                        <input type="hidden" name="id" value="<?php echo $row["id"] ?>">
+                                                        <input type="hidden" name="path" value="<?php echo $row["path"] ?>">
+                                                        <input type="hidden" name="delete">
+                                                        <button type="submit" class="btn btn-danger">Löschen</button>
+                                                    </form>
+                                                </div>
                                             </div>
-                                        </div>
-                                    <?php } ?>
+                                        <?php } ?>
+                                    </div>
+                                </div>
+                            </a>
+                        <?php } ?>
+                    </div>
+                    <!-- if normal user or not registered user is on the news-page and there are no posts they will see this alert -->
+                <?php } elseif (!isset($_SESSION["admin"]) || (isset($_SESSION["admin"]) && !$_SESSION["admin"])) { ?>
+                    <div class="container-fluid">
+                        <div class="row">
+                            <div class="col-sm-6 offset-sm-3 text-center">
+                                <div class="alert alert-primary text-center" role="alert">
+                                    Es gibt momentan keine Beiträge!
                                 </div>
                             </div>
-                        </a>
-                    <?php }
-                    // if normal user or not registered user is on the news-page and there are no posts they will see this alert
-                } elseif (!isset($_SESSION["admin"]) || (isset($_SESSION["admin"]) && !$_SESSION["admin"])) { ?>
-                    <div class="col-sm-6 offset-sm-3 text-center">
-                        <div class="alert alert-primary text-center" role="alert">
-                            Es gibt momentan keine Beiträge!
                         </div>
                     </div>
                 <?php
                 }
             } else {
                 ?>
-                <div class="col-sm-6 offset-sm-3 text-center">
-                    <div class="alert alert-danger text-center" role="alert">
-                        Fehler bei der Abfrage!
+                <div class="container-fluid">
+                    <div class="row">
+                        <div class="col-sm-6 offset-sm-3 text-center">
+                            <div class="alert alert-danger text-center" role="alert">
+                                Fehler bei der Abfrage!
+                            </div>
+                        </div>
                     </div>
                 </div>
             <?php header("Refresh: 2, url=index.php");

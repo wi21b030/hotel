@@ -47,13 +47,13 @@ if (
     if (empty($_POST["username"]) || !isset($_POST["username"])  || strlen(trim($_POST["username"])) == 0) {
         $errors["username"] = true;
     }
-    if (empty($_POST["password"]) || !isset($_POST["password"])  || strlen(trim($_POST["password"])) == 0 || strlen(trim($_POST["password"])) < 8) {
+    if (empty($_POST["password"]) || !isset($_POST["password"])  || strlen(trim($_POST["password"])) < 8) {
         $errors["password"] = true;
     }
     if (!isset($_POST["file"])) {
         $errors["file"] = true;
     }
-    // if none of the errors above are true, then we update the user
+    // if none of the errors above are true, then continue
     if (
         !$errors["firstname"]
         && !$errors["secondname"]
@@ -61,9 +61,9 @@ if (
         && !$errors["username"]
         && !$errors["password"]
     ) {
-        // get the extension of the pathinfo to check if truly an image has been selected
+        // get the extension to check if truly an image has been selected
         $extension = pathinfo($_FILES["file"]["name"], PATHINFO_EXTENSION);
-        if ($extension == 'jpg' || $extension == 'jpeg' || $extension == 'png' || $extension == 'gif') {
+        if ($extension == 'jpg' || $extension == 'jpeg' || $extension == 'png') {
             require_once('config/dbaccess.php');
             $db_obj = new mysqli($host, $user, $password, $database);
             if ($db_obj->connect_error) {
@@ -168,40 +168,50 @@ if (
             $errors["connection"] = true;
         }
         $sql = "SELECT * FROM `users` WHERE `admin` = 'FALSE' ORDER BY `username`";
-        if($db_obj->query($sql)){
-            //$result = $db_obj->get_result();
-        }
-        
-        // only show form if there are registered users
-        if ($result->num_rows > 0) { ?>
-            <div class="container-fluid">
-                <form method="POST">
-                    <div class="row">
-                        <div class="col-sm-6 offset-sm-3 text-center">
-                            <label for="username" class="form-label">User</label>
-                            <select name="id" class="form-select" name="username" aria-label="Default select example" required>
-                                <?php while ($row = $result->fetch_assoc()) : ?>
-                                    <!-- for each user we set the value as their id so we can pass the information to the next form to be used -->
-                                    <option value="<?php echo $row["id"] ?>"><?php echo $row["username"] ?></option>
-                                <?php endwhile ?>
-                            </select>
+        $result = $db_obj->query($sql);
+        if ($result) {
+            // only show form if there are registered users
+            if ($result->num_rows > 0) { ?>
+                <div class="container-fluid">
+                    <form method="POST">
+                        <div class="row">
+                            <div class="col-sm-6 offset-sm-3 text-center">
+                                <label for="username" class="form-label">User</label>
+                                <select name="id" class="form-select" name="username" aria-label="Default select example" required>
+                                    <?php while ($row = $result->fetch_assoc()) : ?>
+                                        <!-- for each user we set the value as their id so we can pass the information to the next form to be used -->
+                                        <option value="<?php echo $row["id"] ?>"><?php echo $row["username"] ?></option>
+                                    <?php endwhile ?>
+                                </select>
+                            </div>
+                            <div class="col-sm-10 offset-sm-1 text-center">
+                                <input type="hidden" name="edit" value="edit">
+                                <button class="btn btn-primary mt-3">Bearbeiten</button>
+                            </div>
                         </div>
-                        <div class="col-sm-10 offset-sm-1 text-center">
-                            <input type="hidden" name="edit" value="edit">
-                            <button class="btn btn-primary mt-3">Bearbeiten</button>
+                    </form>
+                </div>
+            <?php
+                // otherwise show this alert
+            } else { ?>
+                <div class="col-sm-6 offset-sm-3 text-center">
+                    <div class="alert alert-primary text-center" role="alert">
+                        Es gibt keine registrierte User!
+                    </div>
+                </div>
+            <?php header("Refresh: 2, url=admin_dashboard.php");
+            }
+        } else { ?>
+            <div class="container-fluid">
+                <div class="row">
+                    <div class="col-sm-6 offset-sm-3 text-center">
+                        <div class="alert alert-danger text-center" role="alert">
+                            Fehler bei der Abfrage!
                         </div>
                     </div>
-                </form>
-            </div>
-        <?php
-            // otherwise show this alert
-        } else { ?>
-            <div class="col-sm-6 offset-sm-3 text-center">
-                <div class="alert alert-primary text-center" role="alert">
-                    Es gibt keine registrierte User!
                 </div>
             </div>
-    <?php header("Refresh: 2, url=admin_dashboard.php");
+    <?php header("Refresh: 2, url=admin_userverwaltung.php");
         }
         $db_obj->close();
     } ?>
@@ -222,8 +232,17 @@ if (
         $stmt->bind_param("i", $id);
         if ($stmt->execute()) {
             $result = $stmt->get_result();
-            if ($result->num_rows == 0) {
-                $errors["exists"] = true;
+            if ($result->num_rows != 1) { ?>
+                <div class="container-fluid">
+                    <div class="row">
+                        <div class="col-sm-6 offset-sm-3 text-center">
+                            <div class="alert alert-danger text-center" role="alert">
+                                Fehler bei der Abfrage!
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            <?php header("Refresh: 2, url=admin_userverwaltung.php");
             } else {
                 // if the user exists we get the query result
                 // and output his information
@@ -314,26 +333,36 @@ if (
                     <?php
                         // otherwise output this message
                     } else { ?>
-                        <div class="col-sm-6 offset-sm-3 text-center">
-                            Dieser User hat keine Reservierungen!
+                        <div class="container-fluid">
+                            <div class="row">
+                                <div class="col-sm-6 offset-sm-3 text-center">
+                                    Dieser User hat keine Reservierungen!
+                                </div>
+                            </div>
                         </div>
                     <?php
                     }
-                } else {
-                    ?>
-                    <div class="col-sm-6 offset-sm-3 text-center">
-                        <div class="alert alert-danger text-center" role="alert">
-                            Fehler bei der Abfrage!
+                } else { ?>
+                    <div class="container-fluid">
+                        <div class="row">
+                            <div class="col-sm-6 offset-sm-3 text-center">
+                                <div class="alert alert-danger text-center" role="alert">
+                                    Fehler bei der Abfrage!
+                                </div>
+                            </div>
                         </div>
                     </div>
             <?php header("Refresh: 2, url=admin_userverwaltung.php");
                 }
             }
-        } else {
-            ?>
-            <div class="col-sm-6 offset-sm-3 text-center">
-                <div class="alert alert-danger text-center" role="alert">
-                    Fehler bei der Abfrage!
+        } else { ?>
+            <div class="container-fluid">
+                <div class="row">
+                    <div class="col-sm-6 offset-sm-3 text-center">
+                        <div class="alert alert-danger text-center" role="alert">
+                            Fehler bei der Abfrage!
+                        </div>
+                    </div>
                 </div>
             </div>
     <?php header("Refresh: 2, url=admin_userverwaltung.php");
@@ -343,7 +372,7 @@ if (
         $db_obj->close();
     } ?>
     <?php
-    // form for updating reservation if admin clicks on button
+    // form for viewing reservation details if admin clicks on button
     if (
         $_SERVER["REQUEST_METHOD"] === "POST"
         && isset($_POST["view"])
@@ -422,19 +451,26 @@ if (
                     </form>
                 </div>
             <?php
-            } else {
-            ?>
-                <div class="col-sm-6 offset-sm-3 text-center">
-                    <div class="alert alert-danger text-center" role="alert">
-                        Fehler bei der Abfrage!
+            } else { ?>
+                <div class="container-fluid">
+                    <div class="row">
+                        <div class="col-sm-6 offset-sm-3 text-center">
+                            <div class="alert alert-danger text-center" role="alert">
+                                Fehler bei der Abfrage!
+                            </div>
+                        </div>
                     </div>
                 </div>
             <?php header("Refresh: 2, url=admin_userverwaltung.php");
             }
         } else { ?>
-            <div class="col-sm-6 offset-sm-3 text-center">
-                <div class="alert alert-danger text-center" role="alert">
-                    Fehler bei der Abfrage!
+            <div class="container-fluid">
+                <div class="row">
+                    <div class="col-sm-6 offset-sm-3 text-center">
+                        <div class="alert alert-danger text-center" role="alert">
+                            Fehler bei der Abfrage!
+                        </div>
+                    </div>
                 </div>
             </div>
     <?php header("Refresh: 2, url=admin_userverwaltung.php");

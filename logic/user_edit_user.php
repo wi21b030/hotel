@@ -68,7 +68,7 @@ if (
     ) {
         // check if file is of an accepted type (jpg, jpeg, png, gif)
         $extension = pathinfo($_FILES["file"]["name"], PATHINFO_EXTENSION);
-        if ($extension == 'jpg' || $extension == 'jpeg' || $extension == 'png' || $extension == 'gif') {
+        if ($extension == 'jpg' || $extension == 'jpeg' || $extension == 'png') {
             require_once('config/dbaccess.php');
             $db_obj = new mysqli($host, $user, $password, $database);
             if ($db_obj->connect_error) {

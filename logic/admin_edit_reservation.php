@@ -43,7 +43,7 @@ if (
 </head>
 
 <body>
-    <!-- alerts for different edge cases, set booleans false again so they are not always true  -->
+    <!-- some alerts -->
     <div class="container-fluid">
         <div class="row">
             <div class="col-sm-6 offset-sm-3 text-center">
@@ -128,15 +128,28 @@ if (
             <?php
                 // otherwise show this alert
             } else { ?>
-                <div class="col-sm-6 offset-sm-3 text-center">
-                    <div class="alert alert-primary text-center" role="alert">
-                        Es gibt momentan keine Reservierungen mit dem ausgewählten Filter!
+                <div class="container-fluid">
+                    <div class="row">
+                        <div class="col-sm-6 offset-sm-3 text-center">
+                            <div class="alert alert-primary text-center" role="alert">
+                                Es gibt momentan keine Reservierungen mit dem ausgewählten Filter!
+                            </div>
+                        </div>
                     </div>
                 </div>
-    <?php header("Refresh: 2, url=admin_reservierungsverwaltung.php");
+            <?php header("Refresh: 2, url=admin_reservierungsverwaltung.php");
             }
-        } else {
-            $errors["connection"] = true;
+        } else { ?>
+            <div class="container-fluid">
+                <div class="row">
+                    <div class="col-sm-6 offset-sm-3 text-center">
+                        <div class="alert alert-danger text-center" role="alert">
+                            Fehler bei der Abfrage!
+                        </div>
+                    </div>
+                </div>
+            </div>
+    <?php header("Refresh: 2, url=admin_reservierungsverwaltung.php");
         }
         $stmt->close();
         $db_obj->close();
@@ -229,17 +242,25 @@ if (
                     </form>
                 </div>
             <?php  } else { ?>
-                <div class="col-sm-6 offset-sm-3 text-center">
-                    <div class="alert alert-danger text-center" role="alert">
-                        Fehler bei der Abfrage!
+                <div class="container-fluid">
+                    <div class="row">
+                        <div class="col-sm-6 offset-sm-3 text-center">
+                            <div class="alert alert-danger text-center" role="alert">
+                                Fehler bei der Abfrage!
+                            </div>
+                        </div>
                     </div>
                 </div>
             <?php header("Refresh: 2, url=admin_reservierungsverwaltung.php");
             }
         } else { ?>
-            <div class="col-sm-6 offset-sm-3 text-center">
-                <div class="alert alert-danger text-center" role="alert">
-                    Fehler bei der Abfrage!
+            <div class="container-fluid">
+                <div class="row">
+                    <div class="col-sm-6 offset-sm-3 text-center">
+                        <div class="alert alert-danger text-center" role="alert">
+                            Fehler bei der Abfrage!
+                        </div>
+                    </div>
                 </div>
             </div>
         <?php header("Refresh: 2, url=admin_reservierungsverwaltung.php");

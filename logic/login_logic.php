@@ -7,7 +7,10 @@ $errors["nosuchuser"] = false;
 $logged = false;
 
 // if user clicks on login-button we execute this code
-if ($_SERVER["REQUEST_METHOD"] === "POST" && isset($_POST["login"])) {
+if (
+    $_SERVER["REQUEST_METHOD"] === "POST"
+    && isset($_POST["login"])
+) {
     if (
         // errror handling to check if input not empty and if password fulfills required length
         !empty($_POST["username"])
@@ -20,8 +23,8 @@ if ($_SERVER["REQUEST_METHOD"] === "POST" && isset($_POST["login"])) {
         if ($db_obj->connect_error) {
             $errors["connection"] = true;
         }
-        $uname = $_POST["username"];
-        $pass = $_POST["password"];
+        $uname = htmlspecialchars($_POST["username"], ENT_QUOTES);
+        $pass = htmlspecialchars($_POST["password"], ENT_QUOTES);
 
         // prepared select-query to ensure protection against SQL-Injections
         // we put the AND-constraint to make sure the user is an active one

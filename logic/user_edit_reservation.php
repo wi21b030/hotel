@@ -18,12 +18,15 @@ if (
     }
     $id = $_POST["id"];
     //prepared statement to update status to "storniert"
-    $sql = "UPDATE `reservation` SET `status`='Storniert' WHERE `id` = $id";
-    if ($db_obj->query($sql)) {
+    $sql = "UPDATE `reservation` SET `status`='Storniert' WHERE `id` = ?";
+    $stmt = $db_obj->prepare($sql);
+    $stmt->bind_param("i", $id);
+    if ($stmt->execute()) {
         $updated = true;
     } else {
         $errors["connection"] = true;
     }
+    $stmt->close();
     $db_obj->close();
 }
 ?>
@@ -67,50 +70,46 @@ if (
                     </div>
                 <?php } ?>
                 <?php
-                // dropdown list with reservations of logged in user
-                require_once('config/dbaccess.php');
-                $db_obj = new mysqli($host, $user, $password, $database);
-                if ($db_obj->connect_error) {
-                    $errors["connection"] = true;
-                }
-                $user_id = $_SESSION["id"];
-                //Prepared statement to select all the reservations wiht just checkin chekout displayed
-                $sql = "SELECT * FROM `reservation` WHERE `user_id` = '$user_id'";
-                $result = $db_obj->query($sql);
-                if ($result->num_rows > 0) { ?>
-                    <form method="POST">
-                        <label style="display:<?php if (isset($_POST["edit"]) && $_POST["edit"] === "edit") {
-                                                    echo "none";
-                                                } ?>;" for="username" class="form-label">Reservierungen</label>
-                        <select name="id" style="display:<?php if (isset($_POST["edit"]) && $_POST["edit"] === "edit") {
-                                                                echo "none";
-                                                            } ?>;" class="form-select" aria-label="Default select example" required>
-                            <?php while ($row = $result->fetch_assoc()) : ?>
-                                <option value="<?php echo $row["id"] ?>"><?php echo $row["checkin"] . " bis " . $row["checkout"] ?></option>
-                            <?php endwhile ?>
-                        </select>
-                        <div class="col-sm-10 offset-sm-1 text-center">
-                            <input type="hidden" name="edit" value="edit">
-                            <button style="display:<?php if (isset($_POST["edit"]) && $_POST["edit"] === "edit") {
-                                                        echo "none";
-                                                    } ?>;" class="btn btn-primary mt-3">Details ansehen</button>
+                if (!isset($_POST["edit"])) {
+                    // dropdown list with reservations of logged in user
+                    require_once('config/dbaccess.php');
+                    $db_obj = new mysqli($host, $user, $password, $database);
+                    if ($db_obj->connect_error) {
+                        $errors["connection"] = true;
+                    }
+                    $user_id = $_SESSION["id"];
+                    //Prepared statement to select all the reservations wiht just checkin chekout displayed
+                    $sql = "SELECT * FROM `reservation` WHERE `user_id` = '$user_id'";
+                    $result = $db_obj->query($sql);
+                    if ($result->num_rows > 0) { ?>
+                        <form method="POST">
+                            <label for="username" class="form-label">Reservierungen</label>
+                            <select name="id" class="form-select" aria-label="Default select example" required>
+                                <?php while ($row = $result->fetch_assoc()) : ?>
+                                    <option value="<?php echo $row["id"] ?>"><?php echo $row["checkin"] . " bis " . $row["checkout"] ?></option>
+                                <?php endwhile ?>
+                            </select>
+                            <div class="col-sm-10 offset-sm-1 text-center">
+                                <input type="hidden" name="edit" value="edit">
+                                <button class="btn btn-primary mt-3">Details ansehen</button>
+                            </div>
+                        </form>
+                    <?php
+                    } else { ?>
+                        <div class="alert alert-primary text-center" role="alert">
+                            Sie haben momentan keine Reservierungen!
                         </div>
-                    </form>
                 <?php
-                } else { ?>
-                    <div class="alert alert-primary text-center" role="alert">
-                        Sie haben momentan keine Reservierungen!
-                    </div>
-                <?php
-                    header("Refresh: 2, url=reservierung.php");
+                        header("Refresh: 2, url=reservierung.php");
+                    }
+                    $db_obj->close();
                 }
-                $db_obj->close(); ?>
+                ?>
             </div>
             <?php
             if (
                 $_SERVER["REQUEST_METHOD"] === "POST"
                 && isset($_POST["edit"])
-                && $_POST["edit"] === "edit"
             ) {
                 $id = $_POST["id"];
                 require_once('config/dbaccess.php');

@@ -5,9 +5,12 @@ $errors["checkin"] = false;
 $errors["checkout"] = false;
 $errors["connection"] = false;
 $confirmed = false;
-$noroom = false;
+//$noroom = false;
 // check if form was submitted and book button was pressed
-if ($_SERVER["REQUEST_METHOD"] === "POST" && isset($_POST['book'])) {
+if (
+    $_SERVER["REQUEST_METHOD"] === "POST"
+    && isset($_POST['book'])
+) {
     //create db connection
     require_once('config/dbaccess.php');
     $db_obj = new mysqli($host, $user, $password, $database);
@@ -16,20 +19,20 @@ if ($_SERVER["REQUEST_METHOD"] === "POST" && isset($_POST['book'])) {
     }
     $checkin = $_POST["checkin"];
     $checkout = $_POST["checkout"];
-    if ($checkin >= $checkout || strtotime($checkin) < time() || strtotime($checkout) <= time()) {
+    if ($checkin >= $checkout || date("dd.mm.yyyy", strtotime($checkin)) < date("dd.mm.yyyy", time()) || date("dd.mm.yyyy", strtotime($checkout)) <= date("dd.mm.yyyy", time())) {
         $errors["checkin"] = true;
         $errors["checkout"] = true;
     }
     $type = $_POST["type"];
     //checking availability of rooms with checkin and checkout data
     $sql = "SELECT distinct rooms.room_number, rooms.rate 
-    FROM rooms
-    INNER JOIN reservation 
-    ON rooms.room_number = reservation.room
-    WHERE (? NOT BETWEEN `checkin` AND `checkout`) 
-        AND (? NOT BETWEEN `checkin` AND `checkout`)
-            AND `status`<>'Storniert'
-                AND `type`=? LIMIT 1";
+            FROM rooms
+            INNER JOIN reservation 
+            ON rooms.room_number = reservation.room
+            WHERE (? NOT BETWEEN `checkin` AND `checkout`) 
+                AND (? NOT BETWEEN `checkin` AND `checkout`)
+                    AND `status`<>'Storniert'
+                        AND `type`=? LIMIT 1";
     $stmt = $db_obj->prepare($sql);
     $stmt->bind_param("sss", $checkin, $checkout, $type);
     if ($stmt->execute()) {
@@ -56,9 +59,10 @@ if ($_SERVER["REQUEST_METHOD"] === "POST" && isset($_POST['book'])) {
             $date2 = new DateTime($checkout);
             $interval = $date1->diff($date2);
             $nights = ($interval->days);
-            $total = $price * $nights;    
+            $total = $price * $nights;
         } else {
-            $noroom = true;
+            //$noroom = true;
+            echo "Problem";
         }
     } else {
         $errors["connection"] = true;
@@ -137,12 +141,6 @@ if (
                     <div class="alert alert-danger text-center" role="alert">
                         Reservierung konnte nicht gebucht werden! Versuchen Sie es später.
                     </div>
-                <?php } elseif ($noroom) {
-                    header("Refresh: 2, url=reservierung.php");
-                ?>
-                    <div class="alert alert-danger text-center" role="alert">
-                        Es gibt leider kein Zimmer zu Ihren gewünschten Daten!
-                    </div>
                 <?php } elseif ($confirmed) {
                     $confirmed = false;
                     header("Refresh: 2, url=reservierung.php");
@@ -204,7 +202,7 @@ if (
                 </form>
             <?php } ?>
             <!-- if book button is pressed and rooms are available show the data again for confirmation -->
-            <?php if (!$noroom && !$errors["checkin"] && !$errors["checkout"] && isset($_POST["book"])) { ?>
+            <?php if (!$errors["checkin"] && !$errors["checkout"] && isset($_POST["book"])) { ?>
                 <form method="POST">
                     <div class="col-sm-6 offset-sm-3 text-center">
                         <div class="mb-3">

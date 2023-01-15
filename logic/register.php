@@ -76,7 +76,7 @@ if (
         && !$errors["password2"]
     ) {
         $extension = pathinfo($_FILES["file"]["name"], PATHINFO_EXTENSION);
-        if ($extension == 'jpg' || $extension == 'jpeg' || $extension == 'png' || $extension == 'gif') {
+        if ($extension == 'jpg' || $extension == 'jpeg' || $extension == 'png') {
             require_once('config/dbaccess.php');
             $db_obj = new mysqli($host, $user, $password, $database);
             if ($db_obj->connect_error) {
@@ -100,32 +100,35 @@ if (
             $sql = "SELECT * FROM `users` WHERE `username`=?";
             $check = $db_obj->prepare($sql);
             $check->bind_param("s", $uname);
-            $check->execute();
-            $result = $check->get_result();
-            if ($result->num_rows > 0) {
-                $errors["exists"] = true;
-            } else {
-                //if it is not used, the user data are put as Session data as well    
-                if ($stmt->execute() && move_uploaded_file($profilepic, $path)) {
-                    $sql = "SELECT * FROM `users` WHERE `username` = '$uname'";
-                    $result = $db_obj->query($sql);
-                    if ($result) {
-                        $row = $result->fetch_assoc();
-                        $_SESSION["id"] = $row["id"];
-                        $_SESSION["admin"] = $row["admin"];
-                        $_SESSION["username"] = $row["username"];
-                        $_SESSION["useremail"] = $row["useremail"];
-                        $_SESSION["formofadress"] = $row["formofadress"];
-                        $_SESSION["firstname"] = $row["firstname"];
-                        $_SESSION["secondname"] = $row["secondname"];
-                        $_SESSION["profilepic"] = $row["path"];
-                        $registered = true;
+            if ($check->execute()) {
+                $result = $check->get_result();
+                if ($result->num_rows > 0) {
+                    $errors["exists"] = true;
+                } else {
+                    //if it is not used, the user data are put as Session data as well    
+                    if ($stmt->execute() && move_uploaded_file($profilepic, $path)) {
+                        $sql = "SELECT * FROM `users` WHERE `username` = '$uname'";
+                        $result = $db_obj->query($sql);
+                        if ($result) {
+                            $row = $result->fetch_assoc();
+                            $_SESSION["id"] = $row["id"];
+                            $_SESSION["admin"] = $row["admin"];
+                            $_SESSION["username"] = $row["username"];
+                            $_SESSION["useremail"] = $row["useremail"];
+                            $_SESSION["formofadress"] = $row["formofadress"];
+                            $_SESSION["firstname"] = $row["firstname"];
+                            $_SESSION["secondname"] = $row["secondname"];
+                            $_SESSION["profilepic"] = $row["path"];
+                            $registered = true;
+                        } else {
+                            $errors["insert"] = true;
+                        }
                     } else {
                         $errors["insert"] = true;
                     }
-                } else {
-                    $errors["insert"] = true;
                 }
+            } else {
+                $errors["insert"] = true;
             }
             $stmt->close();
             $db_obj->close();
