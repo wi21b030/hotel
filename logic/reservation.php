@@ -5,11 +5,13 @@ $errors["checkin"] = false;
 $errors["checkout"] = false;
 $errors["connection"] = false;
 $confirmed = false;
-//$noroom = false;
+$noroom = false;
+
 // check if form was submitted and book button was pressed
 if (
     $_SERVER["REQUEST_METHOD"] === "POST"
     && isset($_POST['book'])
+    && !$noroom
 ) {
     //create db connection
     require_once('config/dbaccess.php');
@@ -61,8 +63,7 @@ if (
             $nights = ($interval->days);
             $total = $price * $nights;
         } else {
-            //$noroom = true;
-            echo "Problem";
+            $noroom = true;
         }
     } else {
         $errors["connection"] = true;
@@ -148,6 +149,12 @@ if (
                     <div class="alert alert-success text-center" role="alert">
                         Reservierung wurde gebucht!
                     </div>
+                <?php } elseif ($noroom) {
+                    header("Refresh: 2, url=reservierung.php");
+                ?>
+                    <div class="alert alert-danger text-center" role="alert">
+                        Es gibt leider kein Zimmer mit Ihren gewünschten Daten! (oder noch immer Bug)
+                    </div>
                 <?php } ?>
             </div>
         </div>
@@ -202,7 +209,7 @@ if (
                 </form>
             <?php } ?>
             <!-- if book button is pressed and rooms are available show the data again for confirmation -->
-            <?php if (!$errors["checkin"] && !$errors["checkout"] && isset($_POST["book"])) { ?>
+            <?php if (!$noroom && !$errors["checkin"] && !$errors["checkout"] && isset($_POST["book"])) { ?>
                 <form method="POST">
                     <div class="col-sm-6 offset-sm-3 text-center">
                         <div class="mb-3">
