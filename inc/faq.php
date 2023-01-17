@@ -24,22 +24,24 @@
                 </div>
             </div>
         <?php } ?>
-        <div class="accordion-item">
-            <h2 class="accordion-header" id="headingTwo">
-                <button class="accordion-button collapsed" type="button" data-bs-toggle="collapse" data-bs-target="#collapseTwo" aria-expanded="false" aria-controls="collapseTwo">
-                    Wo können Sie Zimmer buchen?
-                </button>
-            </h2>
-            <div id="collapseTwo" class="accordion-collapse collapse" aria-labelledby="headingTwo" data-bs-parent="#accordionExample">
-                <div class="accordion-body">
-                    <?php if (isset($_SESSION["username"]) && !$_SESSION["admin"]) { ?>
-                        <a href="reservieren.php">Hier</a> gelangen Sie zur Seite zum Reservieren!
-                    <?php } else { ?>
-                        Wenn Sie reservieren wollen, müssen Sie <a href="registrierung.php">registriert</a> oder <a href="login.php">eingeloggt</a> sein.
-                    <?php } ?>
+        <?php if (!isset($_SESSION["username"]) || (isset($_SESSION["username"]) && !$_SESSION["admin"])) { ?>
+            <div class="accordion-item">
+                <h2 class="accordion-header" id="headingTwo">
+                    <button class="accordion-button collapsed" type="button" data-bs-toggle="collapse" data-bs-target="#collapseTwo" aria-expanded="false" aria-controls="collapseTwo">
+                        Wo können Sie Zimmer buchen?
+                    </button>
+                </h2>
+                <div id="collapseTwo" class="accordion-collapse collapse" aria-labelledby="headingTwo" data-bs-parent="#accordionExample">
+                    <div class="accordion-body">
+                        <?php if (isset($_SESSION["username"]) && !$_SESSION["admin"]) { ?>
+                            <a href="reservieren.php">Hier</a> gelangen Sie zur Seite zum Reservieren!
+                        <?php } else { ?>
+                            Wenn Sie reservieren wollen, müssen Sie <a href="registrierung.php">registriert</a> oder <a href="login.php">eingeloggt</a> sein.
+                        <?php } ?>
+                    </div>
                 </div>
             </div>
-        </div>
+        <?php } ?>
         <div class="accordion-item">
             <h2 class="accordion-header" id="headingThree">
                 <button class="accordion-button collapsed" type="button" data-bs-toggle="collapse" data-bs-target="#collapseThree" aria-expanded="false" aria-controls="collapseThree">

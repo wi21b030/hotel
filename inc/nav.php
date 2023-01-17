@@ -5,8 +5,8 @@ if ($_SERVER["REQUEST_METHOD"] === "POST" && isset($_POST["logout"])) {
     session_destroy();
     header("Location: login.php");
 }
-?>
-<?php include "bootstrap.php"; ?>
+
+include "bootstrap.php"; ?>
 <nav class="navbar navbar-expand-lg bg-dark">
     <div class="container-fluid">
         <a class="navbar-brand" href="index.php" style="color:white;">The Royal Espire Hotel</a>
