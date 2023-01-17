@@ -396,6 +396,10 @@ if (
                         <div class="row">
                             <div class="col-sm-6 offset-sm-3 text-center">
                                 <div class="mb-3">
+                                    <label for="bookingtime" class="form-label">Reservierungs-Datum</label>
+                                    <input type="text" value="<?php echo date("d.m.y - h:m", $row["time"]) ?>" class="form-control " name="bookingtime" id="bookingtime" disabled>
+                                </div>
+                                <div class="mb-3">
                                     <label for="checkin" class="form-label">Check-In</label>
                                     <input type="date" value="<?php echo $row["checkin"] ?>" class="form-control " name="checkin" id="checkin" disabled>
                                 </div>

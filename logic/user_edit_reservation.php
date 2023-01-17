@@ -16,7 +16,7 @@ if (
     }
     $id = $_POST["id"];
     //prepared statement to update status to "storniert"
-    $sql = "UPDATE `reservation` SET `status`='Storniert' WHERE `id` = ?";
+    $sql = "UPDATE `reservation` SET `status`='Storniert' WHERE `id`=?";
     $stmt = $db_obj->prepare($sql);
     $stmt->bind_param("i", $id);
     if ($stmt->execute()) {
@@ -72,8 +72,7 @@ if (
                     $sql = "SELECT * FROM `reservation` WHERE `user_id`=?";
                     $stmt = $db_obj->prepare($sql);
                     $stmt->bind_param("i", $user_id);
-                    $result = $db_obj->query($sql);
-                    if ($result) {
+                    if ($stmt->execute()) {
                         $result = $stmt->get_result();
                         if ($result->num_rows > 0) { ?>
                             <form method="POST">
@@ -123,12 +122,16 @@ if (
                 $sql = "SELECT * FROM `reservation` INNER JOIN `rooms`ON reservation.room=rooms.room_number WHERE reservation.id=?";
                 $stmt = $db_obj->prepare($sql);
                 $stmt->bind_param("i", $id);
-                $result = $db_obj->query($sql);
-                if ($result) {
+                if ($stmt->execute()) {
+                    $result = $stmt->get_result();
                     $row = $result->fetch_assoc(); ?>
                     <!-- form used to display all the reservation data -->
                     <form method="POST">
                         <div class="col-sm-6 offset-sm-3 text-center">
+                            <div class="mb-3">
+                                <label for="bookingtime" class="form-label">Reservierungs-Datum</label>
+                                <input type="text" value="<?php echo date("d.m.y - h:m", $row["time"]) ?>" class="form-control " name="bookingtime" id="bookingtime" disabled>
+                            </div>
                             <div class="mb-3">
                                 <label for="checkin" class="form-label">Check-In</label>
                                 <input type="date" value="<?php echo $row["checkin"] ?>" class="form-control " name="checkin" id="checkin" disabled>
