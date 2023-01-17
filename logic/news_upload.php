@@ -32,7 +32,6 @@ function thumbnailmade($pic, $path, $extension)
     $newimage = imagecreatetruecolor($nwidth, $nheight);
     /* depending on if picture is png or jpg/jpeg we use different methods here
     used function imagecopyresampled instead of imagecopyresized because the first one delivers better quality
-    depending on if picture is png or jpg/jpeg we use different methods here
     if thumbnail is made in given path then return true */
     if ($extension == "png") {
         $source = imagecreatefrompng($pic);
