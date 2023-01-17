@@ -137,9 +137,7 @@ if (
                 </form>
             </div>
         </div>
-    <?php } else if (str_contains($_SERVER['REQUEST_URI'], '/login_logic.php')) {
-        header("Location: ../index.php");
-    }  ?>
+    <?php } ?>
 </body>
 
 </html>
