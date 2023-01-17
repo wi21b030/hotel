@@ -127,73 +127,83 @@ if (
                 $stmt->bind_param("i", $id);
                 if ($stmt->execute()) {
                     $result = $stmt->get_result();
-                    $row = $result->fetch_assoc(); ?>
-                    <!-- form used to display all the reservation data -->
-                    <form method="POST">
-                        <div class="col-sm-6 offset-sm-3 text-center">
-                            <div class="mb-3">
-                                <label for="bookingtime" class="form-label">Reservierungs-Datum</label>
-                                <input type="text" value="<?php echo date("d.m.y - h:m", $row["time"]) ?>" class="form-control " name="bookingtime" id="bookingtime" disabled>
-                            </div>
-                            <div class="mb-3">
-                                <label for="checkin" class="form-label">Check-In</label>
-                                <input type="date" value="<?php echo $row["checkin"] ?>" class="form-control " name="checkin" id="checkin" disabled>
-                            </div>
-
-                            <div class="mb-3">
-                                <label for="checkout" class="form-label">Check-Out</label>
-                                <input type="date" value="<?php echo $row["checkout"] ?>" class="form-control " name="checkout" id="checkout" disabled>
-                            </div>
-
-                            <div class="mb-3">
-                                <label for="roomtype" class="form-label">Zimmer-Art</label>
-                                <input type="text" value="<?php echo $row["type"] ?>-Zimmer" class="form-control " name="type" id="type" aria-label="Zimmer-Art" disabled>
-                            </div>
-                            <div class="mb-3">
-                                <label for="roomnumber" class="form-label">Zimmer-Nummer</label>
-                                <input type="text" value="<?php echo $row["room_number"] ?>" class="form-control " name="roomnumber" id="roomnumber" disabled>
-                            </div>
-                            <div class="mb-3">
-                                <label for="breakfast" class="form-label">Frühstück</label>
-                                <input type="text" value="<?php echo $row["breakfast"] ?>" class="form-control " name="breakfast" id="breakfast" disabled>
-                            </div>
-                            <div class="mb-3">
-                                <label for="parkin" class="form-label">Parkplatz</label>
-                                <input type="text" value="<?php echo $row["parking"] ?>" class="form-control " name="parking" id="parking" aria-label="parking" disabled>
-                            </div>
-
-                            <div class="mb-3">
-                                <label for="pet" class="form-label">Haustier</label>
-                                <input type="text" value="<?php echo $row["pet"] ?>" class="form-control " name="pet" id="pet" disabled>
-                            </div>
-                            <div class="mb-3">
-                                <label for="nights" class="form-label">Nächte</label>
-                                <input type="text" value="<?php echo $row["nights"] ?>" class="form-control " name="nights" id="nights" disabled>
-                            </div>
-                            <div class="mb-3">
-                                <label for="price" class="form-label">Preis p.N.</label>
-                                <input type="text" value="<?php echo $row["total"] / $row["nights"] ?>€" class="form-control " name="price" id="price" disabled>
-                            </div>
-                            <div class="mb-3">
-                                <label for="total" class="form-label">Preis insg.</label>
-                                <input type="text" value="<?php echo $row["total"] ?>€" class="form-control " name="total" id="total" disabled>
-                            </div>
-                            <div class="mb-3">
-                                <label for="status" class="form-label">Status</label>
-                                <select class="form-select" name="status" aria-label="Default select example" disabled>
-                                    <option value="Neu" <?php if ($row['status'] == "Neu") { ?> selected <?php } ?>>Neu</option>
-                                    <option value="Bestätigt" <?php if ($row['status'] == "Bestätigt") { ?> selected <?php } ?>>Bestätigt</option>
-                                    <option value="Storniert" <?php if ($row['status'] == "Storniert") { ?> selected <?php } ?>>Storniert</option>
-                                </select>
-                            </div>
-                            <?php if ($row['status'] != "Storniert") { ?>
-                                <div class="mb-6">
-                                    <input type="hidden" name="id" value="<?php echo $row["id"] ?>">
-                                    <button type="submit" name="storno" class="btn btn-danger mt-3">Stornieren</button>
+                    if ($result->num_rows == 1) {
+                        $row = $result->fetch_assoc(); ?>
+                        <!-- form used to display all the reservation data -->
+                        <form method="POST">
+                            <div class="col-sm-6 offset-sm-3 text-center">
+                                <div class="mb-3">
+                                    <label for="bookingtime" class="form-label">Reservierungs-Datum</label>
+                                    <input type="text" value="<?php echo date("d.m.y - h:m", $row["time"]) ?>" class="form-control " name="bookingtime" id="bookingtime" disabled>
                                 </div>
-                            <?php } ?>
+                                <div class="mb-3">
+                                    <label for="checkin" class="form-label">Check-In</label>
+                                    <input type="date" value="<?php echo $row["checkin"] ?>" class="form-control " name="checkin" id="checkin" disabled>
+                                </div>
+
+                                <div class="mb-3">
+                                    <label for="checkout" class="form-label">Check-Out</label>
+                                    <input type="date" value="<?php echo $row["checkout"] ?>" class="form-control " name="checkout" id="checkout" disabled>
+                                </div>
+
+                                <div class="mb-3">
+                                    <label for="roomtype" class="form-label">Zimmer-Art</label>
+                                    <input type="text" value="<?php echo $row["type"] ?>-Zimmer" class="form-control " name="type" id="type" aria-label="Zimmer-Art" disabled>
+                                </div>
+                                <div class="mb-3">
+                                    <label for="roomnumber" class="form-label">Zimmer-Nummer</label>
+                                    <input type="text" value="<?php echo $row["room_number"] ?>" class="form-control " name="roomnumber" id="roomnumber" disabled>
+                                </div>
+                                <div class="mb-3">
+                                    <label for="breakfast" class="form-label">Frühstück</label>
+                                    <input type="text" value="<?php echo $row["breakfast"] ?>" class="form-control " name="breakfast" id="breakfast" disabled>
+                                </div>
+                                <div class="mb-3">
+                                    <label for="parkin" class="form-label">Parkplatz</label>
+                                    <input type="text" value="<?php echo $row["parking"] ?>" class="form-control " name="parking" id="parking" aria-label="parking" disabled>
+                                </div>
+
+                                <div class="mb-3">
+                                    <label for="pet" class="form-label">Haustier</label>
+                                    <input type="text" value="<?php echo $row["pet"] ?>" class="form-control " name="pet" id="pet" disabled>
+                                </div>
+                                <div class="mb-3">
+                                    <label for="nights" class="form-label">Nächte</label>
+                                    <input type="text" value="<?php echo $row["nights"] ?>" class="form-control " name="nights" id="nights" disabled>
+                                </div>
+                                <div class="mb-3">
+                                    <label for="price" class="form-label">Preis p.N.</label>
+                                    <input type="text" value="<?php echo $row["total"] / $row["nights"] ?>€" class="form-control " name="price" id="price" disabled>
+                                </div>
+                                <div class="mb-3">
+                                    <label for="total" class="form-label">Preis insg.</label>
+                                    <input type="text" value="<?php echo $row["total"] ?>€" class="form-control " name="total" id="total" disabled>
+                                </div>
+                                <div class="mb-3">
+                                    <label for="status" class="form-label">Status</label>
+                                    <select class="form-select" name="status" aria-label="Default select example" disabled>
+                                        <option value="Neu" <?php if ($row['status'] == "Neu") { ?> selected <?php } ?>>Neu</option>
+                                        <option value="Bestätigt" <?php if ($row['status'] == "Bestätigt") { ?> selected <?php } ?>>Bestätigt</option>
+                                        <option value="Storniert" <?php if ($row['status'] == "Storniert") { ?> selected <?php } ?>>Storniert</option>
+                                    </select>
+                                </div>
+                                <?php if ($row['status'] != "Storniert") { ?>
+                                    <div class="mb-6">
+                                        <input type="hidden" name="id" value="<?php echo $row["id"] ?>">
+                                        <button type="submit" name="storno" class="btn btn-danger mt-3">Stornieren</button>
+                                    </div>
+                                <?php } ?>
+                            </div>
+                        </form>
+                    <?php  } else { ?>
+                        <div class="col-sm-6 offset-sm-3 text-center">
+                            <div class="alert alert-danger text-center" role="alert">
+                                Fehler bei der Abfrage!
+                            </div>
                         </div>
-                    </form>
+                    <?php
+                        header("Refresh: 2, url=meine_reservierungen.php");
+                    } ?>
                 <?php } else { ?>
                     <div class="col-sm-6 offset-sm-3 text-center">
                         <div class="alert alert-danger text-center" role="alert">
@@ -201,7 +211,7 @@ if (
                         </div>
                     </div>
                 <?php
-                    header("Refresh: 2, url=reservierung.php");
+                    header("Refresh: 2, url=meine_reservierungen.php");
                 }
                 $stmt->close();
                 $db_obj->close(); ?>
