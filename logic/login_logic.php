@@ -77,9 +77,13 @@ if (
 </head>
 
 <body>
-    <?php if ($logged) {
+    <?php if ($logged && isset($_SESSION["admin"])) {
         $logged = false;
-        header("Refresh: 1, url=mein_profil.php");
+        if ($_SESSION["admin"]) {
+            header("Refresh: 1, url=admin_dashboard.php");
+        } elseif (!$_SESSION["admin"]) {
+            header("Refresh: 1, url=mein_profil.php");
+        }
     ?>
         <div class="container-fluid">
             <div class="row">
