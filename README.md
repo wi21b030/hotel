@@ -4,7 +4,7 @@ Hinweise:
   die php-Extension "gd" installiert sein. Hier finden Sie einen Link zur Installationsanleitung: 
   https://www.geeksforgeeks.org/how-to-install-php-gd-in-windows/
 
-- Database-Access:
+- Database-Access (Kopie der Datenbank befindet sich im config-Ordner):
   $host = "localhost";
   $user = "royal";
   $password = "royalespire";
