@@ -152,6 +152,9 @@ if (
 </head>
 
 <body>
+    <?php if (str_contains($_SERVER['REQUEST_URI'], '/register.php')) {
+        header("Location: ../index.php");
+    } ?>
     <div class="container-fluid">
         <div class="row">
             <div class="col-sm-6 offset-sm-3 text-center">
@@ -211,7 +214,7 @@ if (
                         </div>
                         <div class="mb-3">
                             <label for="password2" class="form-label">Passwort erneut eingeben</label>
-                            <input type="password2" class="form-control <?php if ($errors['password2']) echo 'is-invalid'; ?>" name="password2" id="password2" minlength="8" required>
+                            <input type="password" class="form-control <?php if ($errors['password2']) echo 'is-invalid'; ?>" name="password2" id="password2" minlength="8" required>
                         </div>
                         <div class="mb-3">
                             <label for="formFile" class="form-label">Profilbild</label>

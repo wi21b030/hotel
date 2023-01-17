@@ -77,6 +77,9 @@ if (
 </head>
 
 <body>
+    <?php if (str_contains($_SERVER['REQUEST_URI'], '/login_logic.php')) {
+        header("Location: ../index.php");
+    } ?>
     <?php if ($logged && isset($_SESSION["admin"])) {
         $logged = false;
         if ($_SESSION["admin"]) {
@@ -95,7 +98,8 @@ if (
             </div>
         </div>
     <?php } ?>
-    <?php if (!isset($_SESSION["username"])) { ?>
+    <?php
+    if (!isset($_SESSION["username"])) { ?>
         <div class="container-fluid">
             <div class="row">
                 <div class="col-sm-6 offset-sm-3 text-center">
@@ -133,7 +137,9 @@ if (
                 </form>
             </div>
         </div>
-    <?php } ?>
+    <?php } else if (str_contains($_SERVER['REQUEST_URI'], '/login_logic.php')) {
+        header("Location: ../index.php");
+    }  ?>
 </body>
 
 </html>

@@ -10,7 +10,12 @@
 
 <body>
     <?php include "inc/nav.php"; ?>
-    <?php include "inc/admin_tools.php"; ?>
+    <?php if (isset($_SESSION["admin"]) && $_SESSION["admin"]) {
+        include "inc/admin_tools.php";
+    } else {
+        header("Location: index.php");
+    }
+    ?>
 </body>
 
 </html>

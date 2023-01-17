@@ -8,7 +8,12 @@
 
 <body>
     <?php include "inc/nav.php"; ?>
-    <?php include "logic/reservation.php"; ?>
+    <?php if (isset($_SESSION["admin"]) && !$_SESSION["admin"]) {
+        include "logic/reservation.php";
+    } else {
+        header("Location: index.php");
+    }
+    ?>
 </body>
 
 </html>

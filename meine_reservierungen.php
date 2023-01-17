@@ -10,7 +10,12 @@
 
 <body>
     <?php include "inc/nav.php"; ?>
-    <?php include "logic/user_edit_reservation.php"; ?>
+    <?php if (isset($_SESSION["admin"]) && !$_SESSION["admin"]) {
+        include "logic/user_edit_reservation.php";
+    } else {
+        header("Location: index.php");
+    }
+    ?>
 </body>
 
 </html>

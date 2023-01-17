@@ -8,7 +8,12 @@
 
 <body>
     <?php include "inc/nav.php"; ?>
-    <?php include "logic/login_logic.php"; ?>
+    <?php if (!isset($_SESSION["username"])) {
+        include "logic/login_logic.php";
+    } else {
+        header("Location: index.php");
+    }
+    ?>
 </body>
 
 </html>

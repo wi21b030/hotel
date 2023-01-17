@@ -9,6 +9,9 @@
 </head>
 
 <body>
+    <?php if (str_contains($_SERVER['REQUEST_URI'], '/admin_tools.php')) {
+        header("Location: ../index.php");
+    } ?>
     <div class="container-fluid text-center dashboard-margin">
         <div class="row">
             <div class="col-md-4 mb-3 d-flex justify-content-center">

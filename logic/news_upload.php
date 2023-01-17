@@ -150,6 +150,9 @@ if (
 </head>
 
 <body>
+    <?php if (str_contains($_SERVER['REQUEST_URI'], '/news_upload.php')) {
+        header("Location: ../index.php");
+    } ?>
     <div class="container-fluid">
         <div class="row">
             <!-- alerts for different edge cases or success -->

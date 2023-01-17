@@ -40,6 +40,9 @@ if (
 </head>
 
 <body>
+    <?php if (str_contains($_SERVER['REQUEST_URI'], '/user_edit_reservation.php')) {
+        header("Location: ../index.php");
+    } ?>
     <div class="container-fluid">
         <div class="row">
             <!-- header display handling -->

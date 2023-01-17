@@ -165,6 +165,9 @@ if (
 </head>
 
 <body>
+    <?php if (str_contains($_SERVER['REQUEST_URI'], '/user_edit_user.php')) {
+        header("Location: ../index.php");
+    } ?>
     <div class="container-fluid">
         <div class="row">
             <div class="col-sm-6 offset-sm-3 text-center">

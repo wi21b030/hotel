@@ -10,8 +10,12 @@
 
 <body>
     <?php include "inc/nav.php"; ?>
-    <?php include "logic/user_edit_user.php"; ?>
-
+    <?php if (isset($_SESSION["username"])) {
+        include "logic/user_edit_user.php";
+    } else {
+        header("Location: index.php");
+    }
+    ?>
 </body>
 
 </html>

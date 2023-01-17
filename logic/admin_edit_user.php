@@ -127,6 +127,9 @@ if (
 </head>
 
 <body>
+    <?php if (str_contains($_SERVER['REQUEST_URI'], '/admin_edit_user.php')) {
+        header("Location: ../index.php");
+    } ?>
     <!-- multiple alerts for different errors or success notifications -->
     <div class="container-fluid">
         <div class="row">
