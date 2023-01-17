@@ -35,7 +35,7 @@
                     <?php if (isset($_SESSION["username"]) && !$_SESSION["admin"]) { ?>
                         <a href="reservieren.php">Hier</a> gelangen Sie zur Seite zum Reservieren!
                     <?php } else { ?>
-                        Wenn Sie reservieren wollen, müssen Sie <a href="registrierung.php">registriert</a> oder <a href="login.php">eingeloggt</a> sein.                        
+                        Wenn Sie reservieren wollen, müssen Sie <a href="registrierung.php">registriert</a> oder <a href="login.php">eingeloggt</a> sein.
                     <?php } ?>
                 </div>
             </div>

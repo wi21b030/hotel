@@ -30,7 +30,7 @@
                 </p>
             </div>
         </div>
-    <div class="clearfix hidden-xs"></div>
+        <div class="clearfix hidden-xs"></div>
 </body>
 
 </html>
