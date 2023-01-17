@@ -107,9 +107,11 @@ if (
                 } else {
                     //if it is not used, the user data are put as Session data as well    
                     if ($stmt->execute() && move_uploaded_file($profilepic, $path)) {
-                        $sql = "SELECT * FROM `users` WHERE `username` = '$uname'";
-                        $result = $db_obj->query($sql);
-                        if ($result) {
+                        $sql = "SELECT * FROM `users` WHERE `username`=?";
+                        $new_user = $db_obj->prepare($sql);
+                        $new_user->bind_param("s", $uname);
+                        if ($new_user->execute()) {
+                            $result = $new_user->get_result();
                             $row = $result->fetch_assoc();
                             $_SESSION["id"] = $row["id"];
                             $_SESSION["admin"] = $row["admin"];
