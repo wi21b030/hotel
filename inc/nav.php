@@ -35,8 +35,6 @@ if ($_SERVER["REQUEST_METHOD"] === "POST" && isset($_POST["logout"])) {
                     <li class="nav-item">
                         <a class="nav-link" href="reservierung.php" style="color:white;">Reservierung</a>
                     </li>
-                <?php } ?>
-                <?php if (isset($_SESSION["username"]) && !$_SESSION["admin"]) { ?>
                     <li class="nav-item">
                         <a class="nav-link" href="meine_reservierungen.php" style="color:white;">Meine Reservierungen</a>
                     </li>
@@ -46,11 +44,9 @@ if ($_SERVER["REQUEST_METHOD"] === "POST" && isset($_POST["logout"])) {
                         <a class="nav-link" href="registrierung.php" style="color:white;">Registrierung</a>
                     </li>
                 <?php } ?>
-                <?php if (!isset($_SESSION["admin"]) || (isset($_SESSION["admin"]) && !$_SESSION["admin"])) { ?>
-                    <li class="nav-item">
-                        <a class="nav-link" href="blog.php" style="color:white;">Blog</a>
-                    </li>
-                <?php } ?>
+                <li class="nav-item">
+                    <a class="nav-link" href="blog.php" style="color:white;">Blog</a>
+                </li>
                 <li class="nav-item">
                     <a class="nav-link" href="hilfe.php" style="color:white;">Hilfe</a>
                 </li>
