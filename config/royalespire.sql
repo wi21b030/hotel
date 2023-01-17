@@ -3,7 +3,7 @@
 -- https://www.phpmyadmin.net/
 --
 -- Host: 127.0.0.1
--- Erstellungszeit: 15. Jan 2023 um 21:47
+-- Erstellungszeit: 17. Jan 2023 um 14:32
 -- Server-Version: 10.4.27-MariaDB
 -- PHP-Version: 8.1.12
 
@@ -130,7 +130,7 @@ CREATE TABLE `users` (
 
 INSERT INTO `users` (`id`, `admin`, `active`, `username`, `password`, `useremail`, `formofadress`, `firstname`, `secondname`, `path`) VALUES
 (23, 1, 1, 'admin', '$2y$10$Pgf7Rd4eqE1l3A8sdQAE2.USLzQFsj36/4GuBakz6dALR1WYxKPvO', 'wi21b030@technikum-wien.at', '1', 'Safwan', 'Zullash', 'uploads/profilepics/admin.jpg'),
-(34, 0, 1, 'hadi', '$2y$10$GDEPE51C/4LzEbAoZVH8QuOSWWfSJIHPaIPgV4/PpTgzzER7ixQ0i', 'hadi@gmail.com', '1', 'Hadi', 'Heydari', 'uploads/profilepics/hadi.jpg'),
+(34, 0, 1, 'hadi', '$2y$10$cu9tYjK4z/X.W60s/4UedeTMIGpu8T8NNZsqXxjdie1c2CV2MuiIu', 'hadi@gmail.com', '1', 'Hadi', 'Heydari', 'uploads/profilepics/hadi.jpg'),
 (37, 0, 1, 'kevin', '$2y$10$QxoriboPg0kq8V9FbMWTUOAtt9E70UrRJpk1UBsU.MXnuTdiCVN4.', 'kevin@xhunga.at', '2', 'Kevin', 'Xhunga', 'uploads/profilepics/kevin.jpg');
 
 --
@@ -171,7 +171,7 @@ ALTER TABLE `users`
 -- AUTO_INCREMENT für Tabelle `news`
 --
 ALTER TABLE `news`
-  MODIFY `id` int(11) NOT NULL AUTO_INCREMENT, AUTO_INCREMENT=62;
+  MODIFY `id` int(11) NOT NULL AUTO_INCREMENT, AUTO_INCREMENT=64;
 
 --
 -- AUTO_INCREMENT für Tabelle `reservation`
