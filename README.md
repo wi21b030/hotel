@@ -26,4 +26,7 @@ Hinweise:
   Siehe: https://stackoverflow.com/questions/2089559/picture-is-not-refreshing-in-my-browser
   Daher wird bei jeder Bildausgabe (es sei denn es ist ein statisches Bild) die Zeit mithilfe von time() am sourcepath angehängt
 
+- Um die Accessibility zu checken haben wir folgende Chrome-Extension verwendet:
+  Siehe: https://chrome.google.com/webstore/detail/lera/neninfnjnhknniefcpognoooalfdaofc
+  Bei jeder Seite, die wir programmiert haben, wurde uns durch die Extension bestätigt, dass diese die Accessibility erfüllen!
   
