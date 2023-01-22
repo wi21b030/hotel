@@ -260,7 +260,7 @@ if (
                         <div class="mb-3">
                             <label for="price" class="form-label">Preis p.N.</label>
                             <input type="text" value="<?php echo $price ?>€" class="form-control " id="price" disabled>
-                            <input type="hidden" value="<?php echo $rpice ?>" name="price">
+                            <input type="hidden" value="<?php echo $price ?>" name="price">
                         </div>
                         <div class="mb-3">
                             <label for="total" class="form-label">Preis insg.</label>
