@@ -34,7 +34,7 @@
                 <div id="collapseTwo" class="accordion-collapse collapse" aria-labelledby="headingTwo" data-bs-parent="#accordionExample">
                     <div class="accordion-body">
                         <?php if (isset($_SESSION["username"]) && !$_SESSION["admin"]) { ?>
-                            <a href="reservieren.php">Hier</a> gelangen Sie zur Seite zum Reservieren!
+                            <a href="reservierung.php">Hier</a> gelangen Sie zur Seite zum Reservieren!
                         <?php } else { ?>
                             Wenn Sie reservieren wollen, müssen Sie <a href="registrierung.php">registriert</a> oder <a href="login.php">eingeloggt</a> sein.
                         <?php } ?>
