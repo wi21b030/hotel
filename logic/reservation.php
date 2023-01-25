@@ -20,7 +20,7 @@ if (
     }
     $checkin = $_POST["checkin"];
     $checkout = $_POST["checkout"];
-    if ($checkin >= $checkout || date("dd.mm.yyyy", strtotime($checkin)) < date("dd.mm.yyyy", time()) || date("dd.mm.yyyy", strtotime($checkout)) <= date("dd.mm.yyyy", time())) {
+    if ($checkin >= $checkout || $checkin < time()) {
         $errors["checkin"] = true;
         $errors["checkout"] = true;
     }
